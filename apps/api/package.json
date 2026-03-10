@@ -8,10 +8,10 @@
     "test": ""
   },
   "engines": {
-    "node": "22.x"
+    "node": "24.x"
   },
   "keywords": [],
-  "author": "",
+  "author": "Matheus Queiroz",
   "license": "ISC",
   "devDependencies": {
     "@eslint/js": "^9.39.1",
