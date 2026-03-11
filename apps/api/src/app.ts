@@ -1,5 +1,3 @@
-import "dotenv/config";
-
 import fastifySwagger from "@fastify/swagger";
 import fastifySwaggerUi from "@fastify/swagger-ui";
 import fastify from "fastify";
@@ -56,9 +54,4 @@ app.withTypeProvider<ZodTypeProvider>().route({
   },
 });
 
-try {
-  await app.listen({ port: Number(process.env.PORT) || 3001 });
-} catch (err) {
-  app.log.error(err);
-  process.exit(1);
-}
+export default app;

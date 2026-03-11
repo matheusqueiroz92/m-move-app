@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: m-move-api-postgres
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: m-move-api
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

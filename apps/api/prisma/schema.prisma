@@ -1,0 +1,99 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+enum UserRole {
+  OWNER
+  PERSONAL_TRAINER
+  INSTRUCTOR
+  STUDENT
+  LINKED_STUDENT
+}
+
+enum PlanType {
+  STUDENT
+  PERSONAL_TRAINER
+  GYM
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  TRIALING
+  PAST_DUE
+  CANCELED
+}
+
+enum WeekDay {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id String @id @default(uuid())
+  name String
+  email String @unique
+  password String
+  workoutPlans WorkoutPlan[]
+  role UserRole @default(STUDENT)
+  planType PlanType @default(STUDENT)
+  stripeCustomerId String
+  stripeSubscriptionId String
+  subscriptionStatus SubscriptionStatus @default(ACTIVE)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model WorkoutPlan {
+  id String @id @default(uuid())
+  name String
+  userId String
+  user User @relation(fields: [userId], references: [id])
+  workoutDays WorkoutDay[]
+  createdBy String
+  isActive Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model WorkoutDay {
+  id String @id @default(uuid())
+  name String
+  workoutPlanId String
+  workoutPlan WorkoutPlan @relation(fields: [workoutPlanId], references: [id])
+  isRest Boolean @default(false)
+  weekDay WeekDay
+  exercises WorkoutExercise[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model WorkoutExercise {
+  id String @id @default(uuid())
+  name String
+  order Int
+  workoutDayId String
+  workoutDay WorkoutDay @relation(fields: [workoutDayId], references: [id])
+  description String
+  sets Int
+  reps Int
+  weight Int
+  restTimeInSeconds Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+
