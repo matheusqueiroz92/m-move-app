@@ -1,159 +1,116 @@
-# Turborepo starter
+# M. Move App
 
-This Turborepo starter is maintained by the Turborepo core team.
+Plataforma **SaaS** de gestão de treinos, voltada a **alunos autônomos**, **personal trainers** e **donos de academias**. Inclui geração de planos de treino com IA, análise de progresso e suporte conversacional.
 
-## Using this example
+## Visão geral
 
-Run the following command:
+- **Monorepo** com [Turborepo](https://turborepo.dev/)
+- **Clean Architecture** e **DDD**
+- **Multi-tenancy** por plano (Student, Personal Trainer, Gym)
+- **RBAC** com papéis: `OWNER`, `PERSONAL_TRAINER`, `STUDENT`, `LINKED_STUDENT`
+- **API stateless** (Fastify)
+- **TDD** como metodologia de desenvolvimento
 
-```sh
-npx create-turbo@latest
+## Estrutura do repositório
+
+```
+m-move-app/
+├── apps/
+│   ├── api/          # Backend Fastify (Node.js + TypeScript)
+│   ├── web/          # Frontend Next.js (React 19)
+│   └── mobile/       # App Mobile Expo (planejado)
+├── packages/
+│   ├── types/        # Tipagens e DTOs compartilhados
+│   ├── validators/   # Schemas Zod compartilhados
+│   ├── utils/        # Utilitários (dayjs, formatters, streak, etc.)
+│   ├── constants/    # Enums e constantes
+│   ├── ui/           # Componentes UI compartilhados
+│   ├── eslint-config/
+│   └── typescript-config/
+├── turbo.json
+├── package.json
+└── pnpm-workspace.yaml
 ```
 
-## What's inside?
+## Stack tecnológica
 
-This Turborepo includes the following packages/apps:
+| Camada       | Tecnologias                                                                                        |
+| ------------ | -------------------------------------------------------------------------------------------------- |
+| **Backend**  | Node.js, TypeScript, Fastify, Prisma, PostgreSQL, Better Auth, Stripe, OpenAI, Zod, Vitest         |
+| **Frontend** | React 19, Next.js 16, TypeScript, Tailwind CSS, ShadCN UI, TanStack Query, Zustand, GSAP, Recharts |
+| **Mobile**   | React Native, Expo, TypeScript (planejado)                                                         |
 
-### Apps and Packages
+## Pré-requisitos
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+- **Node.js** >= 22
+- **pnpm** 9.x
+- **PostgreSQL** (para a API)
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+## Instalação
 
-### Utilities
+```bash
+# Clonar e entrar no projeto
+cd m-move-app
 
-This Turborepo has some additional tools already setup for you:
+# Instalar dependências
+pnpm install
+```
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+## Scripts principais (raiz)
+
+| Comando            | Descrição                                              |
+| ------------------ | ------------------------------------------------------ |
+| `pnpm dev`         | Sobe em modo desenvolvimento todos os apps (api + web) |
+| `pnpm build`       | Build de todos os apps e packages                      |
+| `pnpm lint`        | Executa lint em todo o monorepo                        |
+| `pnpm format`      | Formata código com Prettier                            |
+| `pnpm check-types` | Verificação de tipos TypeScript                        |
+
+## Desenvolvimento
+
+### Rodar tudo
+
+```bash
+pnpm dev
+```
+
+- **API**: consulte o README em `apps/api/` para URL e variáveis de ambiente.
+- **Web**: geralmente em `http://localhost:3000`.
+
+### Rodar apenas um app
+
+```bash
+# Apenas a API
+pnpm --filter api dev
+
+# Apenas o frontend
+pnpm --filter web dev
+```
 
 ### Build
 
-To build all apps and packages, run the following command:
+```bash
+# Build completo
+pnpm build
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo build
+# Build de um app específico
+pnpm --filter api build
+pnpm --filter web build
 ```
 
-Without global `turbo`, use your package manager:
+## Documentação por app
 
-```sh
-cd my-turborepo
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
-```
+- **[API (Backend)](./apps/api/README.md)** — Fastify, rotas, autenticação, banco de dados, testes.
+- **[Web (Frontend)](./apps/web/README.md)** — Next.js, estrutura de pastas, design system, rotas e componentes.
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+## Princípios do projeto
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+- **TDD**: testes antes da implementação; ciclo Red → Green → Refactor.
+- **SOLID e Clean Code**: responsabilidades bem definidas, código legível e testável.
+- **DRY**: lógica compartilhada em packages (`@m-move-app/types`, `validators`, `utils`).
+- **TypeScript estrito**: evitar `any`; preferir tipagens compartilhadas.
+- **SaaS e multi-tenancy**: isolamento por tenant e respeito aos limites de plano.
 
-```sh
-turbo build --filter=docs
-```
+## Licença
 
-Without global `turbo`:
-
-```sh
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
-
-### Develop
-
-To develop all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo dev
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo dev --filter=web
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+ISC.
