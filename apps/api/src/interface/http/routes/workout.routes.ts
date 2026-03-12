@@ -10,7 +10,6 @@ import { getWorkoutPlanByIdHandler } from "../controllers/workout/get-workout-pl
 import { listWorkoutDaysHandler } from "../controllers/workout/list-workout-days.controller.js";
 import { listWorkoutPlansHandler } from "../controllers/workout/list-workout-plans.controller.js";
 import { updateWorkoutDayHandler } from "../controllers/workout/update-workout-day.controller.js";
-import { authenticate } from "../middlewares/authenticate.js";
 import {
   createWorkoutDayBodySchema,
   createWorkoutPlanBodySchema,
@@ -19,7 +18,8 @@ import {
   workoutDayResponseSchema,
   workoutPlanListResponseSchema,
   workoutPlanResponseSchema,
-} from "../schemas/workout.schema.js";
+} from "@m-move-app/validators";
+import { authenticate } from "../middlewares/authenticate.js";
 
 export async function workoutRoutes(app: FastifyInstance): Promise<void> {
   const typed = app.withTypeProvider<ZodTypeProvider>();

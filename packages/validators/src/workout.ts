@@ -1,10 +1,13 @@
 import { z } from "zod";
 
+import { WEEK_DAYS } from "@m-move-app/constants";
+
+const weekDaySchema = z.enum(WEEK_DAYS);
+
 export const createWorkoutPlanBodySchema = z.object({
   name: z.string().min(1, "Name is required"),
   description: z.string().optional().nullable(),
 });
-
 export type CreateWorkoutPlanBody = z.infer<typeof createWorkoutPlanBodySchema>;
 
 export const workoutPlanResponseSchema = z.object({
@@ -17,20 +20,9 @@ export const workoutPlanResponseSchema = z.object({
   createdAt: z.string(),
   updatedAt: z.string(),
 });
-
 export type WorkoutPlanResponse = z.infer<typeof workoutPlanResponseSchema>;
 
 export const workoutPlanListResponseSchema = z.array(workoutPlanResponseSchema);
-
-const weekDaySchema = z.enum([
-  "MONDAY",
-  "TUESDAY",
-  "WEDNESDAY",
-  "THURSDAY",
-  "FRIDAY",
-  "SATURDAY",
-  "SUNDAY",
-]);
 
 export const createWorkoutDayBodySchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -39,7 +31,6 @@ export const createWorkoutDayBodySchema = z.object({
   estimatedDurationInSeconds: z.number().int().min(0).optional().nullable(),
   coverImageUrl: z.string().optional().nullable(),
 });
-
 export type CreateWorkoutDayBody = z.infer<typeof createWorkoutDayBodySchema>;
 
 export const workoutDayResponseSchema = z.object({
@@ -53,7 +44,6 @@ export const workoutDayResponseSchema = z.object({
   createdAt: z.string(),
   updatedAt: z.string(),
 });
-
 export type WorkoutDayResponse = z.infer<typeof workoutDayResponseSchema>;
 
 export const workoutDayListResponseSchema = z.array(workoutDayResponseSchema);
@@ -65,5 +55,59 @@ export const updateWorkoutDayBodySchema = z.object({
   estimatedDurationInSeconds: z.number().int().min(0).optional().nullable(),
   coverImageUrl: z.string().optional().nullable(),
 });
-
 export type UpdateWorkoutDayBody = z.infer<typeof updateWorkoutDayBodySchema>;
+
+export const createWorkoutExerciseBodySchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  order: z.number().int().min(0),
+  description: z.string().optional().nullable(),
+  sets: z.number().int().min(1),
+  reps: z.number().int().min(1),
+  weightKg: z.number().min(0).optional().nullable(),
+  restTimeInSeconds: z.number().int().min(0),
+  notes: z.string().optional().nullable(),
+});
+export type CreateWorkoutExerciseBody = z.infer<
+  typeof createWorkoutExerciseBodySchema
+>;
+
+export const updateWorkoutExerciseBodySchema = z.object({
+  name: z.string().min(1).optional(),
+  order: z.number().int().min(0).optional(),
+  description: z.string().optional().nullable(),
+  sets: z.number().int().min(1).optional(),
+  reps: z.number().int().min(1).optional(),
+  weightKg: z.number().min(0).optional().nullable(),
+  restTimeInSeconds: z.number().int().min(0).optional(),
+  notes: z.string().optional().nullable(),
+});
+export type UpdateWorkoutExerciseBody = z.infer<
+  typeof updateWorkoutExerciseBodySchema
+>;
+
+export const reorderExercisesBodySchema = z.object({
+  exerciseIdsInOrder: z.array(z.string().min(1)).min(1),
+});
+export type ReorderExercisesBody = z.infer<typeof reorderExercisesBodySchema>;
+
+export const workoutExerciseResponseSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  order: z.number(),
+  workoutDayId: z.string(),
+  description: z.string().nullable(),
+  sets: z.number(),
+  reps: z.number(),
+  weightKg: z.number().nullable(),
+  restTimeInSeconds: z.number(),
+  notes: z.string().nullable(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+export type WorkoutExerciseResponse = z.infer<
+  typeof workoutExerciseResponseSchema
+>;
+
+export const workoutExerciseListResponseSchema = z.array(
+  workoutExerciseResponseSchema,
+);

@@ -35,6 +35,10 @@
     "vitest": "^4.0.18"
   },
   "dependencies": {
+    "@m-move-app/constants": "workspace:*",
+    "@m-move-app/types": "workspace:*",
+    "@m-move-app/utils": "workspace:*",
+    "@m-move-app/validators": "workspace:*",
     "@fastify/cors": "^11.2.0",
     "@fastify/swagger": "9.7.0",
     "@fastify/swagger-ui": "5.2.0",

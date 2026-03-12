@@ -22,6 +22,13 @@ export class PrismaWorkoutDayRepository implements WorkoutDayRepository {
     return toWorkoutDayResult(day);
   }
 
+  async findById(dayId: string): Promise<WorkoutDayResult | null> {
+    const day = await prisma.workoutDay.findUnique({
+      where: { id: dayId },
+    });
+    return day ? toWorkoutDayResult(day) : null;
+  }
+
   async findByPlanId(workoutPlanId: string): Promise<WorkoutDayResult[]> {
     const days = await prisma.workoutDay.findMany({
       where: { workoutPlanId },

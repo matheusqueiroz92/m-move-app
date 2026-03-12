@@ -1,9 +1,9 @@
 import type { FastifyInstance } from "fastify";
 import { ZodTypeProvider } from "fastify-type-provider-zod";
 
+import { userProfileResponseSchema } from "@m-move-app/validators";
 import { getProfileHandler } from "../controllers/user/get-profile.controller.js";
 import { authenticate } from "../middlewares/authenticate.js";
-import { userProfileResponseSchema } from "../schemas/user.schema.js";
 
 export async function userRoutes(app: FastifyInstance): Promise<void> {
   const typed = app.withTypeProvider<ZodTypeProvider>();

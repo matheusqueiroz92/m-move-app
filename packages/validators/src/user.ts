@@ -6,5 +6,4 @@ export const userProfileResponseSchema = z.object({
   email: z.string().email(),
   role: z.string(),
 });
-
 export type UserProfileResponse = z.infer<typeof userProfileResponseSchema>;

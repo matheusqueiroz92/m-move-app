@@ -1,11 +1,6 @@
-export type WeekDay =
-  | "MONDAY"
-  | "TUESDAY"
-  | "WEDNESDAY"
-  | "THURSDAY"
-  | "FRIDAY"
-  | "SATURDAY"
-  | "SUNDAY";
+import type { WeekDay } from "@m-move-app/constants";
+
+export type { WeekDay };
 
 export interface CreateWorkoutDayInput {
   workoutPlanId: string;
@@ -38,6 +33,7 @@ export interface WorkoutDayResult {
 
 export interface WorkoutDayRepository {
   create(input: CreateWorkoutDayInput): Promise<WorkoutDayResult>;
+  findById(dayId: string): Promise<WorkoutDayResult | null>;
   findByPlanId(workoutPlanId: string): Promise<WorkoutDayResult[]>;
   findByIdAndPlanId(dayId: string, workoutPlanId: string): Promise<WorkoutDayResult | null>;
   update(dayId: string, workoutPlanId: string, input: UpdateWorkoutDayInput): Promise<WorkoutDayResult | null>;

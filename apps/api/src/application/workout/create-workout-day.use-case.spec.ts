@@ -27,6 +27,7 @@ describe("CreateWorkoutDayUseCase", () => {
     } as unknown as WorkoutPlanRepository;
     const dayRepository: WorkoutDayRepository = {
       create: vi.fn().mockResolvedValue(created),
+      findById: vi.fn(),
       findByPlanId: vi.fn(),
       findByIdAndPlanId: vi.fn(),
       update: vi.fn(),
@@ -59,6 +60,7 @@ describe("CreateWorkoutDayUseCase", () => {
     } as unknown as WorkoutPlanRepository;
     const dayRepository: WorkoutDayRepository = {
       create: vi.fn(),
+      findById: vi.fn(),
       findByPlanId: vi.fn(),
       findByIdAndPlanId: vi.fn(),
       update: vi.fn(),
