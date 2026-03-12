@@ -5,41 +5,37 @@ import type {
   WorkoutPlanRepository,
   WorkoutPlanResult,
 } from "../../domain/workout/repositories/workout-plant.repository.js";
-import { ActivateWorkoutPlanUseCase } from "./activate-workout-plan.use-case.js";
+import { GetWorkoutPlanByIdUseCase } from "./get-workout-plan-by-id.use-case.js";
 
-describe("ActivateWorkoutPlanUseCase", () => {
-  it("should deactivate other plans and activate the given plan", async () => {
-    const activated: WorkoutPlanResult = {
+describe("GetWorkoutPlanByIdUseCase", () => {
+  it("should return plan when it belongs to user", async () => {
+    const plan: WorkoutPlanResult = {
       id: "plan-1",
       name: "Plano A",
-      description: null,
+      description: "Desc",
       userId: "user-1",
       createdBy: "user-1",
-      isActive: true,
+      isActive: false,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
-    const findByIdAndUserId = vi.fn().mockResolvedValue({ ...activated, isActive: false });
-    const deactivateAllByUserId = vi.fn().mockResolvedValue(undefined);
-    const updateIsActive = vi.fn().mockResolvedValue(activated);
+    const findByIdAndUserId = vi.fn().mockResolvedValue(plan);
     const repository: WorkoutPlanRepository = {
       create: vi.fn(),
       findByUserId: vi.fn(),
       findByIdAndUserId,
-      deactivateAllByUserId,
-      updateIsActive,
+      deactivateAllByUserId: vi.fn(),
+      updateIsActive: vi.fn(),
     };
-    const useCase = new ActivateWorkoutPlanUseCase(repository);
+    const useCase = new GetWorkoutPlanByIdUseCase(repository);
 
     const result = await useCase.execute({
       planId: "plan-1",
       userId: "user-1",
     });
 
-    expect(result).toEqual(activated);
+    expect(result).toEqual(plan);
     expect(findByIdAndUserId).toHaveBeenCalledWith("plan-1", "user-1");
-    expect(deactivateAllByUserId).toHaveBeenCalledWith("user-1");
-    expect(updateIsActive).toHaveBeenCalledWith("plan-1", "user-1", true);
   });
 
   it("should throw PlanNotFoundError when plan does not exist or belongs to another user", async () => {
@@ -50,13 +46,13 @@ describe("ActivateWorkoutPlanUseCase", () => {
       deactivateAllByUserId: vi.fn(),
       updateIsActive: vi.fn(),
     };
-    const useCase = new ActivateWorkoutPlanUseCase(repository);
+    const useCase = new GetWorkoutPlanByIdUseCase(repository);
 
     await expect(
-      useCase.execute({ planId: "other-plan", userId: "user-1" }),
+      useCase.execute({ planId: "non-existent", userId: "user-1" }),
     ).rejects.toThrow(PlanNotFoundError);
     await expect(
-      useCase.execute({ planId: "other-plan", userId: "user-1" }),
-    ).rejects.toThrow("Workout plan not found: other-plan");
+      useCase.execute({ planId: "non-existent", userId: "user-1" }),
+    ).rejects.toThrow("Workout plan not found: non-existent");
   });
 });

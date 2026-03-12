@@ -11,11 +11,11 @@ Implementar as features da API M. Move em ordem de dependência, seguindo **TDD*
 | Área | Situação |
 |------|----------|
 | **Prisma** | Schema completo (User, Gym, WorkoutPlan, WorkoutDay, WorkoutExercise, WorkoutSession, PhysicalAssessment, Subscription, AIChat, PTStudentLink, etc.) |
-| **App** | Apenas `/health`, `/swagger.json` e `/api/auth/*` (Better Auth). Rotas de users, workout e gym **não estão registradas** em `app.ts` |
+| **App** | `/health`, `/swagger.json`, `/api/auth/*`, `/api/users` (GET /me) e `/api/workout-plans` (GET /, POST /, GET /:id, POST /:id/activate) registradas |
 | **Domain** | Entidades e interfaces de repositórios existem; vários arquivos vazios ou só esqueleto |
-| **Application** | GetUserProfileUseCase implementado e testado; demais use cases com arquivos mas vazios |
-| **Infrastructure** | Repositórios Prisma e mappers existem mas estão vazios (ex.: prisma-user.repository.ts) |
-| **Interface HTTP** | Controllers e arquivos de rotas (user, workout, gym) vazios; middlewares authenticate e authorize presentes |
+| **Application** | GetUserProfileUseCase, CreateWorkoutPlanUseCase, ListWorkoutPlansUseCase, GetWorkoutPlanByIdUseCase, ActivateWorkoutPlanUseCase implementados e testados |
+| **Infrastructure** | PrismaUserRepository e PrismaWorkoutPlanRepository implementados; mappers user e workout-plan |
+| **Interface HTTP** | Rotas user (GET /me) e workout (GET /, POST /, GET /:id, POST /:id/activate); middlewares authenticate e authorize |
 | **Packages** | `packages/types`, `packages/validators`, `packages/utils`, `packages/constants` existem no monorepo |
 | **Testes** | Setup Vitest + Supertest + DB de teste; factories e helpers; exemplo integração (GET /health) e unitário (GetUserProfileUseCase) |
 

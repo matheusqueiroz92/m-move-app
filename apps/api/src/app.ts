@@ -10,9 +10,12 @@ import {
 } from "fastify-type-provider-zod";
 import { z, ZodError } from "zod";
 
-import { auth } from "./lib/auth.js";
+import { DayNotFoundError } from "./domain/workout/errors/day-not-found.error.js";
+import { PlanNotFoundError } from "./domain/workout/errors/plan-not-found.error.js";
 import { UserNotFoundError } from "./domain/user/errors/user-not-found.error.js";
 import { userRoutes } from "./interface/http/routes/user.routes.js";
+import { workoutRoutes } from "./interface/http/routes/workout.routes.js";
+import { auth } from "./lib/auth.js";
 
 const healthResponseSchema = z.object({ status: z.string() });
 
@@ -86,6 +89,7 @@ app.withTypeProvider<ZodTypeProvider>().route({
 });
 
 await app.register(userRoutes, { prefix: "/api/users" });
+await app.register(workoutRoutes, { prefix: "/api/workout-plans" });
 
 app.route({
   method: ["GET", "POST"],
@@ -130,6 +134,14 @@ app.setErrorHandler((error, _, reply) => {
   }
 
   if (error instanceof UserNotFoundError) {
+    return reply.status(404).send({ message: error.message });
+  }
+
+  if (error instanceof PlanNotFoundError) {
+    return reply.status(404).send({ message: error.message });
+  }
+
+  if (error instanceof DayNotFoundError) {
     return reply.status(404).send({ message: error.message });
   }
 

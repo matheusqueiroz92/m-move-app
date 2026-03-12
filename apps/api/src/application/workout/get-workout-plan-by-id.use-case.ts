@@ -4,15 +4,15 @@ import type {
   WorkoutPlanResult,
 } from "../../domain/workout/repositories/workout-plant.repository.js";
 
-export interface ActivateWorkoutPlanInput {
+export interface GetWorkoutPlanByIdInput {
   planId: string;
   userId: string;
 }
 
-export class ActivateWorkoutPlanUseCase {
+export class GetWorkoutPlanByIdUseCase {
   constructor(private readonly workoutPlanRepository: WorkoutPlanRepository) {}
 
-  async execute(input: ActivateWorkoutPlanInput): Promise<WorkoutPlanResult> {
+  async execute(input: GetWorkoutPlanByIdInput): Promise<WorkoutPlanResult> {
     const plan = await this.workoutPlanRepository.findByIdAndUserId(
       input.planId,
       input.userId,
@@ -20,16 +20,6 @@ export class ActivateWorkoutPlanUseCase {
     if (!plan) {
       throw new PlanNotFoundError(input.planId);
     }
-
-    await this.workoutPlanRepository.deactivateAllByUserId(input.userId);
-    const updated = await this.workoutPlanRepository.updateIsActive(
-      input.planId,
-      input.userId,
-      true,
-    );
-    if (!updated) {
-      throw new PlanNotFoundError(input.planId);
-    }
-    return updated;
+    return plan;
   }
 }
