@@ -111,3 +111,30 @@ export type WorkoutExerciseResponse = z.infer<
 export const workoutExerciseListResponseSchema = z.array(
   workoutExerciseResponseSchema,
 );
+
+// --- Session ---
+export const startSessionBodySchema = z.object({
+  workoutDayId: z.string().min(1, "workoutDayId is required"),
+});
+export type StartSessionBody = z.infer<typeof startSessionBodySchema>;
+
+export const workoutSessionResponseSchema = z.object({
+  id: z.string(),
+  userId: z.string(),
+  workoutDayId: z.string(),
+  startedAt: z.string(),
+  completedAt: z.string().nullable(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+export type WorkoutSessionResponse = z.infer<
+  typeof workoutSessionResponseSchema
+>;
+
+export const workoutSessionListResponseSchema = z.array(
+  workoutSessionResponseSchema,
+);
+
+export const streakResponseSchema = z.object({
+  streak: z.number(),
+});

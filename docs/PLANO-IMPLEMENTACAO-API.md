@@ -155,24 +155,24 @@ Depende de: WorkoutPlan existente. Rotas: `/api/workout-plans/:planId/days` e `/
 
 ---
 
-## Fase 3: Sessions (sessões de treino)
+## Fase 3: Sessions (sessões de treino) ✅
 
 Rotas: POST /api/sessions/start, PATCH /api/sessions/:id/complete, GET /api/sessions/history, GET /api/sessions/streak.
 
-### 3.1 Iniciar sessão (POST /api/sessions/start)
+### 3.1 Iniciar sessão (POST /api/sessions/start) ✅
 
 - **Testes:** Use case "start session" (workoutDayId + userId) cria WorkoutSession com startedAt; integração com auth.
-- **Implementação:** Domain/repositório WorkoutSession, use case, controller, rota.
+- **Implementação:** PrismaWorkoutSessionRepository, StartWorkoutSessionUseCase, controller, rota; ownership via WorkoutDay → Plan.
 
-### 3.2 Concluir sessão (PATCH /api/sessions/:id/complete)
+### 3.2 Concluir sessão (PATCH /api/sessions/:id/complete) ✅
 
-- **Testes:** Use case define completedAt; não permitir concluir sessão de outro usuário.
-- **Implementação:** Use case, controller, rota.
+- **Testes:** Use case define completedAt; não permitir concluir sessão de outro usuário (404).
+- **Implementação:** CompleteWorkoutSessionUseCase, controller, rota.
 
-### 3.3 Histórico e streak (GET history e GET streak)
+### 3.3 Histórico e streak (GET history e GET streak) ✅
 
 - **Testes:** Use case ou utils de streak (timezone, dias consecutivos); histórico filtrado por userId.
-- **Implementação:** Usar `calculateStreak` de packages/utils se existir; senão implementar e testar; expor via use case + controller.
+- **Implementação:** GetSessionHistoryUseCase, GetStreakUseCase (usa calculateStreak de @m-move-app/utils); controllers e rotas.
 
 ---
 
