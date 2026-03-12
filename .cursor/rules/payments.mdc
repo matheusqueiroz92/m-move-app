@@ -1,0 +1,54 @@
+---
+alwaysApply: true
+---
+
+# Sistema de Pagamentos (Stripe)
+
+A aplicação dispõe de um sistema de pagamentos utilizando o Stripe que faz o controle de acesso e gerenciamento de assinatura da aplicação.
+
+## Fluxo de Assinatura
+
+1. Usuário seleciona plano na landing page;
+
+2. Frontend chama POST /api/subscriptions/checkout;
+
+3. Backend cria Stripe Checkout Session e retorna URL;
+
+4. Usuário completa pagamento no Stripe;
+
+5. Stripe dispara webhook para POST /api/subscriptions/webhook;
+
+6. Backend atualiza Subscription + User.planType + User.
+   subscriptionStatus;
+
+7. Better Auth verifica planType em cada requisição (RBAC).
+
+---
+
+## Eventos de Webhook Tratados
+
+EVENTO STRIPE -> AÇÃO NO SISTEMA
+
+- checkout.session.completed -> Criar/atualizar Subscription, definir planType do usuario
+
+- customer.subscription.updated -> Atualizar status e periodo da assinatura
+
+- customer.subscription.deleted -> Cancelar assinatura, rebaixar acesso
+
+- invoice.payment_failed -> Marcar como PAST_DUE, notificar usuário
+
+- customer.subscription.trial_will_end -> Notificar usuário 3 dias antes do trial acabar
+
+---
+
+## Preco dos Planos (Sugestao)
+
+Plano Mensal Anual Trial
+
+STUDENT R$ 29,90 R$ 239,90 (R$ 19,99/mes) 14 dias
+
+PERSONAL (ate 10 alunos) R$ 79,90 R$ 639,90 (R$ 53,32/mes) 14 dias
+
+PERSONAL PRO (ate 30 alunos) R$ 129,90 R$ 1.039,90 (R$ 86,66/mes) 14 dias
+
+GYM (ate 50 alunos) R$ 199,90 R$ 1.498,80 (R$ 124,90/mês) 14 dias

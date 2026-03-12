@@ -1,0 +1,118 @@
+---
+alwaysApply: true
+---
+
+## Estrutura de diretórios do Backend
+
+apps/api/src/
+
+- domain/
+  - entitities/ # Entidades de domínio
+  - repositories/ # Interface de repositórios
+  - use-cases/ # Services/Casos de uso
+- infrastructure/
+  - database/ # Prisma-client
+  - repositories/ # Implementações prisma
+  - http/
+    - controllers/ # Fastify route handlers
+    - middlewares/ # Auth, RBAC, rate-limit
+    - routes/ # Registro de rotas
+  - providers/ # Stripe, OpenAI, Email
+- shared/ - errors/ # AppError, HttpException - decorators/ # Utilitários
+  server.ts
+  app.ts
+
+## Fastify
+
+- Utilize plugins
+- Separe rotas de controllers
+- Utilize hooks para auth e tenant
+
+## Banco de Dados
+
+- PostgreSQL
+- Prisma ORM
+- Migrations obrigatórias
+- Nunca usar SQL raw sem justificativa
+- Criar schema.prisma com todos os modelos
+- Configurar DATABASE_URL no .env
+- Rodar: pnpm prisma migrate dev --name init
+- Gerar client: pnpm prisma generate
+- Seed inicial com dados de exemplo
+
+## Validação
+
+- Zod para:
+  - request body
+  - query params
+  - env vars
+
+## Auth (Better Auth)
+
+- Instalar Better Auth: pnpm add better-auth;
+- Configurar providers (Email, Google, GitHub);
+- Implementar plugin RBAC do Better Auth
+- Criar tabelas de sessao e token no schema Prisma
+- Registrar rotas de auth no Fastify: /api/auth/\*
+- Nunca confiar em dados vindos do client
+
+## Packages Compartilhados
+
+@m-move-app/types
+Conteudo do package de tipos:
+
+- IUser, IWorkoutPlan, IWorkoutDay, IWorkoutExercise
+- IWorkoutSession, IPhysicalAssessment, IGym
+- ISubscription, IAIChat, IAIChatMessage
+- DTOs de request/response para cada endpoint
+- Tipos de paginacao: PaginatedResponse<T>
+
+@m-move-app/validators
+Schemas Zod reutilizados no backend e frontend:
+
+- createWorkoutPlanSchema, updateWorkoutPlanSchema
+- createWorkoutDaySchema, createWorkoutExerciseSchema
+- createPhysicalAssessmentSchema
+- loginSchema, registerSchema
+- generateWorkoutWithAISchema
+
+@m-move-app/utils
+
+- calculateStreak(sessions: WorkoutSession[], plan: WorkoutPlan): number
+- calculateBMI(weight: number, height: number): number
+- formatDuration(seconds: number): string
+- getWeekDayFromDate(date: Date, timezone: string): WeekDay
+
+## Padrões
+
+- Controllers não possuem regra de negócio
+- Services concentram a lógica
+- Repositories apenas acessam dados
+- Seguir estritamente TDD. Para cada endpoint:
+  1. Escrever testes com Vitest + Supertest,
+  2. Implementar o minimo para passar,
+  3. Refatorar.
+
+## Rotas da API
+
+- Auth -> /api/auth -> POST /register, POST /login, POST /logout, GET /me, POST /refresh
+
+- Users -> /api/users -> GET /, GET /:id, PATCH /:id, DELETE /:id
+
+- Workout Plans -> /api/workout-plans -> GET /, POST /, GET /:id, PATCH /:id, DELETE /:id, POST /:id/activate
+
+- Workout Days -> /api/workout-plans/:id/days -> GET /, POST /, PATCH /:dayId, DELETE /:dayId
+
+- Exercises -> /api/workout-days/:id/exercises -> GET /, POST /, PATCH /:exId, DELETE /:exId, PATCH /reorder
+
+- Sessions -> /api/sessions -> POST /start, PATCH /:id/complete, GET /history, GET /streak
+
+- Assessments -> /api/assessments -> GET /, POST /, GET /:id, GET /history/:userId
+
+- Gym -> /api/gym -> POST /, GET /:id, PATCH /:id, POST /members, DELETE /members/:id
+
+- AI -> /api/ai -> POST /chat, GET /chats, POST /generate-plan, GET /insights/:userId
+
+- PT Invites -> /api/pt/invites -> POST / (enviar convite), GET / (listar convites), DELETE /:id (revogar), POST /accept (aluno aceita token)
+
+- Subscriptions -> /api/subscriptions -> POST /checkout, POST /portal, GET /status, POST /webhook
