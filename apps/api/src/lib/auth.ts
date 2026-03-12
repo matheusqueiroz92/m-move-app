@@ -1,21 +1,34 @@
-import { PrismaPg } from "@prisma/adapter-pg";
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { openAPI } from "better-auth/plugins";
+import { bearer, openAPI } from "better-auth/plugins";
 
-import { PrismaClient } from "../generated/prisma/client.js";
-
-const prisma = new PrismaClient({
-  adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
-});
+import { prisma } from "./db.js";
+import { env } from "./env.js";
 
 export const auth = betterAuth({
-  trustedOrigins: ["http://localhost:3000"],
+  baseURL: env.API_BASE_URL,
+  trustedOrigins: [env.WEB_APP_BASE_URL || "http://localhost:3001"],
   emailAndPassword: {
     enabled: true,
+  },
+  socialProviders: {
+    google: {
+      prompt: "select_account",
+      clientId: env.GOOGLE_CLIENT_ID!,
+      clientSecret: env.GOOGLE_CLIENT_SECRET,
+    },
   },
   database: prismaAdapter(prisma, {
     provider: "postgresql",
   }),
-  plugins: [openAPI()],
+  plugins: [openAPI(), bearer()],
+  advanced: {
+    // Em desenvolvimento (HTTP), cookies Secure são rejeitados pelo navegador.
+    // Desabilita Secure para que a sessão funcione no Scalar/docs e no app em localhost.
+    useSecureCookies: env.NODE_ENV === "production",
+    crossSubDomainCookies: {
+      enabled: true,
+      domain: env.NODE_ENV === "production" ? "development" : undefined,
+    },
+  },
 });
