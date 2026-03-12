@@ -79,8 +79,8 @@ describe("GET /api/workout-plans/:planId/days (integration)", () => {
     }>;
     expect(Array.isArray(body)).toBe(true);
     expect(body).toHaveLength(1);
-    expect(body[0].name).toBe("Dia 1");
-    expect(body[0].weekDay).toBe("MONDAY");
+    expect(body[0]?.name).toBe("Dia 1");
+    expect(body[0]?.weekDay).toBe("MONDAY");
   });
 
   it("should return 404 when plan does not exist or does not belong to user", async () => {

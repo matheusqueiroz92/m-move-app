@@ -80,7 +80,10 @@ describe("POST /api/workout-plans (integration)", () => {
   });
 
   it("should return 400 when body is invalid (missing name)", async () => {
-    const fixture = createUserFixture({ id: "user-invalid-1", role: "STUDENT" });
+    const fixture = createUserFixture({
+      id: "user-invalid-1",
+      role: "STUDENT",
+    });
     await prisma.user.create({
       data: {
         id: fixture.id,
@@ -256,7 +259,11 @@ describe("GET /api/workout-plans/:id (integration)", () => {
     });
 
     expect(response.statusCode).toBe(200);
-    const body = response.json() as { id: string; name: string; userId: string };
+    const body = response.json() as {
+      id: string;
+      name: string;
+      userId: string;
+    };
     expect(body.id).toBe(plan.id);
     expect(body.name).toBe("Plano Único");
     expect(body.userId).toBe(fixture.id);
@@ -396,7 +403,11 @@ describe("POST /api/workout-plans/:id/activate (integration)", () => {
     });
 
     expect(response.statusCode).toBe(200);
-    const body = response.json() as { id: string; name: string; isActive: boolean };
+    const body = response.json() as {
+      id: string;
+      name: string;
+      isActive: boolean;
+    };
     expect(body.id).toBe(plan2.id);
     expect(body.name).toBe("Plano 2");
     expect(body.isActive).toBe(true);

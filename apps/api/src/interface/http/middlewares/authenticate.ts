@@ -1,10 +1,10 @@
-import type { FastifyRequest, FastifyReply } from "fastify";
+import type { FastifyReply, FastifyRequest } from "fastify";
 
 import { auth } from "../../../lib/auth.js";
 import { env } from "../../../lib/env.js";
 
 function toHeaders(
-  raw: Record<string, string | string[] | undefined>
+  raw: Record<string, string | string[] | undefined>,
 ): Headers {
   const headers = new Headers();
   for (const [key, value] of Object.entries(raw)) {
@@ -16,7 +16,7 @@ function toHeaders(
 
 export async function authenticate(
   request: FastifyRequest,
-  reply: FastifyReply
+  reply: FastifyReply,
 ): Promise<void> {
   // In test env, allow X-Test-User-Id header to simulate authenticated user (no cookie signing).
   if (env.NODE_ENV === "test") {

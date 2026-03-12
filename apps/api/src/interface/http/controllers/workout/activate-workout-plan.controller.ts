@@ -1,7 +1,7 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 
-import { PlanNotFoundError } from "../../../../domain/workout/errors/plan-not-found.error.js";
 import { ActivateWorkoutPlanUseCase } from "../../../../application/workout/activate-workout-plan.use-case.js";
+import { PlanNotFoundError } from "../../../../domain/workout/errors/plan-not-found.error.js";
 import { PrismaWorkoutPlanRepository } from "../../../../infrastructure/database/prisma/repositories/prisma-workout-plan.repository.js";
 
 const workoutPlanRepository = new PrismaWorkoutPlanRepository();

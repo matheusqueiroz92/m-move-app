@@ -1,7 +1,7 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 
-import { PlanNotFoundError } from "../../../../domain/workout/errors/plan-not-found.error.js";
 import { CreateWorkoutDayUseCase } from "../../../../application/workout/create-workout-day.use-case.js";
+import { PlanNotFoundError } from "../../../../domain/workout/errors/plan-not-found.error.js";
 import { PrismaWorkoutDayRepository } from "../../../../infrastructure/database/prisma/repositories/prisma-workout-day.repository.js";
 import { PrismaWorkoutPlanRepository } from "../../../../infrastructure/database/prisma/repositories/prisma-workout-plan.repository.js";
 
@@ -37,7 +37,14 @@ export async function createWorkoutDayHandler(
       userId,
       name: body.name,
       isRest: body.isRest,
-      weekDay: body.weekDay as "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY",
+      weekDay: body.weekDay as
+        | "MONDAY"
+        | "TUESDAY"
+        | "WEDNESDAY"
+        | "THURSDAY"
+        | "FRIDAY"
+        | "SATURDAY"
+        | "SUNDAY",
       estimatedDurationInSeconds: body.estimatedDurationInSeconds,
       coverImageUrl: body.coverImageUrl,
     });

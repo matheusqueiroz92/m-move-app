@@ -1,8 +1,8 @@
 import type { FastifyInstance } from "fastify";
 import { ZodTypeProvider } from "fastify-type-provider-zod";
 
-import { authenticate } from "../middlewares/authenticate.js";
 import { getProfileHandler } from "../controllers/user/get-profile.controller.js";
+import { authenticate } from "../middlewares/authenticate.js";
 import { userProfileResponseSchema } from "../schemas/user.schema.js";
 
 export async function userRoutes(app: FastifyInstance): Promise<void> {

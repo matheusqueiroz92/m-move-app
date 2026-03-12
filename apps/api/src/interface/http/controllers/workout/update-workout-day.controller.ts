@@ -1,8 +1,8 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 
+import { UpdateWorkoutDayUseCase } from "../../../../application/workout/update-workout-day.use-case.js";
 import { DayNotFoundError } from "../../../../domain/workout/errors/day-not-found.error.js";
 import { PlanNotFoundError } from "../../../../domain/workout/errors/plan-not-found.error.js";
-import { UpdateWorkoutDayUseCase } from "../../../../application/workout/update-workout-day.use-case.js";
 import { PrismaWorkoutDayRepository } from "../../../../infrastructure/database/prisma/repositories/prisma-workout-day.repository.js";
 import { PrismaWorkoutPlanRepository } from "../../../../infrastructure/database/prisma/repositories/prisma-workout-plan.repository.js";
 
@@ -39,7 +39,15 @@ export async function updateWorkoutDayHandler(
       userId,
       name: body.name,
       isRest: body.isRest,
-      weekDay: body.weekDay as "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY" | undefined,
+      weekDay: body.weekDay as
+        | "MONDAY"
+        | "TUESDAY"
+        | "WEDNESDAY"
+        | "THURSDAY"
+        | "FRIDAY"
+        | "SATURDAY"
+        | "SUNDAY"
+        | undefined,
       estimatedDurationInSeconds: body.estimatedDurationInSeconds,
       coverImageUrl: body.coverImageUrl,
     });
@@ -49,7 +57,10 @@ export async function updateWorkoutDayHandler(
       updatedAt: day.updatedAt.toISOString(),
     });
   } catch (error) {
-    if (error instanceof PlanNotFoundError || error instanceof DayNotFoundError) {
+    if (
+      error instanceof PlanNotFoundError ||
+      error instanceof DayNotFoundError
+    ) {
       return reply.status(404).send({ message: error.message });
     }
     throw error;

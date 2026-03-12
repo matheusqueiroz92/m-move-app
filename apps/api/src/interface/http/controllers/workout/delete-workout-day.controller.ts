@@ -1,8 +1,8 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 
+import { DeleteWorkoutDayUseCase } from "../../../../application/workout/delete-workout-day.use-case.js";
 import { DayNotFoundError } from "../../../../domain/workout/errors/day-not-found.error.js";
 import { PlanNotFoundError } from "../../../../domain/workout/errors/plan-not-found.error.js";
-import { DeleteWorkoutDayUseCase } from "../../../../application/workout/delete-workout-day.use-case.js";
 import { PrismaWorkoutDayRepository } from "../../../../infrastructure/database/prisma/repositories/prisma-workout-day.repository.js";
 import { PrismaWorkoutPlanRepository } from "../../../../infrastructure/database/prisma/repositories/prisma-workout-plan.repository.js";
 
@@ -30,7 +30,10 @@ export async function deleteWorkoutDayHandler(
     });
     return reply.status(204).send();
   } catch (error) {
-    if (error instanceof PlanNotFoundError || error instanceof DayNotFoundError) {
+    if (
+      error instanceof PlanNotFoundError ||
+      error instanceof DayNotFoundError
+    ) {
       return reply.status(404).send({ message: error.message });
     }
     throw error;

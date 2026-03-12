@@ -8,16 +8,17 @@ apps/api/src/
 
 - domain/
   - entitities/ # Entidades de domínio
+  - errors/ # Erros de domínio
   - repositories/ # Interface de repositórios
-  - use-cases/ # Services/Casos de uso
 - infrastructure/
   - database/ # Prisma-client
-  - repositories/ # Implementações prisma
+  - providers/ # Stripe, OpenAI, Email
+- interface
   - http/
     - controllers/ # Fastify route handlers
     - middlewares/ # Auth, RBAC, rate-limit
     - routes/ # Registro de rotas
-  - providers/ # Stripe, OpenAI, Email
+    - schemas/ # Schemas
 - shared/ - errors/ # AppError, HttpException - decorators/ # Utilitários
   server.ts
   app.ts

@@ -4,7 +4,7 @@ alwaysApply: true
 
 # Arquitetura do Projeto
 
-Este projeto utiliza um MONOREPO (Turborepo) com separação clara entre aplicações e pacotes compartilhados. Adota uma arquitetura hexagonal e DDD.
+Este projeto utiliza um MONOREPO (Turborepo) com separação clara entre aplicações e pacotes compartilhados. Adota uma arquitetura hexagonal e DDD (Domain-Driven Design).
 
 ## Estrutura
 
@@ -68,5 +68,5 @@ CAMADA -> RESPONSABILIDADE -> TECNOLOGIA
 
 ## Multi-tenancy (SaaS)
 
-- Multitenancy por plano (Student, Personal Trainer, Gym)
+- Multitenancy por plano (STUDENT, PERSONAL, GYM)
 - RBAC granular com papel LINKED_STUDENT
