@@ -1,7 +1,19 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// ─────────────────────────────────────────────
+// M. MOVE — Prisma Schema
+// ─────────────────────────────────────────────
 
-// Get a free hosted Postgres database in seconds: `npx create-db`
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─────────────────────────────────────────────
+// ENUMS
+// ─────────────────────────────────────────────
 
 enum UserRole {
   OWNER
@@ -13,7 +25,7 @@ enum UserRole {
 
 enum PlanType {
   STUDENT
-  PERSONAL_TRAINER
+  PERSONAL
   GYM
 }
 
@@ -22,6 +34,7 @@ enum SubscriptionStatus {
   TRIALING
   PAST_DUE
   CANCELED
+  UNPAID
 }
 
 enum WeekDay {
@@ -34,79 +47,27 @@ enum WeekDay {
   SUNDAY
 }
 
-generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+enum LinkStatus {
+  PENDING   // convite enviado, aguardando aceite
+  ACTIVE    // vínculo ativo
+  REVOKED   // revogado manualmente pelo PT / OWNER
+  EXPIRED   // token expirou sem ser aceito
 }
 
-datasource db {
-  provider = "postgresql"
+enum AIChatRole {
+  USER
+  ASSISTANT
+  SYSTEM
 }
 
-model User {
-  id                   String             @id
-  name                 String
-  email                String             @unique
-  password             String
-  workoutPlans         WorkoutPlan[]
-  role                 UserRole           @default(STUDENT)
-  planType             PlanType           @default(STUDENT)
-  stripeCustomerId     String
-  stripeSubscriptionId String
-  subscriptionStatus   SubscriptionStatus @default(ACTIVE)
-  createdAt            DateTime           @default(now())
-  updatedAt            DateTime           @updatedAt
-  emailVerified        Boolean            @default(false)
-  image                String?
-  sessions             Session[]
-  accounts             Account[]
-
-  @@map("user")
-}
-
-model WorkoutPlan {
-  id          String       @id @default(uuid())
-  name        String
-  userId      String
-  user        User         @relation(fields: [userId], references: [id])
-  workoutDays WorkoutDay[]
-  createdBy   String
-  isActive    Boolean      @default(true)
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-}
-
-model WorkoutDay {
-  id            String            @id @default(uuid())
-  name          String
-  workoutPlanId String
-  workoutPlan   WorkoutPlan       @relation(fields: [workoutPlanId], references: [id])
-  isRest        Boolean           @default(false)
-  weekDay       WeekDay
-  exercises     WorkoutExercise[]
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
-}
-
-model WorkoutExercise {
-  id                String     @id @default(uuid())
-  name              String
-  order             Int
-  workoutDayId      String
-  workoutDay        WorkoutDay @relation(fields: [workoutDayId], references: [id])
-  description       String
-  sets              Int
-  reps              Int
-  weight            Int
-  restTimeInSeconds Int
-  createdAt         DateTime   @default(now())
-  updatedAt         DateTime   @updatedAt
-}
+// ─────────────────────────────────────────────
+// AUTH (Better Auth — não mexer)
+// ─────────────────────────────────────────────
 
 model Session {
   id        String   @id
   expiresAt DateTime
-  token     String
+  token     String   @unique
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   ipAddress String?
@@ -114,7 +75,6 @@ model Session {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([token])
   @@index([userId])
   @@map("session")
 }
@@ -149,4 +109,350 @@ model Verification {
 
   @@index([identifier])
   @@map("verification")
+}
+
+// ─────────────────────────────────────────────
+// USUÁRIOS
+// ─────────────────────────────────────────────
+
+model User {
+  id                   String              @id
+  name                 String
+  email                String              @unique
+  emailVerified        Boolean             @default(false)
+  image                String?
+  role                 UserRole            @default(STUDENT)
+  planType             PlanType?           // null = LINKED_STUDENT ou INSTRUCTOR (não pagam plano próprio)
+  timezone             String              @default("America/Sao_Paulo")
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+  subscriptionStatus   SubscriptionStatus?  // null = sem assinatura ativa
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+
+  // Better Auth
+  sessions             Session[]
+  accounts             Account[]
+
+  // Treinos — como aluno (dono dos dados)
+  workoutPlans         WorkoutPlan[]       @relation("StudentWorkoutPlans")
+  workoutSessions      WorkoutSession[]
+
+  // Treinos — como criador (PT, INSTRUCTOR, OWNER)
+  createdWorkoutPlans  WorkoutPlan[]       @relation("CreatedWorkoutPlans")
+
+  // Avaliações físicas
+  physicalAssessments  PhysicalAssessment[] @relation("AssessedUser")
+  conductedAssessments PhysicalAssessment[] @relation("AssessorUser")
+
+  // Assinatura Stripe detalhada
+  subscription         Subscription?
+
+  // IA
+  aiChats              AIChat[]
+
+  // Vínculos — como PT autônomo
+  ptStudentLinks       PTStudentLink[]     @relation("PTLinks")
+
+  // Vínculos — como LINKED_STUDENT (pode estar em PTStudentLink OU GymStudentLink)
+  ptStudentLinkAsStudent   PTStudentLink?  @relation("StudentPTLink")
+  gymStudentLinkAsStudent  GymStudentLink? @relation("StudentGymLink")
+
+  // Vínculos — como OWNER (academia)
+  ownedGym             Gym?
+
+  // Vínculos — como INSTRUCTOR
+  gymInstructorLinks   GymInstructor[]     @relation("InstructorLinks")
+
+  @@map("user")
+}
+
+// ─────────────────────────────────────────────
+// ACADEMIA
+// ─────────────────────────────────────────────
+
+model Gym {
+  id             String          @id @default(uuid())
+  name           String
+  ownerId        String          @unique  // 1 OWNER → 1 Gym
+  owner          User            @relation(fields: [ownerId], references: [id])
+  maxInstructors Int             @default(10)
+  maxStudents    Int             @default(50)
+  isActive       Boolean         @default(true)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  instructors    GymInstructor[]
+  students       GymStudentLink[]
+
+  @@map("gym")
+}
+
+// ─────────────────────────────────────────────
+// VÍNCULOS
+// ─────────────────────────────────────────────
+
+/// Vínculo entre PERSONAL_TRAINER autônomo e seus LINKED_STUDENTs
+/// Usado quando o PT tem plano PERSONAL (sem academia)
+model PTStudentLink {
+  id               String     @id @default(uuid())
+  personalTrainerId String
+  personalTrainer  User       @relation("PTLinks", fields: [personalTrainerId], references: [id])
+
+  // null enquanto o convite não for aceito
+  studentId        String?    @unique  // @unique garante: 1 aluno → no máximo 1 PT ativo (RN-019)
+  student          User?      @relation("StudentPTLink", fields: [studentId], references: [id])
+
+  inviteEmail      String
+  inviteToken      String     @unique
+  inviteExpiresAt  DateTime
+
+  status           LinkStatus @default(PENDING)
+  acceptedAt       DateTime?
+  revokedAt        DateTime?
+  createdAt        DateTime   @default(now())
+
+  @@index([personalTrainerId])
+  @@index([inviteToken])
+  @@map("pt_student_link")
+}
+
+/// Vínculo entre INSTRUCTOR e LINKED_STUDENTs dentro de uma academia (plano GYM)
+/// instructorId pode ser null: aluno vinculado direto ao OWNER (sem instrutor responsável)
+/// Quando INSTRUCTOR é removido: instructorId → null, aluno permanece na academia (RN-016)
+model GymStudentLink {
+  id           String     @id @default(uuid())
+  gymId        String
+  gym          Gym        @relation(fields: [gymId], references: [id])
+
+  // null = aluno vinculado direto ao OWNER (sem instrutor responsável)
+  // null também após remoção do INSTRUCTOR (RN-016)
+  instructorId String?
+  instructor   GymInstructor? @relation(fields: [instructorId], references: [id])
+
+  // null enquanto o convite não for aceito
+  studentId    String?    @unique  // @unique garante: 1 aluno → no máximo 1 academia ativa (RN-019)
+  student      User?      @relation("StudentGymLink", fields: [studentId], references: [id])
+
+  inviteEmail  String
+  inviteToken  String     @unique
+  inviteExpiresAt DateTime
+
+  status       LinkStatus @default(PENDING)
+  acceptedAt   DateTime?
+  revokedAt    DateTime?
+  createdAt    DateTime   @default(now())
+
+  @@index([gymId])
+  @@index([instructorId])
+  @@index([inviteToken])
+  @@map("gym_student_link")
+}
+
+/// Vínculo entre OWNER e INSTRUCTORs dentro de uma academia
+model GymInstructor {
+  id              String     @id @default(uuid())
+  gymId           String
+  gym             Gym        @relation(fields: [gymId], references: [id])
+
+  // null enquanto o convite não for aceito
+  instructorId    String?
+  instructor      User?      @relation("InstructorLinks", fields: [instructorId], references: [id])
+
+  inviteEmail     String
+  inviteToken     String     @unique
+  inviteExpiresAt DateTime
+
+  status          LinkStatus @default(PENDING)
+  acceptedAt      DateTime?
+  revokedAt       DateTime?
+  createdAt       DateTime   @default(now())
+
+  // Alunos sob responsabilidade deste instrutor
+  students        GymStudentLink[]
+
+  @@index([gymId])
+  @@index([inviteToken])
+  @@map("gym_instructor")
+}
+
+// ─────────────────────────────────────────────
+// TREINOS
+// ─────────────────────────────────────────────
+
+model WorkoutPlan {
+  id          String       @id @default(uuid())
+  name        String
+  description String?
+
+  // Aluno dono do plano (sempre preenchido)
+  userId      String
+  user        User         @relation("StudentWorkoutPlans", fields: [userId], references: [id])
+
+  // Quem criou: PT, INSTRUCTOR ou OWNER. null = criado pelo próprio aluno ou pela IA
+  createdBy   String?
+  creator     User?        @relation("CreatedWorkoutPlans", fields: [createdBy], references: [id])
+
+  isActive    Boolean      @default(false) // apenas 1 pode ser true por userId (RN-001)
+  workoutDays WorkoutDay[]
+
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([userId])
+  @@map("workout_plan")
+}
+
+model WorkoutDay {
+  id                String            @id @default(uuid())
+  name              String
+  workoutPlanId     String
+  workoutPlan       WorkoutPlan       @relation(fields: [workoutPlanId], references: [id], onDelete: Cascade)
+  isRest            Boolean           @default(false)
+  weekDay           WeekDay
+  estimatedDurationInSeconds Int?
+  coverImageUrl     String?
+  exercises         WorkoutExercise[]
+  workoutSessions   WorkoutSession[]
+
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  @@index([workoutPlanId])
+  @@map("workout_day")
+}
+
+model WorkoutExercise {
+  id                String     @id @default(uuid())
+  name              String
+  order             Int        // ordem dentro do WorkoutDay
+  workoutDayId      String
+  workoutDay        WorkoutDay @relation(fields: [workoutDayId], references: [id], onDelete: Cascade)
+  description       String?    // instruções de execução (opcional)
+  sets              Int
+  reps              Int
+  weightKg          Float?     // null = peso corporal ou sem peso definido
+  restTimeInSeconds Int
+  notes             String?    // observações do PT para o aluno
+
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
+  @@index([workoutDayId])
+  @@map("workout_exercise")
+}
+
+model WorkoutSession {
+  id           String     @id @default(uuid())
+
+  // userId direto: evita joins em streak e analytics (ver planejamento §4)
+  userId       String
+  user         User       @relation(fields: [userId], references: [id])
+
+  workoutDayId String
+  workoutDay   WorkoutDay @relation(fields: [workoutDayId], references: [id])
+
+  startedAt    DateTime
+  completedAt  DateTime?  // null = sessão em andamento
+
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@index([userId])
+  @@index([workoutDayId])
+  @@index([userId, completedAt]) // índice composto para queries de streak
+  @@map("workout_session")
+}
+
+// ─────────────────────────────────────────────
+// AVALIAÇÃO FÍSICA
+// ─────────────────────────────────────────────
+
+model PhysicalAssessment {
+  id          String   @id @default(uuid())
+
+  // Aluno avaliado
+  userId      String
+  user        User     @relation("AssessedUser", fields: [userId], references: [id])
+
+  // Quem fez a avaliação (PT, INSTRUCTOR). null = auto-avaliação
+  assessedBy  String?
+  assessor    User?    @relation("AssessorUser", fields: [assessedBy], references: [id])
+
+  // Obrigatórios (RN-010)
+  weightKg    Float
+  heightCm    Float
+
+  // Opcionais
+  bodyFatPct  Float?
+  muscleMassPct Float?
+
+  // Medidas (em cm)
+  chestCm     Float?
+  waistCm     Float?
+  hipsCm      Float?
+  leftArmCm   Float?
+  rightArmCm  Float?
+  leftThighCm Float?
+  rightThighCm Float?
+
+  notes       String?
+  assessedAt  DateTime @default(now())
+
+  @@index([userId])
+  @@map("physical_assessment")
+}
+
+// ─────────────────────────────────────────────
+// ASSINATURA (Stripe)
+// ─────────────────────────────────────────────
+
+model Subscription {
+  id                   String             @id @default(uuid())
+  userId               String             @unique  // 1 usuário → 1 subscription ativa
+  user                 User               @relation(fields: [userId], references: [id])
+
+  stripeSubscriptionId String             @unique
+  stripePriceId        String
+  planType             PlanType
+  status               SubscriptionStatus
+
+  currentPeriodStart   DateTime
+  currentPeriodEnd     DateTime
+  cancelAtPeriodEnd    Boolean            @default(false)
+  trialEnd             DateTime?
+
+  createdAt            DateTime           @default(now())
+  updatedAt            DateTime           @updatedAt
+
+  @@map("subscription")
+}
+
+// ─────────────────────────────────────────────
+// IA
+// ─────────────────────────────────────────────
+
+model AIChat {
+  id        String          @id @default(uuid())
+  userId    String
+  user      User            @relation(fields: [userId], references: [id])
+  title     String?         // gerado automaticamente a partir da primeira mensagem
+  messages  AIChatMessage[]
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  @@index([userId])
+  @@map("ai_chat")
+}
+
+model AIChatMessage {
+  id        String     @id @default(uuid())
+  chatId    String
+  chat      AIChat     @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  role      AIChatRole
+  content   String
+  createdAt DateTime   @default(now())
+
+  @@index([chatId])
+  @@map("ai_chat_message")
 }

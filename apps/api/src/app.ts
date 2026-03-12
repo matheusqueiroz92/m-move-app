@@ -38,8 +38,6 @@ await app.register(fastifySwagger, {
 await app.register(fastifyCors, {
   origin: ["http://localhost:3000"],
   credentials: true,
-  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"],
 });
 
 await app.register(fastifyApiReference, {
