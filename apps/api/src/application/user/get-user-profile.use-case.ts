@@ -1,8 +1,8 @@
+import { UserNotFoundError } from "../../domain/user/errors/user-not-found.error.js";
 import type {
   UserRepository,
   UserRepositoryFindByIdResult,
 } from "../../domain/user/repositories/user.repository.js";
-import { UserNotFoundError } from "../../domain/user/errors/user-not-found.error.js";
 
 export interface GetUserProfileInput {
   userId: string;

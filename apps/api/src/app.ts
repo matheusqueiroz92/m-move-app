@@ -11,6 +11,8 @@ import {
 import { z, ZodError } from "zod";
 
 import { auth } from "./lib/auth.js";
+import { UserNotFoundError } from "./domain/user/errors/user-not-found.error.js";
+import { userRoutes } from "./interface/http/routes/user.routes.js";
 
 const healthResponseSchema = z.object({ status: z.string() });
 
@@ -83,6 +85,8 @@ app.withTypeProvider<ZodTypeProvider>().route({
   },
 });
 
+await app.register(userRoutes, { prefix: "/api/users" });
+
 app.route({
   method: ["GET", "POST"],
   url: "/api/auth/*",
@@ -123,6 +127,10 @@ app.setErrorHandler((error, _, reply) => {
       message: "Validation error",
       issues: error.flatten().fieldErrors,
     });
+  }
+
+  if (error instanceof UserNotFoundError) {
+    return reply.status(404).send({ message: error.message });
   }
 
   app.log.error(error);

@@ -33,3 +33,16 @@ export async function truncateTestDatabase(): Promise<void> {
     `TRUNCATE TABLE ${TABLES.join(", ")} CASCADE`
   );
 }
+
+/**
+ * Truncates only the user table (and dependent tables via CASCADE).
+ * Use when the full schema might not exist yet (e.g. no migrations) but user table exists.
+ * No-op if the table does not exist (e.g. test DB without migrations).
+ */
+export async function truncateUserTable(): Promise<void> {
+  try {
+    await prisma.$executeRawUnsafe(`TRUNCATE TABLE "user" CASCADE`);
+  } catch {
+    // Table may not exist if migrations were never applied
+  }
+}

@@ -64,6 +64,7 @@ A API sobe por padrão em **http://localhost:3001**. A documentação Swagger/Sc
 | `pnpm test:unit`         | Apenas testes unitários (exclui `*.integration.spec.ts`)  |
 | `pnpm test:integration`  | Apenas testes de integração (requer `TEST_DATABASE_URL`)  |
 | `pnpm db:test:migrate`   | Aplica migrations no banco de teste (usa `.env.test`)    |
+| `pnpm db:test:push`      | Sincroniza schema no banco de teste sem migrations       |
 
 ## Variáveis de ambiente
 
@@ -113,13 +114,18 @@ NODE_ENV=test
 TEST_DATABASE_URL="postgresql://postgres:password@localhost:5432/m-move-api-test"
 ```
 
-Antes de rodar os testes de integração, aplique as migrations no banco de teste:
+Antes de rodar os testes de integração, o banco de teste precisa ter o schema (tabelas) criado. Use um dos comandos:
+
+- **`pnpm db:test:push`** — aplica o schema atual no banco de teste sem usar migrations (recomendado quando ainda não há pasta `prisma/migrations` ou para sincronizar rápido).
+- **`pnpm db:test:migrate`** — aplica as migrations existentes (use depois de criar migrations com `pnpm prisma migrate dev --name init` no banco de dev).
 
 ```bash
 cd apps/api
-pnpm db:test:migrate
+pnpm db:test:push    # ou db:test:migrate se já tiver migrations
 pnpm test:integration
 ```
+
+Os testes de integração de `GET /api/users/me` (200 e 404) dependem das tabelas existirem no banco de teste; o teste de 401 não depende do banco.
 
 ## Rotas da API (visão geral)
 
