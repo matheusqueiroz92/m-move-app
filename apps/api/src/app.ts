@@ -8,8 +8,11 @@ import {
   validatorCompiler,
   ZodTypeProvider,
 } from "fastify-type-provider-zod";
+import { z, ZodError } from "zod";
 
 import { auth } from "./lib/auth.js";
+
+const healthResponseSchema = z.object({ status: z.string() });
 
 const app = fastify({
   logger: true,
@@ -60,6 +63,17 @@ await app.register(fastifyApiReference, {
 
 app.withTypeProvider<ZodTypeProvider>().route({
   method: "GET",
+  url: "/health",
+  schema: {
+    response: {
+      200: healthResponseSchema,
+    },
+  },
+  handler: async () => ({ status: "ok" }),
+});
+
+app.withTypeProvider<ZodTypeProvider>().route({
+  method: "GET",
   url: "/swagger.json",
   schema: {
     hide: true,
@@ -101,6 +115,18 @@ app.route({
       });
     }
   },
+});
+
+app.setErrorHandler((error, _, reply) => {
+  if (error instanceof ZodError) {
+    return reply.status(400).send({
+      message: "Validation error",
+      issues: error.flatten().fieldErrors,
+    });
+  }
+
+  app.log.error(error);
+  return reply.status(500).send({ message: "Internal server error" });
 });
 
 export default app;

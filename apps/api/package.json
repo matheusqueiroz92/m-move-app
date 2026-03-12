@@ -7,7 +7,11 @@
     "dev": "tsx watch src/server.ts",
     "lint": "eslint . --max-warnings 0",
     "check-types": "tsc --noEmit",
-    "test": ""
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:unit": "vitest run --exclude '**/*.integration.spec.ts'",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "db:test:migrate": "node scripts/migrate-test-db.mjs"
   },
   "engines": {
     "node": "24.x"
@@ -16,13 +20,16 @@
   "author": "Matheus Queiroz",
   "license": "ISC",
   "devDependencies": {
+    "@faker-js/faker": "^9.6.0",
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
     "@types/node": "^24.12.0",
+    "supertest": "^7.0.0",
     "eslint": "9.39.2",
     "prisma": "^7.5.0",
     "tsx": "4.21.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.18"
   },
   "dependencies": {
     "@fastify/cors": "^11.2.0",

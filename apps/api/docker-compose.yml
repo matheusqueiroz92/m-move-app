@@ -1,3 +1,15 @@
+# Desenvolvimento: sobe PostgreSQL (app + testes).
+# Uso: docker compose up -d
+#
+# Bancos criados na primeira subida:
+#   - m-move-api      (dev)  → DATABASE_URL
+#   - m-move-api-test (test) → TEST_DATABASE_URL
+#
+# .env (dev):  DATABASE_URL="postgresql://postgres:password@localhost:5432/m-move-api"
+# .env.test:   TEST_DATABASE_URL="postgresql://postgres:password@localhost:5432/m-move-api-test"
+#
+# Após subir: pnpm db:test:migrate (para aplicar migrations no banco de teste)
+
 services:
   postgres:
     image: postgres:17
@@ -10,6 +22,7 @@ services:
       POSTGRES_DB: m-move-api
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init-test-db.sh:/docker-entrypoint-initdb.d/02-init-test-db.sh
 
 volumes:
   postgres_data:

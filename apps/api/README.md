@@ -19,29 +19,12 @@ Backend da plataforma **M. Move**, construído com **Fastify**, **Prisma** e **P
 
 ```
 apps/api/src/
-├── domain/
-│   ├── entities/       # Entidades de domínio
-│   ├── repositories/   # Interfaces de repositórios
-│   └── use-cases/      # Services / casos de uso
-├── infrastructure/
-│   ├── database/       # Prisma client
-│   ├── repositories/   # Implementações Prisma
-│   ├── http/
-│   │   ├── controllers/  # Handlers Fastify
-│   │   ├── middlewares/   # Auth, RBAC, rate-limit
-│   │   └── routes/       # Registro de rotas
-│   └── providers/      # Stripe, OpenAI, Email
-├── shared/
-│   ├── errors/         # AppError, HttpException
-│   └── decorators/
-├── server.ts
-├── app.ts
-└── index.ts
+
 ```
 
 ## Pré-requisitos
 
-- Node.js >= 18 (recomendado 24.x)
+- Node.js >= 22 (recomendado 24.x)
 - PostgreSQL em execução
 - Variáveis de ambiente configuradas (ver seção **Ambiente**)
 
@@ -71,12 +54,16 @@ A API sobe por padrão em **http://localhost:3001**. A documentação Swagger/Sc
 
 ## Scripts
 
-| Comando | Descrição |
-|---------|-----------|
-| `pnpm dev` | Sobe a API em modo watch (`tsx watch`) |
-| `pnpm lint` | ESLint |
-| `pnpm check-types` | `tsc --noEmit` |
-| `pnpm test` | Testes (Vitest) |
+| Comando                  | Descrição                                                |
+| ------------------------ | -------------------------------------------------------- |
+| `pnpm dev`               | Sobe a API em modo watch (`tsx watch`)                   |
+| `pnpm lint`              | ESLint                                                   |
+| `pnpm check-types`       | `tsc --noEmit`                                           |
+| `pnpm test`              | Vitest em watch (apenas testes unitários)                 |
+| `pnpm test:run`          | Vitest uma execução (ideal para CI)                      |
+| `pnpm test:unit`         | Apenas testes unitários (exclui `*.integration.spec.ts`)  |
+| `pnpm test:integration`  | Apenas testes de integração (requer `TEST_DATABASE_URL`)  |
+| `pnpm db:test:migrate`   | Aplica migrations no banco de teste (usa `.env.test`)    |
 
 ## Variáveis de ambiente
 
@@ -102,23 +89,53 @@ STRIPE_PRICE_ID_GYM=
 OPENAI_API_KEY=
 ```
 
-Para testes, usar `TEST_DATABASE_URL` em um banco dedicado.
+Para **testes**, é obrigatório um PostgreSQL dedicado e a variável `TEST_DATABASE_URL`.
+
+### Banco de testes com Docker
+
+O `docker-compose.yml` sobe um único PostgreSQL com dois bancos (dev e teste). Na **primeira** subida, o script em `docker/postgres/init-test-db.sh` cria o banco `m-move-api-test`.
+
+```bash
+cd apps/api
+docker compose up -d
+```
+
+Se o container já existia **antes** da configuração do banco de teste (ou o volume já estava populado), o script de init não roda de novo. Crie o banco manualmente:
+
+```bash
+docker exec -it m-move-api-postgres psql -U postgres -d m-move-api -c 'CREATE DATABASE "m-move-api-test";'
+```
+
+Crie o arquivo `.env.test` (não versionado) com a URL do banco de teste. Exemplo usando o Compose padrão:
+
+```env
+NODE_ENV=test
+TEST_DATABASE_URL="postgresql://postgres:password@localhost:5432/m-move-api-test"
+```
+
+Antes de rodar os testes de integração, aplique as migrations no banco de teste:
+
+```bash
+cd apps/api
+pnpm db:test:migrate
+pnpm test:integration
+```
 
 ## Rotas da API (visão geral)
 
-| Recurso | Prefixo | Descrição |
-|---------|---------|-----------|
-| **Auth** | `/api/auth` | `POST /register`, `POST /login`, `POST /logout`, `GET /me`, `POST /refresh` |
-| **Users** | `/api/users` | `GET /`, `GET /:id`, `PATCH /:id`, `DELETE /:id` |
-| **Workout Plans** | `/api/workout-plans` | CRUD + `POST /:id/activate` |
-| **Workout Days** | `/api/workout-plans/:id/days` | CRUD de dias do plano |
-| **Exercises** | `/api/workout-days/:id/exercises` | CRUD + `PATCH /reorder` |
-| **Sessions** | `/api/sessions` | `POST /start`, `PATCH /:id/complete`, `GET /history`, `GET /streak` |
-| **Assessments** | `/api/assessments` | CRUD + `GET /history/:userId` |
-| **Gym** | `/api/gym` | CRUD academia + `POST /members`, `DELETE /members/:id` |
-| **AI** | `/api/ai` | `POST /chat`, `GET /chats`, `POST /generate-plan`, `GET /insights/:userId` |
-| **PT Invites** | `/api/pt/invites` | `POST /` (enviar), `GET /` (listar), `DELETE /:id`, `POST /accept` |
-| **Subscriptions** | `/api/subscriptions` | `POST /checkout`, `POST /portal`, `GET /status`, `POST /webhook` |
+| Recurso           | Prefixo                           | Descrição                                                                   |
+| ----------------- | --------------------------------- | --------------------------------------------------------------------------- |
+| **Auth**          | `/api/auth`                       | `POST /register`, `POST /login`, `POST /logout`, `GET /me`, `POST /refresh` |
+| **Users**         | `/api/users`                      | `GET /`, `GET /:id`, `PATCH /:id`, `DELETE /:id`                            |
+| **Workout Plans** | `/api/workout-plans`              | CRUD + `POST /:id/activate`                                                 |
+| **Workout Days**  | `/api/workout-plans/:id/days`     | CRUD de dias do plano                                                       |
+| **Exercises**     | `/api/workout-days/:id/exercises` | CRUD + `PATCH /reorder`                                                     |
+| **Sessions**      | `/api/sessions`                   | `POST /start`, `PATCH /:id/complete`, `GET /history`, `GET /streak`         |
+| **Assessments**   | `/api/assessments`                | CRUD + `GET /history/:userId`                                               |
+| **Gym**           | `/api/gym`                        | CRUD academia + `POST /members`, `DELETE /members/:id`                      |
+| **AI**            | `/api/ai`                         | `POST /chat`, `GET /chats`, `POST /generate-plan`, `GET /insights/:userId`  |
+| **PT Invites**    | `/api/pt/invites`                 | `POST /` (enviar), `GET /` (listar), `DELETE /:id`, `POST /accept`          |
+| **Subscriptions** | `/api/subscriptions`              | `POST /checkout`, `POST /portal`, `GET /status`, `POST /webhook`            |
 
 A documentação detalhada (schemas, exemplos) está em **/docs** (Swagger/Scalar) com a API rodando.
 
@@ -144,13 +161,23 @@ Webhooks tratados: `checkout.session.completed`, `customer.subscription.updated`
 
 ## Testes
 
-- **TDD**: escrever teste → falhar → implementar mínimo → passar → refatorar
-- **Unitários**: Services, utils, validators (Vitest)
-- **Integração**: endpoints + banco (Vitest + Supertest, `TEST_DATABASE_URL`)
-- **Boas práticas**: Given/When/Then; não testar ORM diretamente; mockar Stripe/OpenAI; limpar dados entre testes
+O projeto segue **TDD** e usa **Vitest** + **Supertest**. O ambiente de testes usa um banco PostgreSQL dedicado (`TEST_DATABASE_URL`).
+
+- **Unitários**: Services, use cases, utils (mock de repositórios e providers). Não usam banco real.
+- **Integração**: Controllers + app Fastify + banco de teste. Arquivos `*.integration.spec.ts`; usar `truncateTestDatabase()` em `afterEach` quando o teste gravar dados.
+- **Setup**: `src/test/setup.ts` define `NODE_ENV=test` e carrega `.env.test`. Factories em `src/test/factories/`; helpers em `src/test/helpers/db.ts`; mocks de providers em `src/test/mocks/providers.ts`.
+- **Boas práticas**: Given/When/Then; não testar ORM diretamente; mockar Stripe/OpenAI em testes unitários; limpar banco após testes de integração que escrevem.
+
+**Comandos:**
 
 ```bash
-pnpm test
+# Testes unitários (não precisa de banco)
+pnpm test        # watch
+pnpm test:run    # uma execução
+
+# Testes de integração (exige .env.test com TEST_DATABASE_URL e banco migrado)
+pnpm db:test:migrate
+pnpm test:integration
 ```
 
 ## Packages compartilhados
