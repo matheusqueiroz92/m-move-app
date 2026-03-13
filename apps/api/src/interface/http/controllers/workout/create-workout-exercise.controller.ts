@@ -1,20 +1,5 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 
-import { DayNotFoundError } from "../../../../domain/workout/errors/day-not-found.error.js";
-import { CreateWorkoutExerciseUseCase } from "../../../../application/workout/create-workout-exercise.use-case.js";
-import { PrismaWorkoutExerciseRepository } from "../../../../infrastructure/database/prisma/repositories/prisma-workout-exercise.repository.js";
-import { PrismaWorkoutDayRepository } from "../../../../infrastructure/database/prisma/repositories/prisma-workout-day.repository.js";
-import { PrismaWorkoutPlanRepository } from "../../../../infrastructure/database/prisma/repositories/prisma-workout-plan.repository.js";
-
-const workoutPlanRepository = new PrismaWorkoutPlanRepository();
-const workoutDayRepository = new PrismaWorkoutDayRepository();
-const workoutExerciseRepository = new PrismaWorkoutExerciseRepository();
-const createWorkoutExerciseUseCase = new CreateWorkoutExerciseUseCase(
-  workoutPlanRepository,
-  workoutDayRepository,
-  workoutExerciseRepository,
-);
-
 export async function createWorkoutExerciseHandler(
   request: FastifyRequest<{
     Params: { dayId: string };
@@ -36,29 +21,22 @@ export async function createWorkoutExerciseHandler(
     return reply.status(401).send({ message: "Unauthorized" });
   }
 
-  try {
-    const body = request.body;
-    const exercise = await createWorkoutExerciseUseCase.execute({
-      dayId: request.params.dayId,
-      userId,
-      name: body.name,
-      order: body.order,
-      description: body.description,
-      sets: body.sets,
-      reps: body.reps,
-      weightKg: body.weightKg,
-      restTimeInSeconds: body.restTimeInSeconds,
-      notes: body.notes,
-    });
-    return reply.status(201).send({
-      ...exercise,
-      createdAt: exercise.createdAt.toISOString(),
-      updatedAt: exercise.updatedAt.toISOString(),
-    });
-  } catch (error) {
-    if (error instanceof DayNotFoundError) {
-      return reply.status(404).send({ message: error.message });
-    }
-    throw error;
-  }
+  const body = request.body;
+  const exercise = await request.server.useCases.createWorkoutExercise.execute({
+    dayId: request.params.dayId,
+    userId,
+    name: body.name,
+    order: body.order,
+    description: body.description,
+    sets: body.sets,
+    reps: body.reps,
+    weightKg: body.weightKg,
+    restTimeInSeconds: body.restTimeInSeconds,
+    notes: body.notes,
+  });
+  return reply.status(201).send({
+    ...exercise,
+    createdAt: exercise.createdAt.toISOString(),
+    updatedAt: exercise.updatedAt.toISOString(),
+  });
 }

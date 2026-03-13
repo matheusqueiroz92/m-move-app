@@ -10,6 +10,7 @@ import {
 } from "fastify-type-provider-zod";
 import { z, ZodError } from "zod";
 
+import { useCases } from "./composition-root.js";
 import { ChatNotFoundError } from "./domain/ai/errors/chat-not-found.error.js";
 import { AssessmentNotFoundError } from "./domain/assessment/errors/assessment-not-found.error.js";
 import { GymNotFoundError } from "./domain/gym/errors/gym-not-found.error.js";
@@ -108,6 +109,8 @@ app.withTypeProvider<ZodTypeProvider>().route({
     return app.swagger();
   },
 });
+
+app.decorate("useCases", useCases);
 
 await app.register(userRoutes, { prefix: "/api/users" });
 await app.register(workoutRoutes, { prefix: "/api/workout-plans" });

@@ -1,18 +1,5 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 
-import { UpdateWorkoutDayUseCase } from "../../../../application/workout/update-workout-day.use-case.js";
-import { DayNotFoundError } from "../../../../domain/workout/errors/day-not-found.error.js";
-import { PlanNotFoundError } from "../../../../domain/workout/errors/plan-not-found.error.js";
-import { PrismaWorkoutDayRepository } from "../../../../infrastructure/database/prisma/repositories/prisma-workout-day.repository.js";
-import { PrismaWorkoutPlanRepository } from "../../../../infrastructure/database/prisma/repositories/prisma-workout-plan.repository.js";
-
-const workoutPlanRepository = new PrismaWorkoutPlanRepository();
-const workoutDayRepository = new PrismaWorkoutDayRepository();
-const updateWorkoutDayUseCase = new UpdateWorkoutDayUseCase(
-  workoutPlanRepository,
-  workoutDayRepository,
-);
-
 export async function updateWorkoutDayHandler(
   request: FastifyRequest<{
     Params: { planId: string; dayId: string };
@@ -31,9 +18,8 @@ export async function updateWorkoutDayHandler(
     return reply.status(401).send({ message: "Unauthorized" });
   }
 
-  try {
-    const body = request.body;
-    const day = await updateWorkoutDayUseCase.execute({
+  const body = request.body;
+  const day = await request.server.useCases.updateWorkoutDay.execute({
       planId: request.params.planId,
       dayId: request.params.dayId,
       userId,
@@ -50,19 +36,10 @@ export async function updateWorkoutDayHandler(
         | undefined,
       estimatedDurationInSeconds: body.estimatedDurationInSeconds,
       coverImageUrl: body.coverImageUrl,
-    });
-    return reply.status(200).send({
-      ...day,
-      createdAt: day.createdAt.toISOString(),
-      updatedAt: day.updatedAt.toISOString(),
-    });
-  } catch (error) {
-    if (
-      error instanceof PlanNotFoundError ||
-      error instanceof DayNotFoundError
-    ) {
-      return reply.status(404).send({ message: error.message });
-    }
-    throw error;
-  }
+  });
+  return reply.status(200).send({
+    ...day,
+    createdAt: day.createdAt.toISOString(),
+    updatedAt: day.updatedAt.toISOString(),
+  });
 }

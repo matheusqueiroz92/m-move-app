@@ -1,11 +1,5 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 
-import { ListPtInvitesUseCase } from "../../../../application/pt-invite/list-pt-invites.use-case.js";
-import { PrismaPtStudentLinkRepository } from "../../../../infrastructure/database/prisma/repositories/prisma-pt-student-link.repository.js";
-
-const repository = new PrismaPtStudentLinkRepository();
-const useCase = new ListPtInvitesUseCase(repository);
-
 export async function listPtInvitesHandler(
   request: FastifyRequest,
   reply: FastifyReply,
@@ -15,7 +9,9 @@ export async function listPtInvitesHandler(
     return reply.status(401).send({ message: "Unauthorized" });
   }
 
-  const invites = await useCase.execute({ personalTrainerId: userId });
+  const invites = await request.server.useCases.listPtInvites.execute({
+    personalTrainerId: userId,
+  });
   const body = invites.map((inv) => ({
     ...inv,
     inviteExpiresAt: inv.inviteExpiresAt.toISOString(),

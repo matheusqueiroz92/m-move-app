@@ -1,17 +1,5 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 
-import { CreateWorkoutDayUseCase } from "../../../../application/workout/create-workout-day.use-case.js";
-import { PlanNotFoundError } from "../../../../domain/workout/errors/plan-not-found.error.js";
-import { PrismaWorkoutDayRepository } from "../../../../infrastructure/database/prisma/repositories/prisma-workout-day.repository.js";
-import { PrismaWorkoutPlanRepository } from "../../../../infrastructure/database/prisma/repositories/prisma-workout-plan.repository.js";
-
-const workoutPlanRepository = new PrismaWorkoutPlanRepository();
-const workoutDayRepository = new PrismaWorkoutDayRepository();
-const createWorkoutDayUseCase = new CreateWorkoutDayUseCase(
-  workoutPlanRepository,
-  workoutDayRepository,
-);
-
 export async function createWorkoutDayHandler(
   request: FastifyRequest<{
     Params: { planId: string };
@@ -30,9 +18,8 @@ export async function createWorkoutDayHandler(
     return reply.status(401).send({ message: "Unauthorized" });
   }
 
-  try {
-    const body = request.body;
-    const day = await createWorkoutDayUseCase.execute({
+  const body = request.body;
+  const day = await request.server.useCases.createWorkoutDay.execute({
       planId: request.params.planId,
       userId,
       name: body.name,
@@ -47,16 +34,10 @@ export async function createWorkoutDayHandler(
         | "SUNDAY",
       estimatedDurationInSeconds: body.estimatedDurationInSeconds,
       coverImageUrl: body.coverImageUrl,
-    });
-    return reply.status(201).send({
-      ...day,
-      createdAt: day.createdAt.toISOString(),
-      updatedAt: day.updatedAt.toISOString(),
-    });
-  } catch (error) {
-    if (error instanceof PlanNotFoundError) {
-      return reply.status(404).send({ message: error.message });
-    }
-    throw error;
-  }
+  });
+  return reply.status(201).send({
+    ...day,
+    createdAt: day.createdAt.toISOString(),
+    updatedAt: day.updatedAt.toISOString(),
+  });
 }

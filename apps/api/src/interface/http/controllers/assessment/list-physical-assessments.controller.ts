@@ -1,11 +1,5 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 
-import { ListPhysicalAssessmentsByUserUseCase } from "../../../../application/assessment/list-physical-assessments-by-user.use-case.js";
-import { PrismaPhysicalAssessmentRepository } from "../../../../infrastructure/database/prisma/repositories/prisma-physical-assessment.repository.js";
-
-const repository = new PrismaPhysicalAssessmentRepository();
-const useCase = new ListPhysicalAssessmentsByUserUseCase(repository);
-
 export async function listPhysicalAssessmentsHandler(
   request: FastifyRequest,
   reply: FastifyReply,
@@ -15,7 +9,9 @@ export async function listPhysicalAssessmentsHandler(
     return reply.status(401).send({ message: "Unauthorized" });
   }
 
-  const assessments = await useCase.execute({ userId });
+  const assessments = await request.server.useCases.listPhysicalAssessmentsByUser.execute({
+    userId,
+  });
   const body = assessments.map((a) => ({
     ...a,
     assessedAt: a.assessedAt.toISOString(),

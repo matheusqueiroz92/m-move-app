@@ -1,22 +1,5 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 
-import { GenerateWorkoutPlanWithAIUseCase } from "../../../../application/ai/generate-workout-plan-with-ai.use-case.js";
-import { PrismaWorkoutDayRepository } from "../../../../infrastructure/database/prisma/repositories/prisma-workout-day.repository.js";
-import { PrismaWorkoutExerciseRepository } from "../../../../infrastructure/database/prisma/repositories/prisma-workout-exercise.repository.js";
-import { PrismaWorkoutPlanRepository } from "../../../../infrastructure/database/prisma/repositories/prisma-workout-plan.repository.js";
-import { OpenAIPlanProviderImpl } from "../../../../infrastructure/providers/openai-provider.js";
-
-const aiProvider = new OpenAIPlanProviderImpl();
-const planRepo = new PrismaWorkoutPlanRepository();
-const dayRepo = new PrismaWorkoutDayRepository();
-const exerciseRepo = new PrismaWorkoutExerciseRepository();
-const useCase = new GenerateWorkoutPlanWithAIUseCase(
-  aiProvider,
-  planRepo,
-  dayRepo,
-  exerciseRepo,
-);
-
 export async function generateWorkoutPlanHandler(
   request: FastifyRequest<{
     Body: {
@@ -35,7 +18,7 @@ export async function generateWorkoutPlanHandler(
   }
 
   try {
-    const result = await useCase.execute({
+    const result = await request.server.useCases.generateWorkoutPlanWithAI.execute({
       userId,
       objective: request.body.objective,
       level: request.body.level,

@@ -9,22 +9,26 @@ const mockExecute = vi.hoisted(() =>
   }),
 );
 
-vi.mock("../../../../application/subscription/create-checkout-session.use-case.js", () => ({
-  CreateCheckoutSessionUseCase: vi.fn().mockImplementation(function (this: unknown) {
-    return { execute: mockExecute };
-  }),
-}));
+function createRequest(overrides: { userId?: string; body?: Record<string, unknown> } = {}) {
+  return {
+    userId: "user-1",
+    body: {
+      priceId: "price_1",
+      successUrl: "https://app.test/success",
+      cancelUrl: "https://app.test/cancel",
+    },
+    server: {
+      useCases: {
+        createCheckoutSession: { execute: mockExecute },
+      },
+    },
+    ...overrides,
+  };
+}
 
 describe("createCheckoutHandler", () => {
   it("should return 401 when userId is missing", async () => {
-    const request = {
-      userId: undefined,
-      body: {
-        priceId: "price_1",
-        successUrl: "https://app.test/success",
-        cancelUrl: "https://app.test/cancel",
-      },
-    };
+    const request = createRequest({ userId: undefined });
     const reply = {
       status: vi.fn().mockReturnThis(),
       send: vi.fn(),
@@ -41,14 +45,14 @@ describe("createCheckoutHandler", () => {
   });
 
   it("should return 200 and checkout url when use case succeeds", async () => {
-    const request = {
+    const request = createRequest({
       userId: "user-1",
       body: {
         priceId: "price_abc",
         successUrl: "https://app.test/success",
         cancelUrl: "https://app.test/cancel",
       },
-    };
+    });
     const reply = {
       status: vi.fn().mockReturnThis(),
       send: vi.fn(),
@@ -74,14 +78,7 @@ describe("createCheckoutHandler", () => {
 
   it("should return 500 when use case throws", async () => {
     mockExecute.mockRejectedValueOnce(new Error("Stripe error"));
-    const request = {
-      userId: "user-1",
-      body: {
-        priceId: "price_1",
-        successUrl: "https://app.test/success",
-        cancelUrl: "https://app.test/cancel",
-      },
-    };
+    const request = createRequest();
     const reply = {
       status: vi.fn().mockReturnThis(),
       send: vi.fn(),

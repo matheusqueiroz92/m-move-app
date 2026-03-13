@@ -1,11 +1,5 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 
-import { ListPhysicalAssessmentsByUserUseCase } from "../../../../application/assessment/list-physical-assessments-by-user.use-case.js";
-import { PrismaPhysicalAssessmentRepository } from "../../../../infrastructure/database/prisma/repositories/prisma-physical-assessment.repository.js";
-
-const repository = new PrismaPhysicalAssessmentRepository();
-const useCase = new ListPhysicalAssessmentsByUserUseCase(repository);
-
 export async function getHistoryPhysicalAssessmentsHandler(
   request: FastifyRequest<{ Params: { userId: string } }>,
   reply: FastifyReply,
@@ -20,7 +14,9 @@ export async function getHistoryPhysicalAssessmentsHandler(
     return reply.status(403).send({ message: "Forbidden" });
   }
 
-  const assessments = await useCase.execute({ userId });
+  const assessments = await request.server.useCases.listPhysicalAssessmentsByUser.execute({
+    userId,
+  });
   const body = assessments.map((a) => ({
     ...a,
     assessedAt: a.assessedAt.toISOString(),

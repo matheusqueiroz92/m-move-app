@@ -1,19 +1,6 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 
-import { HandleStripeWebhookUseCase } from "../../../../application/subscription/handle-stripe-webhook.use-case.js";
-import { PrismaSubscriptionRepository } from "../../../../infrastructure/database/prisma/repositories/prisma-subscription.repository.js";
-import { PrismaUserRepository } from "../../../../infrastructure/database/prisma/repositories/prisma-user.repository.js";
-import { StripeProviderImpl } from "../../../../infrastructure/providers/stripe-provider.js";
 import { env } from "../../../../lib/env.js";
-
-const stripeProvider = new StripeProviderImpl();
-const subscriptionRepository = new PrismaSubscriptionRepository();
-const userRepository = new PrismaUserRepository();
-const useCase = new HandleStripeWebhookUseCase(
-  stripeProvider,
-  subscriptionRepository,
-  userRepository,
-);
 
 export async function stripeWebhookHandler(
   request: FastifyRequest<{ Body: Buffer | string }>,
@@ -33,7 +20,11 @@ export async function stripeWebhookHandler(
   }
 
   try {
-    await useCase.execute({ payload, signature, secret });
+    await request.server.useCases.handleStripeWebhook.execute({
+      payload,
+      signature,
+      secret,
+    });
     return reply.status(200).send({ received: true });
   } catch (error) {
     const message =

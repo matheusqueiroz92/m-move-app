@@ -1,11 +1,5 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 
-import { GetUserInsightsUseCase } from "../../../../application/ai/get-user-insights.use-case.js";
-import { OpenAIPlanProviderImpl } from "../../../../infrastructure/providers/openai-provider.js";
-
-const provider = new OpenAIPlanProviderImpl();
-const useCase = new GetUserInsightsUseCase(provider);
-
 export async function getInsightsHandler(
   request: FastifyRequest<{ Params: { userId: string } }>,
   reply: FastifyReply,
@@ -19,7 +13,9 @@ export async function getInsightsHandler(
     return reply.status(403).send({ message: "Forbidden" });
   }
   try {
-    const insights = await useCase.execute({ userId });
+    const insights = await request.server.useCases.getUserInsights.execute({
+      userId,
+    });
     return reply.status(200).send({ insights });
   } catch (error) {
     const message =

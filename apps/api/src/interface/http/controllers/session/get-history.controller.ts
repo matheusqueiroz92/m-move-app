@@ -1,13 +1,5 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 
-import { GetSessionHistoryUseCase } from "../../../../application/workout/get-session-history.use-case.js";
-import { PrismaWorkoutSessionRepository } from "../../../../infrastructure/database/prisma/repositories/prisma-workout-session.repository.js";
-
-const workoutSessionRepository = new PrismaWorkoutSessionRepository();
-const getSessionHistoryUseCase = new GetSessionHistoryUseCase(
-  workoutSessionRepository,
-);
-
 export async function getSessionHistoryHandler(
   request: FastifyRequest<{
     Querystring: { limit?: string; offset?: string };
@@ -24,7 +16,7 @@ export async function getSessionHistoryHandler(
     ? parseInt(request.query.offset, 10)
     : 0;
 
-  const sessions = await getSessionHistoryUseCase.execute({
+  const sessions = await request.server.useCases.getSessionHistory.execute({
     userId,
     limit,
     offset,

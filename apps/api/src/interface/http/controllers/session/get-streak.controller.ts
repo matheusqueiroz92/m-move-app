@@ -1,11 +1,5 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 
-import { GetStreakUseCase } from "../../../../application/workout/get-streak.use-case.js";
-import { PrismaWorkoutSessionRepository } from "../../../../infrastructure/database/prisma/repositories/prisma-workout-session.repository.js";
-
-const workoutSessionRepository = new PrismaWorkoutSessionRepository();
-const getStreakUseCase = new GetStreakUseCase(workoutSessionRepository);
-
 export async function getStreakHandler(
   request: FastifyRequest<{
     Querystring: { timezone?: string };
@@ -17,7 +11,7 @@ export async function getStreakHandler(
     return reply.status(401).send({ message: "Unauthorized" });
   }
 
-  const result = await getStreakUseCase.execute({
+  const result = await request.server.useCases.getStreak.execute({
     userId,
     timezone: request.query.timezone,
   });

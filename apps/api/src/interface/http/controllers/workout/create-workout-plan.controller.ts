@@ -1,13 +1,5 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 
-import { CreateWorkoutPlanUseCase } from "../../../../application/workout/create-workout-plan.use-case.js";
-import { PrismaWorkoutPlanRepository } from "../../../../infrastructure/database/prisma/repositories/prisma-workout-plan.repository.js";
-
-const workoutPlanRepository = new PrismaWorkoutPlanRepository();
-const createWorkoutPlanUseCase = new CreateWorkoutPlanUseCase(
-  workoutPlanRepository,
-);
-
 export async function createWorkoutPlanHandler(
   request: FastifyRequest<{
     Body: { name: string; description?: string | null };
@@ -20,7 +12,7 @@ export async function createWorkoutPlanHandler(
   }
 
   const body = request.body;
-  const plan = await createWorkoutPlanUseCase.execute({
+  const plan = await request.server.useCases.createWorkoutPlan.execute({
     userId,
     name: body.name,
     description: body.description,

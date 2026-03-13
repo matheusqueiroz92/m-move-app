@@ -4,15 +4,21 @@ import { getSubscriptionStatusHandler } from "./get-status.controller.js";
 
 const mockExecute = vi.hoisted(() => vi.fn());
 
-vi.mock("../../../../application/subscription/get-subscription-status.use-case.js", () => ({
-  GetSubscriptionStatusUseCase: vi.fn().mockImplementation(function (this: unknown) {
-    return { execute: mockExecute };
-  }),
-}));
+function createRequest(overrides: { userId?: string } = {}) {
+  return {
+    userId: "user-1",
+    server: {
+      useCases: {
+        getSubscriptionStatus: { execute: mockExecute },
+      },
+    },
+    ...overrides,
+  };
+}
 
 describe("getSubscriptionStatusHandler", () => {
   it("should return 401 when userId is missing", async () => {
-    const request = { userId: undefined };
+    const request = createRequest({ userId: undefined });
     const reply = {
       status: vi.fn().mockReturnThis(),
       send: vi.fn(),
@@ -30,7 +36,7 @@ describe("getSubscriptionStatusHandler", () => {
 
   it("should return 200 with null when user has no subscription", async () => {
     mockExecute.mockResolvedValueOnce(null);
-    const request = { userId: "user-1" };
+    const request = createRequest();
     const reply = {
       status: vi.fn().mockReturnThis(),
       send: vi.fn(),
@@ -58,7 +64,7 @@ describe("getSubscriptionStatusHandler", () => {
       updatedAt: new Date("2025-01-01"),
     };
     mockExecute.mockResolvedValueOnce(sub);
-    const request = { userId: "user-1" };
+    const request = createRequest();
     const reply = {
       status: vi.fn().mockReturnThis(),
       send: vi.fn(),

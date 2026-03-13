@@ -1,11 +1,5 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 
-import { CreateCheckoutSessionUseCase } from "../../../../application/subscription/create-checkout-session.use-case.js";
-import { StripeProviderImpl } from "../../../../infrastructure/providers/stripe-provider.js";
-
-const stripeProvider = new StripeProviderImpl();
-const useCase = new CreateCheckoutSessionUseCase(stripeProvider);
-
 export async function createCheckoutHandler(
   request: FastifyRequest<{
     Body: { priceId: string; successUrl: string; cancelUrl: string };
@@ -18,7 +12,7 @@ export async function createCheckoutHandler(
   }
 
   try {
-    const result = await useCase.execute({
+    const result = await request.server.useCases.createCheckoutSession.execute({
       priceId: request.body.priceId,
       userId,
       successUrl: request.body.successUrl,

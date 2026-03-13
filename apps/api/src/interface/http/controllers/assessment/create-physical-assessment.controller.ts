@@ -1,11 +1,5 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 
-import { CreatePhysicalAssessmentUseCase } from "../../../../application/assessment/create-physical-assessment.use-case.js";
-import { PrismaPhysicalAssessmentRepository } from "../../../../infrastructure/database/prisma/repositories/prisma-physical-assessment.repository.js";
-
-const repository = new PrismaPhysicalAssessmentRepository();
-const useCase = new CreatePhysicalAssessmentUseCase(repository);
-
 export async function createPhysicalAssessmentHandler(
   request: FastifyRequest<{
     Body: {
@@ -33,7 +27,7 @@ export async function createPhysicalAssessmentHandler(
   }
 
   const body = request.body;
-  const assessment = await useCase.execute({
+  const assessment = await request.server.useCases.createPhysicalAssessment.execute({
     userId: body.userId ?? userId,
     assessedBy: body.assessedBy,
     weightKg: body.weightKg,

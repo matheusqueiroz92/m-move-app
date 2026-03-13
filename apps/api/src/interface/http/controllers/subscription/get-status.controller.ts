@@ -1,11 +1,5 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 
-import { GetSubscriptionStatusUseCase } from "../../../../application/subscription/get-subscription-status.use-case.js";
-import { PrismaSubscriptionRepository } from "../../../../infrastructure/database/prisma/repositories/prisma-subscription.repository.js";
-
-const subscriptionRepository = new PrismaSubscriptionRepository();
-const useCase = new GetSubscriptionStatusUseCase(subscriptionRepository);
-
 export async function getSubscriptionStatusHandler(
   request: FastifyRequest,
   reply: FastifyReply,
@@ -15,7 +9,9 @@ export async function getSubscriptionStatusHandler(
     return reply.status(401).send({ message: "Unauthorized" });
   }
 
-  const subscription = await useCase.execute({ userId });
+  const subscription = await request.server.useCases.getSubscriptionStatus.execute({
+    userId,
+  });
   if (!subscription) {
     return reply.status(200).send(null);
   }

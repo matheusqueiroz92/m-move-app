@@ -1,13 +1,5 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 
-import { CreatePortalSessionUseCase } from "../../../../application/subscription/create-portal-session.use-case.js";
-import { PrismaUserRepository } from "../../../../infrastructure/database/prisma/repositories/prisma-user.repository.js";
-import { StripeProviderImpl } from "../../../../infrastructure/providers/stripe-provider.js";
-
-const userRepository = new PrismaUserRepository();
-const stripeProvider = new StripeProviderImpl();
-const useCase = new CreatePortalSessionUseCase(userRepository, stripeProvider);
-
 export async function createPortalHandler(
   request: FastifyRequest<{ Body: { returnUrl: string } }>,
   reply: FastifyReply,
@@ -18,7 +10,7 @@ export async function createPortalHandler(
   }
 
   try {
-    const result = await useCase.execute({
+    const result = await request.server.useCases.createPortalSession.execute({
       userId,
       returnUrl: request.body.returnUrl,
     });

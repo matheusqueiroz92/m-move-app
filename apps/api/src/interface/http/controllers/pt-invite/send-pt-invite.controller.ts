@@ -2,12 +2,6 @@ import { randomUUID } from "node:crypto";
 
 import type { FastifyReply, FastifyRequest } from "fastify";
 
-import { SendPtInviteUseCase } from "../../../../application/pt-invite/send-pt-invite.use-case.js";
-import { PrismaPtStudentLinkRepository } from "../../../../infrastructure/database/prisma/repositories/prisma-pt-student-link.repository.js";
-
-const repository = new PrismaPtStudentLinkRepository();
-const useCase = new SendPtInviteUseCase(repository);
-
 const INVITE_EXPIRES_DAYS = 7;
 
 export async function sendPtInviteHandler(
@@ -22,7 +16,7 @@ export async function sendPtInviteHandler(
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + INVITE_EXPIRES_DAYS);
 
-  const link = await useCase.execute({
+  const link = await request.server.useCases.sendPtInvite.execute({
     personalTrainerId: userId,
     inviteEmail: request.body.inviteEmail,
     inviteToken: randomUUID(),
