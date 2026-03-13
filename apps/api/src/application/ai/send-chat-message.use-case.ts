@@ -1,3 +1,4 @@
+import { ChatNotFoundError } from "../../domain/ai/errors/chat-not-found.error.js";
 import type { OpenAIChatProvider } from "../../domain/ai/providers/openai-provider.interface.js";
 import type { AIChatRepository } from "../../domain/ai/repositories/ai-chat.repository.js";
 import type { AIChatMessageRepository } from "../../domain/ai/repositories/ai-chat-message.repository.js";
@@ -20,9 +21,7 @@ export class SendChatMessageUseCase {
     private readonly chatProvider: OpenAIChatProvider,
   ) {}
 
-  async execute(
-    input: SendChatMessageInput,
-  ): Promise<SendChatMessageResult> {
+  async execute(input: SendChatMessageInput): Promise<SendChatMessageResult> {
     let chatId = input.chatId;
     if (!chatId) {
       const chat = await this.chatRepository.create({
@@ -33,7 +32,7 @@ export class SendChatMessageUseCase {
     } else {
       const chat = await this.chatRepository.findById(chatId);
       if (!chat || chat.userId !== input.userId) {
-        throw new Error("Chat not found");
+        throw new ChatNotFoundError(chatId);
       }
     }
 

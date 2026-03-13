@@ -10,6 +10,7 @@ import {
 } from "fastify-type-provider-zod";
 import { z, ZodError } from "zod";
 
+import { ChatNotFoundError } from "./domain/ai/errors/chat-not-found.error.js";
 import { AssessmentNotFoundError } from "./domain/assessment/errors/assessment-not-found.error.js";
 import { GymNotFoundError } from "./domain/gym/errors/gym-not-found.error.js";
 import { InstructorLimitReachedError } from "./domain/gym/errors/instructor-limit-reached.error.js";
@@ -164,6 +165,10 @@ app.setErrorHandler((error, _, reply) => {
   }
 
   if (error instanceof AssessmentNotFoundError) {
+    return reply.status(404).send({ message: error.message });
+  }
+
+  if (error instanceof ChatNotFoundError) {
     return reply.status(404).send({ message: error.message });
   }
 
