@@ -14,6 +14,8 @@ import { AssessmentNotFoundError } from "./domain/assessment/errors/assessment-n
 import { GymNotFoundError } from "./domain/gym/errors/gym-not-found.error.js";
 import { InstructorLimitReachedError } from "./domain/gym/errors/instructor-limit-reached.error.js";
 import { InstructorLinkNotFoundError } from "./domain/gym/errors/instructor-link-not-found.error.js";
+import { InviteAlreadyUsedError } from "./domain/pt-invite/errors/invite-already-used.error.js";
+import { InviteExpiredError } from "./domain/pt-invite/errors/invite-expired.error.js";
 import { PtInviteNotFoundError } from "./domain/pt-invite/errors/pt-invite-not-found.error.js";
 import { UserNotFoundError } from "./domain/user/errors/user-not-found.error.js";
 import { DayNotFoundError } from "./domain/workout/errors/day-not-found.error.js";
@@ -33,6 +35,7 @@ import { userRoutes } from "./interface/http/routes/user.routes.js";
 import { workoutRoutes } from "./interface/http/routes/workout.routes.js";
 import { workoutDaysRoutes } from "./interface/http/routes/workout-days.routes.js";
 import { auth } from "./lib/auth.js";
+import { AppError } from "./shared/errors/app-error.js";
 
 const healthResponseSchema = z.object({ status: z.string() });
 
@@ -176,6 +179,14 @@ app.setErrorHandler((error, _, reply) => {
     return reply.status(404).send({ message: error.message });
   }
 
+  if (error instanceof InviteExpiredError) {
+    return reply.status(400).send({ message: error.message });
+  }
+
+  if (error instanceof InviteAlreadyUsedError) {
+    return reply.status(400).send({ message: error.message });
+  }
+
   if (error instanceof InstructorLimitReachedError) {
     return reply.status(409).send({ message: error.message });
   }
@@ -198,6 +209,10 @@ app.setErrorHandler((error, _, reply) => {
 
   if (error instanceof SessionNotFoundError) {
     return reply.status(404).send({ message: error.message });
+  }
+
+  if (error instanceof AppError) {
+    return reply.status(error.statusCode).send({ message: error.message });
   }
 
   app.log.error(error);
