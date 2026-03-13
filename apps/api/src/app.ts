@@ -10,11 +10,16 @@ import {
 } from "fastify-type-provider-zod";
 import { z, ZodError } from "zod";
 
+import { AssessmentNotFoundError } from "./domain/assessment/errors/assessment-not-found.error.js";
 import { UserNotFoundError } from "./domain/user/errors/user-not-found.error.js";
 import { DayNotFoundError } from "./domain/workout/errors/day-not-found.error.js";
 import { ExerciseNotFoundError } from "./domain/workout/errors/exercise-not-found.error.js";
 import { PlanNotFoundError } from "./domain/workout/errors/plan-not-found.error.js";
 import { SessionNotFoundError } from "./domain/workout/errors/session-not-found.error.js";
+import {
+  assessmentHistoryRoutes,
+  assessmentRoutes,
+} from "./interface/http/routes/assessment.routes.js";
 import { sessionRoutes } from "./interface/http/routes/session.routes.js";
 import { userRoutes } from "./interface/http/routes/user.routes.js";
 import { workoutRoutes } from "./interface/http/routes/workout.routes.js";
@@ -96,6 +101,10 @@ await app.register(userRoutes, { prefix: "/api/users" });
 await app.register(workoutRoutes, { prefix: "/api/workout-plans" });
 await app.register(workoutDaysRoutes, { prefix: "/api/workout-days" });
 await app.register(sessionRoutes, { prefix: "/api/sessions" });
+await app.register(assessmentHistoryRoutes, {
+  prefix: "/api/assessments/history",
+});
+await app.register(assessmentRoutes, { prefix: "/api/assessments" });
 
 app.route({
   method: ["GET", "POST"],
@@ -137,6 +146,10 @@ app.setErrorHandler((error, _, reply) => {
       message: "Validation error",
       issues: error.flatten().fieldErrors,
     });
+  }
+
+  if (error instanceof AssessmentNotFoundError) {
+    return reply.status(404).send({ message: error.message });
   }
 
   if (error instanceof UserNotFoundError) {

@@ -11,7 +11,7 @@ Implementar as features da API M. Move em ordem de dependência, seguindo **TDD*
 | Área | Situação |
 |------|----------|
 | **Prisma** | Schema completo (User, Gym, WorkoutPlan, WorkoutDay, WorkoutExercise, WorkoutSession, PhysicalAssessment, Subscription, AIChat, PTStudentLink, etc.) |
-| **App** | `/health`, `/swagger.json`, `/api/auth/*`, `/api/users` (GET /me) e `/api/workout-plans` (GET /, POST /, GET /:id, POST /:id/activate) registradas |
+| **App** | `/health`, `/swagger.json`, `/api/auth/*`, `/api/users`, `/api/workout-plans`, `/api/workout-days`, `/api/sessions`, `/api/assessments` (GET /, POST /, GET /:id, GET /history/:userId) registradas |
 | **Domain** | Entidades e interfaces de repositórios existem; vários arquivos vazios ou só esqueleto |
 | **Application** | GetUserProfileUseCase, CreateWorkoutPlanUseCase, ListWorkoutPlansUseCase, GetWorkoutPlanByIdUseCase, ActivateWorkoutPlanUseCase implementados e testados |
 | **Infrastructure** | PrismaUserRepository e PrismaWorkoutPlanRepository implementados; mappers user e workout-plan |
@@ -177,12 +177,13 @@ Rotas: POST /api/sessions/start, PATCH /api/sessions/:id/complete, GET /api/sess
 
 ---
 
-## Fase 4: Physical Assessments (avaliações físicas)
+## Fase 4: Physical Assessments (avaliações físicas) ✅
 
 CRUD + GET /api/assessments/history/:userId (com autorização: próprio usuário ou PT/owner do aluno).
 
 - **Testes:** Use cases create/read/update/delete e list history; integração com auth e autorização por role.
 - **Implementação:** Domain PhysicalAssessment, repositório, use cases, controllers, rotas; middleware de autorização onde necessário.
+- **Status:** GET /, POST /, GET /:id, GET /history/:userId implementados; autorização (próprio usuário) em GET :id e GET history/:userId; testes unitários e de integração passando.
 
 ---
 
