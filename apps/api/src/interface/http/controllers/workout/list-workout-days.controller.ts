@@ -4,10 +4,7 @@ export async function listWorkoutDaysHandler(
   request: FastifyRequest<{ Params: { planId: string } }>,
   reply: FastifyReply,
 ): Promise<void> {
-  const userId = request.userId;
-  if (!userId) {
-    return reply.status(401).send({ message: "Unauthorized" });
-  }
+  const userId = request.userId!;
 
   const days = await request.server.useCases.listWorkoutDays.execute({
     planId: request.params.planId,

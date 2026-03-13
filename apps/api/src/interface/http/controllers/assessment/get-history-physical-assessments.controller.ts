@@ -4,10 +4,7 @@ export async function getHistoryPhysicalAssessmentsHandler(
   request: FastifyRequest<{ Params: { userId: string } }>,
   reply: FastifyReply,
 ): Promise<void> {
-  const requestUserId = request.userId;
-  if (!requestUserId) {
-    return reply.status(401).send({ message: "Unauthorized" });
-  }
+  const requestUserId = request.userId!;
 
   const { userId } = request.params;
   if (userId !== requestUserId) {

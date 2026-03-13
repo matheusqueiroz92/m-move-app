@@ -6,7 +6,9 @@ const mockExecute = vi.hoisted(() =>
   vi.fn().mockResolvedValue({ url: "https://billing.stripe.com/session" }),
 );
 
-function createRequest(overrides: { userId?: string; body?: { returnUrl: string } } = {}) {
+function createRequest(
+  overrides: { userId?: string; body?: { returnUrl: string } } = {},
+) {
   return {
     userId: "user-1",
     body: { returnUrl: "https://app.test/billing" },
@@ -20,23 +22,6 @@ function createRequest(overrides: { userId?: string; body?: { returnUrl: string 
 }
 
 describe("createPortalHandler", () => {
-  it("should return 401 when userId is missing", async () => {
-    const request = createRequest({ userId: undefined });
-    const reply = {
-      status: vi.fn().mockReturnThis(),
-      send: vi.fn(),
-    };
-
-    await createPortalHandler(
-      request as Parameters<typeof createPortalHandler>[0],
-      reply as unknown as Parameters<typeof createPortalHandler>[1],
-    );
-
-    expect(reply.status).toHaveBeenCalledWith(401);
-    expect(reply.send).toHaveBeenCalledWith({ message: "Unauthorized" });
-    expect(mockExecute).not.toHaveBeenCalled();
-  });
-
   it("should return 200 and portal url when use case succeeds", async () => {
     const request = createRequest();
     const reply = {
@@ -45,7 +30,7 @@ describe("createPortalHandler", () => {
     };
 
     await createPortalHandler(
-      request as Parameters<typeof createPortalHandler>[0],
+      request as unknown as Parameters<typeof createPortalHandler>[0],
       reply as unknown as Parameters<typeof createPortalHandler>[1],
     );
 
@@ -68,7 +53,7 @@ describe("createPortalHandler", () => {
     };
 
     await createPortalHandler(
-      request as Parameters<typeof createPortalHandler>[0],
+      request as unknown as Parameters<typeof createPortalHandler>[0],
       reply as unknown as Parameters<typeof createPortalHandler>[1],
     );
 
@@ -87,7 +72,7 @@ describe("createPortalHandler", () => {
     };
 
     await createPortalHandler(
-      request as Parameters<typeof createPortalHandler>[0],
+      request as unknown as Parameters<typeof createPortalHandler>[0],
       reply as unknown as Parameters<typeof createPortalHandler>[1],
     );
 

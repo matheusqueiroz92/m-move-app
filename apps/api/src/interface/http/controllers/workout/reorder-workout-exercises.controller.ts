@@ -7,10 +7,7 @@ export async function reorderWorkoutExercisesHandler(
   }>,
   reply: FastifyReply,
 ): Promise<void> {
-  const userId = request.userId;
-  if (!userId) {
-    return reply.status(401).send({ message: "Unauthorized" });
-  }
+  const userId = request.userId!;
 
   const exercises = await request.server.useCases.reorderWorkoutExercises.execute({
     dayId: request.params.dayId,

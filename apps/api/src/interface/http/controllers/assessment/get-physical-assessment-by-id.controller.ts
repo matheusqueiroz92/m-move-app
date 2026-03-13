@@ -4,10 +4,7 @@ export async function getPhysicalAssessmentByIdHandler(
   request: FastifyRequest<{ Params: { id: string } }>,
   reply: FastifyReply,
 ): Promise<void> {
-  const userId = request.userId;
-  if (!userId) {
-    return reply.status(401).send({ message: "Unauthorized" });
-  }
+  const userId = request.userId!;
 
   const assessment = await request.server.useCases.getPhysicalAssessmentById.execute({
     id: request.params.id,

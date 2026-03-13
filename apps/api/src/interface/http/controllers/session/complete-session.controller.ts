@@ -4,10 +4,7 @@ export async function completeSessionHandler(
   request: FastifyRequest<{ Params: { id: string } }>,
   reply: FastifyReply,
 ): Promise<void> {
-  const userId = request.userId;
-  if (!userId) {
-    return reply.status(401).send({ message: "Unauthorized" });
-  }
+  const userId = request.userId!;
 
   const session = await request.server.useCases.completeWorkoutSession.execute({
     sessionId: request.params.id,

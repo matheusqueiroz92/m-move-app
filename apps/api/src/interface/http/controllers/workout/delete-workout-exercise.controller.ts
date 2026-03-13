@@ -4,10 +4,7 @@ export async function deleteWorkoutExerciseHandler(
   request: FastifyRequest<{ Params: { dayId: string; exerciseId: string } }>,
   reply: FastifyReply,
 ): Promise<void> {
-  const userId = request.userId;
-  if (!userId) {
-    return reply.status(401).send({ message: "Unauthorized" });
-  }
+  const userId = request.userId!;
 
   await request.server.useCases.deleteWorkoutExercise.execute({
     dayId: request.params.dayId,

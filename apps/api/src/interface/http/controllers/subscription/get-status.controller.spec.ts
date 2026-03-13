@@ -17,23 +17,6 @@ function createRequest(overrides: { userId?: string } = {}) {
 }
 
 describe("getSubscriptionStatusHandler", () => {
-  it("should return 401 when userId is missing", async () => {
-    const request = createRequest({ userId: undefined });
-    const reply = {
-      status: vi.fn().mockReturnThis(),
-      send: vi.fn(),
-    };
-
-    await getSubscriptionStatusHandler(
-      request as Parameters<typeof getSubscriptionStatusHandler>[0],
-      reply as Parameters<typeof getSubscriptionStatusHandler>[1],
-    );
-
-    expect(reply.status).toHaveBeenCalledWith(401);
-    expect(reply.send).toHaveBeenCalledWith({ message: "Unauthorized" });
-    expect(mockExecute).not.toHaveBeenCalled();
-  });
-
   it("should return 200 with null when user has no subscription", async () => {
     mockExecute.mockResolvedValueOnce(null);
     const request = createRequest();

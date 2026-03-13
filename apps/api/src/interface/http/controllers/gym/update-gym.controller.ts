@@ -12,10 +12,7 @@ export async function updateGymHandler(
   }>,
   reply: FastifyReply,
 ): Promise<void> {
-  const userId = request.userId;
-  if (!userId) {
-    return reply.status(401).send({ message: "Unauthorized" });
-  }
+  const userId = request.userId!;
 
   const gym = await request.server.useCases.updateGym.execute({
     gymId: request.params.id,

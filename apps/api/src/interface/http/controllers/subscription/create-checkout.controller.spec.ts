@@ -9,7 +9,9 @@ const mockExecute = vi.hoisted(() =>
   }),
 );
 
-function createRequest(overrides: { userId?: string; body?: Record<string, unknown> } = {}) {
+function createRequest(
+  overrides: { userId?: string; body?: Record<string, unknown> } = {},
+) {
   return {
     userId: "user-1",
     body: {
@@ -27,23 +29,6 @@ function createRequest(overrides: { userId?: string; body?: Record<string, unkno
 }
 
 describe("createCheckoutHandler", () => {
-  it("should return 401 when userId is missing", async () => {
-    const request = createRequest({ userId: undefined });
-    const reply = {
-      status: vi.fn().mockReturnThis(),
-      send: vi.fn(),
-    };
-
-    await createCheckoutHandler(
-      request as Parameters<typeof createCheckoutHandler>[0],
-      reply as Parameters<typeof createCheckoutHandler>[1],
-    );
-
-    expect(reply.status).toHaveBeenCalledWith(401);
-    expect(reply.send).toHaveBeenCalledWith({ message: "Unauthorized" });
-    expect(mockExecute).not.toHaveBeenCalled();
-  });
-
   it("should return 200 and checkout url when use case succeeds", async () => {
     const request = createRequest({
       userId: "user-1",
@@ -59,8 +44,8 @@ describe("createCheckoutHandler", () => {
     };
 
     await createCheckoutHandler(
-      request as Parameters<typeof createCheckoutHandler>[0],
-      reply as Parameters<typeof createCheckoutHandler>[1],
+      request as unknown as Parameters<typeof createCheckoutHandler>[0],
+      reply as unknown as Parameters<typeof createCheckoutHandler>[1],
     );
 
     expect(mockExecute).toHaveBeenCalledWith({
@@ -85,8 +70,8 @@ describe("createCheckoutHandler", () => {
     };
 
     await createCheckoutHandler(
-      request as Parameters<typeof createCheckoutHandler>[0],
-      reply as Parameters<typeof createCheckoutHandler>[1],
+      request as unknown as Parameters<typeof createCheckoutHandler>[0],
+      reply as unknown as Parameters<typeof createCheckoutHandler>[1],
     );
 
     expect(reply.status).toHaveBeenCalledWith(500);

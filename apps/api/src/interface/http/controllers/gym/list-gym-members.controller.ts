@@ -4,10 +4,7 @@ export async function listGymMembersHandler(
   request: FastifyRequest<{ Params: { id: string } }>,
   reply: FastifyReply,
 ): Promise<void> {
-  const userId = request.userId;
-  if (!userId) {
-    return reply.status(401).send({ message: "Unauthorized" });
-  }
+  const userId = request.userId!;
 
   const members = await request.server.useCases.listGymMembers.execute({
     gymId: request.params.id,

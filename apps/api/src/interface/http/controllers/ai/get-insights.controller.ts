@@ -4,10 +4,8 @@ export async function getInsightsHandler(
   request: FastifyRequest<{ Params: { userId: string } }>,
   reply: FastifyReply,
 ): Promise<void> {
-  const currentUserId = request.userId;
-  if (!currentUserId) {
-    return reply.status(401).send({ message: "Unauthorized" });
-  }
+  const currentUserId = request.userId!;
+
   const { userId } = request.params;
   if (userId !== currentUserId) {
     return reply.status(403).send({ message: "Forbidden" });

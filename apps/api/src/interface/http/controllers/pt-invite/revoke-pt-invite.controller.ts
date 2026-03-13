@@ -4,10 +4,7 @@ export async function revokePtInviteHandler(
   request: FastifyRequest<{ Params: { id: string } }>,
   reply: FastifyReply,
 ): Promise<void> {
-  const userId = request.userId;
-  if (!userId) {
-    return reply.status(401).send({ message: "Unauthorized" });
-  }
+  const userId = request.userId!;
 
   await request.server.useCases.revokePtInvite.execute({
     inviteId: request.params.id,

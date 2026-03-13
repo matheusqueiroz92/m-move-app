@@ -6,10 +6,7 @@ export async function getSessionHistoryHandler(
   }>,
   reply: FastifyReply,
 ): Promise<void> {
-  const userId = request.userId;
-  if (!userId) {
-    return reply.status(401).send({ message: "Unauthorized" });
-  }
+  const userId = request.userId!;
 
   const limit = request.query.limit ? parseInt(request.query.limit, 10) : 50;
   const offset = request.query.offset

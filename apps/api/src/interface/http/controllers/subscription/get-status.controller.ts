@@ -4,10 +4,7 @@ export async function getSubscriptionStatusHandler(
   request: FastifyRequest,
   reply: FastifyReply,
 ): Promise<void> {
-  const userId = request.userId;
-  if (!userId) {
-    return reply.status(401).send({ message: "Unauthorized" });
-  }
+  const userId = request.userId!;
 
   const subscription = await request.server.useCases.getSubscriptionStatus.execute({
     userId,

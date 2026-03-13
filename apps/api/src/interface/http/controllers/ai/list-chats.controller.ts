@@ -4,10 +4,8 @@ export async function listChatsHandler(
   request: FastifyRequest,
   reply: FastifyReply,
 ): Promise<void> {
-  const userId = request.userId;
-  if (!userId) {
-    return reply.status(401).send({ message: "Unauthorized" });
-  }
+  const userId = request.userId!;
+
   const chats = await request.server.useCases.listUserChats.execute({
     userId,
   });

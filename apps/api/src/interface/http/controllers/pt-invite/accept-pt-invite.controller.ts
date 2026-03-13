@@ -4,10 +4,7 @@ export async function acceptPtInviteHandler(
   request: FastifyRequest<{ Body: { token: string } }>,
   reply: FastifyReply,
 ): Promise<void> {
-  const userId = request.userId;
-  if (!userId) {
-    return reply.status(401).send({ message: "Unauthorized" });
-  }
+  const userId = request.userId!;
 
   const link = await request.server.useCases.acceptPtInvite.execute({
     token: request.body.token,
