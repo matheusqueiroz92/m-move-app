@@ -20,11 +20,12 @@ export async function stripeWebhookHandler(
   reply: FastifyReply,
 ): Promise<void> {
   const raw = request.body;
-  const payload =
-    typeof raw === "string" ? Buffer.from(raw, "utf-8") : raw;
+  const payload = typeof raw === "string" ? Buffer.from(raw, "utf-8") : raw;
   const signature = request.headers["stripe-signature"];
   if (typeof signature !== "string") {
-    return reply.status(400).send({ message: "Missing stripe-signature header" });
+    return reply
+      .status(400)
+      .send({ message: "Missing stripe-signature header" });
   }
   const secret = env.STRIPE_WEBHOOK_SECRET;
   if (!secret) {
@@ -37,6 +38,11 @@ export async function stripeWebhookHandler(
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Webhook handler failed";
-    return reply.status(400).send({ message });
+
+    if (message === "Invalid signature") {
+      return reply.status(400).send({ message });
+    }
+
+    return reply.status(500).send({ message });
   }
 }
