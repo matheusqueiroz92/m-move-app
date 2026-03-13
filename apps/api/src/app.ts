@@ -10,15 +10,15 @@ import {
 } from "fastify-type-provider-zod";
 import { z, ZodError } from "zod";
 
+import { UserNotFoundError } from "./domain/user/errors/user-not-found.error.js";
 import { DayNotFoundError } from "./domain/workout/errors/day-not-found.error.js";
 import { ExerciseNotFoundError } from "./domain/workout/errors/exercise-not-found.error.js";
 import { PlanNotFoundError } from "./domain/workout/errors/plan-not-found.error.js";
 import { SessionNotFoundError } from "./domain/workout/errors/session-not-found.error.js";
-import { UserNotFoundError } from "./domain/user/errors/user-not-found.error.js";
 import { sessionRoutes } from "./interface/http/routes/session.routes.js";
 import { userRoutes } from "./interface/http/routes/user.routes.js";
-import { workoutDaysRoutes } from "./interface/http/routes/workout-days.routes.js";
 import { workoutRoutes } from "./interface/http/routes/workout.routes.js";
+import { workoutDaysRoutes } from "./interface/http/routes/workout-days.routes.js";
 import { auth } from "./lib/auth.js";
 
 const healthResponseSchema = z.object({ status: z.string() });

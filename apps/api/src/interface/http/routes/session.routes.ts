@@ -1,13 +1,12 @@
+import {
+  startSessionBodySchema,
+  streakResponseSchema,
+  workoutSessionListResponseSchema,
+  workoutSessionResponseSchema,
+} from "@m-move-app/validators";
 import type { FastifyInstance } from "fastify";
 import { ZodTypeProvider } from "fastify-type-provider-zod";
 import { z } from "zod";
-
-import {
-  startSessionBodySchema,
-  workoutSessionListResponseSchema,
-  workoutSessionResponseSchema,
-  streakResponseSchema,
-} from "@m-move-app/validators";
 
 import { completeSessionHandler } from "../controllers/session/complete-session.controller.js";
 import { getSessionHistoryHandler } from "../controllers/session/get-history.controller.js";

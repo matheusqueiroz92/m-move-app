@@ -23,11 +23,12 @@ Implementar as features da API M. Move em ordem de dependência, seguindo **TDD*
 
 ## Princípios do plano
 
-1. **TDD**: para cada feature, ordem **teste (Red) → implementação mínima (Green) → refatoração**.
-2. **Camadas**: Controller → Use case → Repository; Domain com entidades e erros; sem lógica de negócio em controllers.
-3. **Dependências**: implementar em ordem que minimize bloqueios (perfil do usuário antes de planos de treino, etc.).
-4. **Packages**: usar `@repo/types`, `@repo/validators` e `@repo/utils` quando existirem; criar schemas/tipos compartilhados conforme necessário.
-5. **Auth**: rotas protegidas usam middleware de autenticação (e autorização por role quando aplicável); userId/tenant vêm do token/sessão.
+1. **TDD obrigatório**: para cada use case, escrever teste unitário antes da implementação; para cada rota, escrever teste de integração antes do controller; não avançar para a próxima feature sem testes verdes.
+2. **TDD (ciclo)**: para cada feature, ordem **teste (Red) → implementação mínima (Green) → refatoração**.
+3. **Camadas**: Controller → Use case → Repository; Domain com entidades e erros; sem lógica de negócio em controllers.
+4. **Dependências**: implementar em ordem que minimize bloqueios (perfil do usuário antes de planos de treino, etc.).
+5. **Packages**: usar `@repo/types`, `@repo/validators` e `@repo/utils` quando existirem; criar schemas/tipos compartilhados conforme necessário.
+6. **Auth**: rotas protegidas usam middleware de autenticação (e autorização por role quando aplicável); userId/tenant vêm do token/sessão.
 
 ---
 

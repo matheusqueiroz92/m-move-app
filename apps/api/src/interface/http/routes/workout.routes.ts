@@ -1,3 +1,12 @@
+import {
+  createWorkoutDayBodySchema,
+  createWorkoutPlanBodySchema,
+  updateWorkoutDayBodySchema,
+  workoutDayListResponseSchema,
+  workoutDayResponseSchema,
+  workoutPlanListResponseSchema,
+  workoutPlanResponseSchema,
+} from "@m-move-app/validators";
 import type { FastifyInstance } from "fastify";
 import { ZodTypeProvider } from "fastify-type-provider-zod";
 import { z } from "zod";
@@ -10,19 +19,11 @@ import { getWorkoutPlanByIdHandler } from "../controllers/workout/get-workout-pl
 import { listWorkoutDaysHandler } from "../controllers/workout/list-workout-days.controller.js";
 import { listWorkoutPlansHandler } from "../controllers/workout/list-workout-plans.controller.js";
 import { updateWorkoutDayHandler } from "../controllers/workout/update-workout-day.controller.js";
-import {
-  createWorkoutDayBodySchema,
-  createWorkoutPlanBodySchema,
-  updateWorkoutDayBodySchema,
-  workoutDayListResponseSchema,
-  workoutDayResponseSchema,
-  workoutPlanListResponseSchema,
-  workoutPlanResponseSchema,
-} from "@m-move-app/validators";
 import { authenticate } from "../middlewares/authenticate.js";
 
 export async function workoutRoutes(app: FastifyInstance): Promise<void> {
   const typed = app.withTypeProvider<ZodTypeProvider>();
+
   typed.get("/", {
     preHandler: [authenticate],
     schema: {
@@ -33,6 +34,7 @@ export async function workoutRoutes(app: FastifyInstance): Promise<void> {
     },
     handler: listWorkoutPlansHandler,
   });
+
   typed.get("/:planId/days", {
     preHandler: [authenticate],
     schema: {
@@ -44,6 +46,7 @@ export async function workoutRoutes(app: FastifyInstance): Promise<void> {
     },
     handler: listWorkoutDaysHandler,
   });
+
   typed.post("/:planId/days", {
     preHandler: [authenticate],
     schema: {
@@ -56,6 +59,7 @@ export async function workoutRoutes(app: FastifyInstance): Promise<void> {
     },
     handler: createWorkoutDayHandler,
   });
+
   typed.patch("/:planId/days/:dayId", {
     preHandler: [authenticate],
     schema: {
@@ -68,6 +72,7 @@ export async function workoutRoutes(app: FastifyInstance): Promise<void> {
     },
     handler: updateWorkoutDayHandler,
   });
+
   typed.delete("/:planId/days/:dayId", {
     preHandler: [authenticate],
     schema: {
@@ -77,6 +82,7 @@ export async function workoutRoutes(app: FastifyInstance): Promise<void> {
     },
     handler: deleteWorkoutDayHandler,
   });
+
   typed.get("/:id", {
     preHandler: [authenticate],
     schema: {
@@ -89,6 +95,7 @@ export async function workoutRoutes(app: FastifyInstance): Promise<void> {
     },
     handler: getWorkoutPlanByIdHandler,
   });
+
   typed.post("/", {
     preHandler: [authenticate],
     schema: {
@@ -100,6 +107,7 @@ export async function workoutRoutes(app: FastifyInstance): Promise<void> {
     },
     handler: createWorkoutPlanHandler,
   });
+
   typed.post("/:id/activate", {
     preHandler: [authenticate],
     schema: {

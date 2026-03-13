@@ -1,5 +1,5 @@
-import type { WorkoutDay } from "../../../../generated/prisma/client.js";
 import type { WorkoutDayResult } from "../../../../domain/workout/repositories/workout-day.repository.js";
+import type { WorkoutDay } from "../../../../generated/prisma/client.js";
 
 export function toWorkoutDayResult(day: WorkoutDay): WorkoutDayResult {
   return {

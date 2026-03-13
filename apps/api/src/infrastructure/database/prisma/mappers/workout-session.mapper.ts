@@ -1,5 +1,5 @@
-import type { WorkoutSession } from "../../../../generated/prisma/client.js";
 import type { WorkoutSessionResult } from "../../../../domain/workout/repositories/workout-session.repository.js";
+import type { WorkoutSession } from "../../../../generated/prisma/client.js";
 
 export function toWorkoutSessionResult(
   session: WorkoutSession,

@@ -1,3 +1,10 @@
+import {
+  createWorkoutExerciseBodySchema,
+  reorderExercisesBodySchema,
+  updateWorkoutExerciseBodySchema,
+  workoutExerciseListResponseSchema,
+  workoutExerciseResponseSchema,
+} from "@m-move-app/validators";
 import type { FastifyInstance } from "fastify";
 import { ZodTypeProvider } from "fastify-type-provider-zod";
 import { z } from "zod";
@@ -7,13 +14,6 @@ import { deleteWorkoutExerciseHandler } from "../controllers/workout/delete-work
 import { listWorkoutExercisesHandler } from "../controllers/workout/list-workout-exercises.controller.js";
 import { reorderWorkoutExercisesHandler } from "../controllers/workout/reorder-workout-exercises.controller.js";
 import { updateWorkoutExerciseHandler } from "../controllers/workout/update-workout-exercise.controller.js";
-import {
-  createWorkoutExerciseBodySchema,
-  reorderExercisesBodySchema,
-  updateWorkoutExerciseBodySchema,
-  workoutExerciseListResponseSchema,
-  workoutExerciseResponseSchema,
-} from "@m-move-app/validators";
 import { authenticate } from "../middlewares/authenticate.js";
 
 export async function workoutDaysRoutes(app: FastifyInstance): Promise<void> {
@@ -63,8 +63,7 @@ export async function workoutDaysRoutes(app: FastifyInstance): Promise<void> {
   typed.patch("/:dayId/exercises/:exerciseId", {
     preHandler: [authenticate],
     schema: {
-      description:
-        "Update an exercise (day's plan must belong to user)",
+      description: "Update an exercise (day's plan must belong to user)",
       params: z.object({
         dayId: z.string().min(1),
         exerciseId: z.string().min(1),
@@ -80,8 +79,7 @@ export async function workoutDaysRoutes(app: FastifyInstance): Promise<void> {
   typed.delete("/:dayId/exercises/:exerciseId", {
     preHandler: [authenticate],
     schema: {
-      description:
-        "Delete an exercise (day's plan must belong to user)",
+      description: "Delete an exercise (day's plan must belong to user)",
       params: z.object({
         dayId: z.string().min(1),
         exerciseId: z.string().min(1),

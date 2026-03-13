@@ -1,5 +1,5 @@
-import type { WorkoutExercise } from "../../../../generated/prisma/client.js";
 import type { WorkoutExerciseResult } from "../../../../domain/workout/repositories/workout-exercise.repository.js";
+import type { WorkoutExercise } from "../../../../generated/prisma/client.js";
 
 export function toWorkoutExerciseResult(
   exercise: WorkoutExercise,
