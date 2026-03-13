@@ -37,6 +37,7 @@ import { userRoutes } from "./interface/http/routes/user.routes.js";
 import { workoutRoutes } from "./interface/http/routes/workout.routes.js";
 import { workoutDaysRoutes } from "./interface/http/routes/workout-days.routes.js";
 import { auth } from "./lib/auth.js";
+import { env } from "./lib/env.js";
 import { AppError } from "./shared/errors/app-error.js";
 
 const healthResponseSchema = z.object({ status: z.string() });
@@ -65,8 +66,12 @@ await app.register(fastifySwagger, {
   transform: jsonSchemaTransform,
 });
 
+const corsOrigins = env.CORS_ORIGIN.split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
 await app.register(fastifyCors, {
-  origin: ["http://localhost:3000"],
+  origin: corsOrigins,
   credentials: true,
 });
 

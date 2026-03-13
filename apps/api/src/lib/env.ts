@@ -9,6 +9,7 @@ const envSchema = z
     TEST_DATABASE_URL: z.string().startsWith("postgresql://").optional(),
     BETTER_AUTH_SECRET: z.string().optional(),
     API_BASE_URL: z.url().default("http://localhost:3001"),
+    CORS_ORIGIN: z.string().default("http://localhost:3000"),
     GOOGLE_CLIENT_ID: z.string().optional(),
     GOOGLE_CLIENT_SECRET: z.string().optional(),
     GOOGLE_GENERATIVE_AI_API_KEY: z.string().optional(),
