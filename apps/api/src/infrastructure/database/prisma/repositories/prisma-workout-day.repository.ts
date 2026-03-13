@@ -15,7 +15,8 @@ export class PrismaWorkoutDayRepository implements WorkoutDayRepository {
         workoutPlanId: input.workoutPlanId,
         isRest: input.isRest ?? false,
         weekDay: input.weekDay,
-        estimatedDurationInSeconds: input.estimatedDurationInSeconds ?? undefined,
+        estimatedDurationInSeconds:
+          input.estimatedDurationInSeconds ?? undefined,
         coverImageUrl: input.coverImageUrl ?? undefined,
       },
     });

@@ -7,9 +7,7 @@ import { prisma } from "../../../../lib/db.js";
 import { toGymInstructorResult } from "../mappers/gym-instructor.mapper.js";
 
 export class PrismaGymInstructorRepository implements GymInstructorRepository {
-  async create(
-    input: CreateGymInstructorInput,
-  ): Promise<GymInstructorResult> {
+  async create(input: CreateGymInstructorInput): Promise<GymInstructorResult> {
     const link = await prisma.gymInstructor.create({
       data: {
         gymId: input.gymId,

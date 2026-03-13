@@ -6,9 +6,7 @@ import type {
 import { prisma } from "../../../../lib/db.js";
 import { toPhysicalAssessmentResult } from "../mappers/physical-assessment.mapper.js";
 
-export class PrismaPhysicalAssessmentRepository
-  implements PhysicalAssessmentRepository
-{
+export class PrismaPhysicalAssessmentRepository implements PhysicalAssessmentRepository {
   async create(
     input: CreatePhysicalAssessmentInput,
   ): Promise<PhysicalAssessmentResult> {

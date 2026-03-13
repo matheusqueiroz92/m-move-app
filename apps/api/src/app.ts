@@ -14,17 +14,21 @@ import { AssessmentNotFoundError } from "./domain/assessment/errors/assessment-n
 import { GymNotFoundError } from "./domain/gym/errors/gym-not-found.error.js";
 import { InstructorLimitReachedError } from "./domain/gym/errors/instructor-limit-reached.error.js";
 import { InstructorLinkNotFoundError } from "./domain/gym/errors/instructor-link-not-found.error.js";
+import { PtInviteNotFoundError } from "./domain/pt-invite/errors/pt-invite-not-found.error.js";
 import { UserNotFoundError } from "./domain/user/errors/user-not-found.error.js";
 import { DayNotFoundError } from "./domain/workout/errors/day-not-found.error.js";
 import { ExerciseNotFoundError } from "./domain/workout/errors/exercise-not-found.error.js";
 import { PlanNotFoundError } from "./domain/workout/errors/plan-not-found.error.js";
 import { SessionNotFoundError } from "./domain/workout/errors/session-not-found.error.js";
+import { aiRoutes } from "./interface/http/routes/ai.routes.js";
 import {
   assessmentHistoryRoutes,
   assessmentRoutes,
 } from "./interface/http/routes/assessment.routes.js";
 import { gymRoutes } from "./interface/http/routes/gym.routes.js";
+import { ptInvitesRoutes } from "./interface/http/routes/pt-invites.routes.js";
 import { sessionRoutes } from "./interface/http/routes/session.routes.js";
+import { subscriptionRoutes } from "./interface/http/routes/subscription.routes.js";
 import { userRoutes } from "./interface/http/routes/user.routes.js";
 import { workoutRoutes } from "./interface/http/routes/workout.routes.js";
 import { workoutDaysRoutes } from "./interface/http/routes/workout-days.routes.js";
@@ -110,6 +114,9 @@ await app.register(assessmentHistoryRoutes, {
 });
 await app.register(assessmentRoutes, { prefix: "/api/assessments" });
 await app.register(gymRoutes, { prefix: "/api/gym" });
+await app.register(ptInvitesRoutes, { prefix: "/api/pt/invites" });
+await app.register(subscriptionRoutes, { prefix: "/api/subscriptions" });
+await app.register(aiRoutes, { prefix: "/api/ai" });
 
 app.route({
   method: ["GET", "POST"],
@@ -162,6 +169,10 @@ app.setErrorHandler((error, _, reply) => {
   }
 
   if (error instanceof InstructorLinkNotFoundError) {
+    return reply.status(404).send({ message: error.message });
+  }
+
+  if (error instanceof PtInviteNotFoundError) {
     return reply.status(404).send({ message: error.message });
   }
 

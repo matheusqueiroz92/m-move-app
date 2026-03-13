@@ -4,8 +4,8 @@ Backend da plataforma **M. Move**, construído com **Fastify**, **Prisma** e **P
 
 ## Stack
 
-- **Runtime**: Node.js 24.x
-- **Framework**: Fastify 5
+- **Runtime**: Node.js
+- **Framework**: Fastify
 - **ORM**: Prisma
 - **Banco**: PostgreSQL
 - **Auth**: Better Auth (Email, Google, GitHub)
@@ -54,17 +54,17 @@ A API sobe por padrão em **http://localhost:3001**. A documentação Swagger/Sc
 
 ## Scripts
 
-| Comando                  | Descrição                                                |
-| ------------------------ | -------------------------------------------------------- |
-| `pnpm dev`               | Sobe a API em modo watch (`tsx watch`)                   |
-| `pnpm lint`              | ESLint                                                   |
-| `pnpm check-types`       | `tsc --noEmit`                                           |
-| `pnpm test`              | Vitest em watch (apenas testes unitários)                 |
-| `pnpm test:run`          | Vitest uma execução (ideal para CI)                      |
-| `pnpm test:unit`         | Apenas testes unitários (exclui `*.integration.spec.ts`)  |
-| `pnpm test:integration`  | Apenas testes de integração (requer `TEST_DATABASE_URL`)  |
-| `pnpm db:test:migrate`   | Aplica migrations no banco de teste (usa `.env.test`)    |
-| `pnpm db:test:push`      | Sincroniza schema no banco de teste sem migrations       |
+| Comando                 | Descrição                                                |
+| ----------------------- | -------------------------------------------------------- |
+| `pnpm dev`              | Sobe a API em modo watch (`tsx watch`)                   |
+| `pnpm lint`             | ESLint                                                   |
+| `pnpm check-types`      | `tsc --noEmit`                                           |
+| `pnpm test`             | Vitest em watch (apenas testes unitários)                |
+| `pnpm test:run`         | Vitest uma execução (ideal para CI)                      |
+| `pnpm test:unit`        | Apenas testes unitários (exclui `*.integration.spec.ts`) |
+| `pnpm test:integration` | Apenas testes de integração (requer `TEST_DATABASE_URL`) |
+| `pnpm db:test:migrate`  | Aplica migrations no banco de teste (usa `.env.test`)    |
+| `pnpm db:test:push`     | Sincroniza schema no banco de teste sem migrations       |
 
 ## Variáveis de ambiente
 
@@ -78,6 +78,11 @@ DATABASE_URL="postgresql://user:password@localhost:5432/mmove"
 # Better Auth
 BETTER_AUTH_SECRET=
 BETTER_AUTH_URL=http://localhost:3001
+
+# Google
+GOOGLE_CLIENT_ID=your-client-id-here
+GOOGLE_CLIENT_SECRET=your-client-secret-here
+GOOGLE_GENERATIVE_AI_API_KEY=your-api-key-here
 
 # Stripe
 STRIPE_SECRET_KEY=

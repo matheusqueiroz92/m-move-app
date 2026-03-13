@@ -7,9 +7,7 @@ import type {
 import { prisma } from "../../../../lib/db.js";
 import { toWorkoutExerciseResult } from "../mappers/workout-exercise.mapper.js";
 
-export class PrismaWorkoutExerciseRepository
-  implements WorkoutExerciseRepository
-{
+export class PrismaWorkoutExerciseRepository implements WorkoutExerciseRepository {
   async create(
     input: CreateWorkoutExerciseInput,
   ): Promise<WorkoutExerciseResult> {
@@ -76,10 +74,7 @@ export class PrismaWorkoutExerciseRepository
     return toWorkoutExerciseResult(updated);
   }
 
-  async delete(
-    exerciseId: string,
-    workoutDayId: string,
-  ): Promise<boolean> {
+  async delete(exerciseId: string, workoutDayId: string): Promise<boolean> {
     const result = await prisma.workoutExercise.deleteMany({
       where: { id: exerciseId, workoutDayId },
     });

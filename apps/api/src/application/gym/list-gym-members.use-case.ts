@@ -1,6 +1,6 @@
 import { GymNotFoundError } from "../../domain/gym/errors/gym-not-found.error.js";
-import type { GymInstructorRepository } from "../../domain/gym/repositories/gym-instructor.repository.js";
 import type { GymRepository } from "../../domain/gym/repositories/gym.repository.js";
+import type { GymInstructorRepository } from "../../domain/gym/repositories/gym-instructor.repository.js";
 
 export interface ListGymMembersInput {
   gymId: string;

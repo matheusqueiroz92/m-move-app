@@ -8,16 +8,16 @@ Implementar as features da API M. Move em ordem de dependência, seguindo **TDD*
 
 ## Estado atual da API
 
-| Área | Situação |
-|------|----------|
-| **Prisma** | Schema completo (User, Gym, WorkoutPlan, WorkoutDay, WorkoutExercise, WorkoutSession, PhysicalAssessment, Subscription, AIChat, PTStudentLink, etc.) |
-| **App** | `/health`, `/swagger.json`, `/api/auth/*`, `/api/users`, `/api/workout-plans`, `/api/workout-days`, `/api/sessions`, `/api/assessments`, `/api/gym` (POST /, GET /:id, PATCH /:id, GET /:id/members, POST /members, DELETE /members/:id) registradas |
-| **Domain** | Entidades e interfaces de repositórios existem; vários arquivos vazios ou só esqueleto |
-| **Application** | GetUserProfileUseCase, CreateWorkoutPlanUseCase, ListWorkoutPlansUseCase, GetWorkoutPlanByIdUseCase, ActivateWorkoutPlanUseCase implementados e testados |
-| **Infrastructure** | PrismaUserRepository e PrismaWorkoutPlanRepository implementados; mappers user e workout-plan |
-| **Interface HTTP** | Rotas user (GET /me) e workout (GET /, POST /, GET /:id, POST /:id/activate); middlewares authenticate e authorize |
-| **Packages** | `packages/types`, `packages/validators`, `packages/utils`, `packages/constants` existem no monorepo |
-| **Testes** | Setup Vitest + Supertest + DB de teste; factories e helpers; exemplo integração (GET /health) e unitário (GetUserProfileUseCase) |
+| Área               | Situação                                                                                                                                                                                                                                     |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Prisma**         | Schema completo (User, Gym, WorkoutPlan, WorkoutDay, WorkoutExercise, WorkoutSession, PhysicalAssessment, Subscription, AIChat, PTStudentLink, etc.)                                                                                         |
+| **App**            | `/health`, `/swagger.json`, `/api/auth/*`, `/api/users`, `/api/workout-plans`, `/api/workout-days`, `/api/sessions`, `/api/assessments`, `/api/gym`, `/api/pt/invites`, `/api/subscriptions` (checkout, portal, status, webhook) registradas |
+| **Domain**         | Entidades e interfaces de repositórios existem; vários arquivos vazios ou só esqueleto                                                                                                                                                       |
+| **Application**    | GetUserProfileUseCase, CreateWorkoutPlanUseCase, ListWorkoutPlansUseCase, GetWorkoutPlanByIdUseCase, ActivateWorkoutPlanUseCase implementados e testados                                                                                     |
+| **Infrastructure** | PrismaUserRepository e PrismaWorkoutPlanRepository implementados; mappers user e workout-plan                                                                                                                                                |
+| **Interface HTTP** | Rotas user (GET /me) e workout (GET /, POST /, GET /:id, POST /:id/activate); middlewares authenticate e authorize                                                                                                                           |
+| **Packages**       | `packages/types`, `packages/validators`, `packages/utils`, `packages/constants` existem no monorepo                                                                                                                                          |
+| **Testes**         | Setup Vitest + Supertest + DB de teste; factories e helpers; exemplo integração (GET /health) e unitário (GetUserProfileUseCase)                                                                                                             |
 
 ---
 
@@ -32,7 +32,7 @@ Implementar as features da API M. Move em ordem de dependência, seguindo **TDD*
 
 ---
 
-## Fase 0: Fundação (registro de rotas e perfil do usuário)
+## Fase 0: Fundação (registro de rotas e perfil do usuário) ✅
 
 **Objetivo:** Expor uma rota de API protegida e garantir injeção de dependências (repositório → use case → controller).
 
@@ -109,7 +109,7 @@ Implementar as features da API M. Move em ordem de dependência, seguindo **TDD*
 
 ---
 
-## Fase 1: Workout Plans (planos de treino)
+## Fase 1: Workout Plans (planos de treino) ✅
 
 Depende de: usuário autenticado (e perfil). Ordem: criar → listar → obter por id → ativar → (opcional) PATCH/DELETE.
 
@@ -140,7 +140,7 @@ Depende de: usuário autenticado (e perfil). Ordem: criar → listar → obter p
 
 ---
 
-## Fase 2: Workout Days e Exercises
+## Fase 2: Workout Days e Exercises ✅
 
 Depende de: WorkoutPlan existente. Rotas: `/api/workout-plans/:planId/days` e `/api/workout-days/:dayId/exercises`.
 
@@ -205,47 +205,49 @@ Para perfis OWNER e INSTRUCTOR. Rotas: POST/GET/PATCH /api/gym, POST /api/gym/me
 
 ---
 
-## Fase 6: PT Invites (convites PT → aluno)
+## Fase 6: PT Invites (convites PT → aluno) ✅
 
 Rotas: POST /api/pt/invites, GET /api/pt/invites, DELETE /api/pt/invites/:id, POST /api/pt/invites/accept.
 
 - **Testes:** Use cases enviar convite (token, expiração 7 dias), listar, revogar, aceitar (validar token e expiração).
-- **Implementação:** Domain PTStudentLink, repositório, use cases, controllers, rotas; e-mail do convite (provider mock em teste).
+- **Implementação:** Domain PTStudentLink (repositório, erros PtInviteNotFound, InviteExpired, InviteAlreadyUsed); use cases SendPtInvite, ListPtInvites, RevokePtInvite, AcceptPtInvite; PrismaPtStudentLinkRepository; controllers e rotas com requireRole PERSONAL_TRAINER para enviar/listar/revogar; accept sem role (qualquer usuário autenticado aceita com token).
+- **Status:** POST /, GET /, POST /accept, DELETE /:id implementados; token UUID, expiração 7 dias; testes unitários e de integração passando.
 
 ---
 
-## Fase 7: Subscriptions (Stripe)
+## Fase 7: Subscriptions (Stripe) ✅
 
 Rotas: POST /api/subscriptions/checkout, POST /api/subscriptions/portal, GET /api/subscriptions/status, POST /api/subscriptions/webhook.
 
-- **Testes:** Unitários com mocks do Stripe; integração do webhook com assinatura falsa.
-- **Implementação:** Provider Stripe (checkout, portal, webhook); use cases que atualizam Subscription e User.planType/status; controllers e rotas; validar assinatura do webhook.
+- **Testes:** Unitários com mocks do Stripe; integração (401, 200, 400 para status, checkout, portal, webhook).
+- **Implementação:** StripeProvider (checkout, portal, constructWebhookEvent, getSubscriptionDetails); SubscriptionRepository e UserRepository.updateSubscriptionFields/getStripeCustomerId; use cases CreateCheckoutSession, CreatePortalSession, GetSubscriptionStatus, HandleStripeWebhook (checkout.session.completed, customer.subscription.updated/deleted, invoice.payment_failed); controllers e rotas; raw body no webhook (preParsing content-type text/plain); validar assinatura do webhook.
+- **Status:** Rotas registradas; env STRIPE_SECRET_KEY e STRIPE_WEBHOOK_SECRET opcionais; testes unitários e de integração passando.
 
 ---
 
-## Fase 8: AI (geração de plano, chat, insights)
+## Fase 8: AI (geração de plano, chat, insights) ✅
 
-- **Gerar plano (POST /api/ai/generate-plan):** Testes com mock OpenAI; use case que chama provider e persiste WorkoutPlan.
-- **Chat (POST /api/ai/chat, GET /api/ai/chats):** Testes com mock; streaming SSE se aplicável; persistência AIChat e AIChatMessage.
-- **Insights (GET /api/ai/insights/:userId):** Testes com mock; use case que agrega sessões/avaliações e chama IA.
+- **Gerar plano (POST /api/ai/generate-plan):** Testes com mock OpenAI; use case que chama provider e persiste WorkoutPlan, dias e exercícios; OpenAIPlanProviderImpl com GPT-4o e validação Zod do JSON; rotas e integração (401, 400, 503).
+- **Chat (POST /api/ai/chat, GET /api/ai/chats):** Repositórios AIChat e AIChatMessage (Prisma); use cases ListUserChats e SendChatMessage (cria chat se chatId null, persiste USER + ASSISTANT); OpenAIChatProvider (chat completions); controllers e rotas; testes unitários e integração (401, 200 lista vazia).
+- **Insights (GET /api/ai/insights/:userId):** Use case GetUserInsights; OpenAIInsightsProvider.getInsights (prompt genérico); rota com autorização (apenas próprio userId); testes unitários e integração (401, 403).
 
-Conforme `.cursor/rules/integration-ai.mdc`.
+Conforme `.cursor/rules/integration-ai.mdc`. Status: Rotas POST /generate-plan, GET /chats, POST /chat, GET /insights/:userId registradas; OPENAI_API_KEY opcional (503 quando não configurado).
 
 ---
 
 ## Ordem sugerida de execução (resumo)
 
-| Ordem | Fase | Entregável principal |
-|-------|------|----------------------|
-| 0 | Fundação | Rotas registradas no app; GET perfil (me/profile) funcionando com auth |
-| 1 | Workout Plans | CRUD planos + ativar plano |
-| 2 | Workout Days + Exercises | CRUD dias e exercícios + reorder |
-| 3 | Sessions | Start, complete, history, streak |
-| 4 | Assessments | CRUD avaliações + history por userId |
-| 5 | Gym | CRUD academia + membros/instrutores |
-| 6 | PT Invites | Enviar, listar, revogar, aceitar convite |
-| 7 | Subscriptions | Checkout, portal, status, webhook Stripe |
-| 8 | AI | Generate plan, chat, insights |
+| Ordem | Fase                     | Entregável principal                                                   |
+| ----- | ------------------------ | ---------------------------------------------------------------------- |
+| 0     | Fundação                 | Rotas registradas no app; GET perfil (me/profile) funcionando com auth |
+| 1     | Workout Plans            | CRUD planos + ativar plano                                             |
+| 2     | Workout Days + Exercises | CRUD dias e exercícios + reorder                                       |
+| 3     | Sessions                 | Start, complete, history, streak                                       |
+| 4     | Assessments              | CRUD avaliações + history por userId                                   |
+| 5     | Gym                      | CRUD academia + membros/instrutores                                    |
+| 6     | PT Invites               | Enviar, listar, revogar, aceitar convite                               |
+| 7     | Subscriptions            | Checkout, portal, status, webhook Stripe                               |
+| 8     | AI                       | Generate plan, chat, insights                                          |
 
 ---
 
