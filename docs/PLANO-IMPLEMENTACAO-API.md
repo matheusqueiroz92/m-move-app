@@ -11,7 +11,7 @@ Implementar as features da API M. Move em ordem de dependência, seguindo **TDD*
 | Área | Situação |
 |------|----------|
 | **Prisma** | Schema completo (User, Gym, WorkoutPlan, WorkoutDay, WorkoutExercise, WorkoutSession, PhysicalAssessment, Subscription, AIChat, PTStudentLink, etc.) |
-| **App** | `/health`, `/swagger.json`, `/api/auth/*`, `/api/users`, `/api/workout-plans`, `/api/workout-days`, `/api/sessions`, `/api/assessments` (GET /, POST /, GET /:id, GET /history/:userId) registradas |
+| **App** | `/health`, `/swagger.json`, `/api/auth/*`, `/api/users`, `/api/workout-plans`, `/api/workout-days`, `/api/sessions`, `/api/assessments`, `/api/gym` (POST /, GET /:id, PATCH /:id, GET /:id/members, POST /members, DELETE /members/:id) registradas |
 | **Domain** | Entidades e interfaces de repositórios existem; vários arquivos vazios ou só esqueleto |
 | **Application** | GetUserProfileUseCase, CreateWorkoutPlanUseCase, ListWorkoutPlansUseCase, GetWorkoutPlanByIdUseCase, ActivateWorkoutPlanUseCase implementados e testados |
 | **Infrastructure** | PrismaUserRepository e PrismaWorkoutPlanRepository implementados; mappers user e workout-plan |
@@ -187,19 +187,21 @@ CRUD + GET /api/assessments/history/:userId (com autorização: próprio usuári
 
 ---
 
-## Fase 5: Gym (academia) e instrutores
+## Fase 5: Gym (academia) e instrutores ✅
 
 Para perfis OWNER e INSTRUCTOR. Rotas: POST/GET/PATCH /api/gym, POST /api/gym/members, DELETE /api/gym/members/:id.
 
 ### 5.1 CRUD Gym (owner)
 
 - **Testes:** Apenas OWNER pode criar/editar academia; use case e integração.
-- **Implementação:** Repositório Gym (create, findById, update); use cases; controller; rotas com autorização por role.
+- **Implementação:** Repositório Gym (create, findById, findByOwnerId, update); use cases CreateGym, GetGymById, UpdateGym; controllers; rotas com autorização por role (requireRole OWNER).
 
 ### 5.2 Membros e instrutores
 
 - **Testes:** Convidar instrutor (limite maxInstructors); remover instrutor; listar membros.
-- **Implementação:** Use cases invite-instructor, remove-instructor; implementar repositórios e controllers; registrar rotas.
+- **Implementação:** Use cases InviteInstructor, RemoveInstructor, ListGymMembers; repositórios GymInstructor (create, findById, findByGymId, countActiveByGymId, delete); controllers; rotas GET /:id/members, POST /members, DELETE /members/:id.
+
+- **Status:** POST /, GET /:id, PATCH /:id, GET /:id/members, POST /members, DELETE /members/:id implementados; middleware authorize (requireRole) para OWNER; testes unitários e de integração passando.
 
 ---
 

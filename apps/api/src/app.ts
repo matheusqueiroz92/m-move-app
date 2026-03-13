@@ -11,6 +11,9 @@ import {
 import { z, ZodError } from "zod";
 
 import { AssessmentNotFoundError } from "./domain/assessment/errors/assessment-not-found.error.js";
+import { GymNotFoundError } from "./domain/gym/errors/gym-not-found.error.js";
+import { InstructorLimitReachedError } from "./domain/gym/errors/instructor-limit-reached.error.js";
+import { InstructorLinkNotFoundError } from "./domain/gym/errors/instructor-link-not-found.error.js";
 import { UserNotFoundError } from "./domain/user/errors/user-not-found.error.js";
 import { DayNotFoundError } from "./domain/workout/errors/day-not-found.error.js";
 import { ExerciseNotFoundError } from "./domain/workout/errors/exercise-not-found.error.js";
@@ -20,6 +23,7 @@ import {
   assessmentHistoryRoutes,
   assessmentRoutes,
 } from "./interface/http/routes/assessment.routes.js";
+import { gymRoutes } from "./interface/http/routes/gym.routes.js";
 import { sessionRoutes } from "./interface/http/routes/session.routes.js";
 import { userRoutes } from "./interface/http/routes/user.routes.js";
 import { workoutRoutes } from "./interface/http/routes/workout.routes.js";
@@ -105,6 +109,7 @@ await app.register(assessmentHistoryRoutes, {
   prefix: "/api/assessments/history",
 });
 await app.register(assessmentRoutes, { prefix: "/api/assessments" });
+await app.register(gymRoutes, { prefix: "/api/gym" });
 
 app.route({
   method: ["GET", "POST"],
@@ -150,6 +155,18 @@ app.setErrorHandler((error, _, reply) => {
 
   if (error instanceof AssessmentNotFoundError) {
     return reply.status(404).send({ message: error.message });
+  }
+
+  if (error instanceof GymNotFoundError) {
+    return reply.status(404).send({ message: error.message });
+  }
+
+  if (error instanceof InstructorLinkNotFoundError) {
+    return reply.status(404).send({ message: error.message });
+  }
+
+  if (error instanceof InstructorLimitReachedError) {
+    return reply.status(409).send({ message: error.message });
   }
 
   if (error instanceof UserNotFoundError) {
