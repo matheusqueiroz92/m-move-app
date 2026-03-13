@@ -15,6 +15,7 @@ import { getInsightsHandler } from "../controllers/ai/get-insights.controller.js
 import { listChatsHandler } from "../controllers/ai/list-chats.controller.js";
 import { sendChatMessageHandler } from "../controllers/ai/send-chat-message.controller.js";
 import { authenticate } from "../middlewares/authenticate.js";
+import { createAIChatRateLimitMiddleware } from "../middlewares/ai-chat-rate-limit.js";
 
 const messageResponseSchema = z.object({ message: z.string() });
 
@@ -46,7 +47,7 @@ export async function aiRoutes(app: FastifyInstance): Promise<void> {
   });
 
   typed.post("/chat", {
-    preHandler: [authenticate],
+    preHandler: [authenticate, createAIChatRateLimitMiddleware()],
     schema: {
       description: "Send a message to the AI chat (creates chat if chatId is null)",
       body: sendChatMessageBodySchema,
