@@ -4,7 +4,7 @@ import { PlanNotFoundError } from "../../domain/workout/errors/plan-not-found.er
 import type {
   WorkoutPlanRepository,
   WorkoutPlanResult,
-} from "../../domain/workout/repositories/workout-plant.repository.js";
+} from "../../domain/workout/repositories/workout-plan.repository.js";
 import { ActivateWorkoutPlanUseCase } from "./activate-workout-plan.use-case.js";
 
 describe("ActivateWorkoutPlanUseCase", () => {
@@ -19,7 +19,9 @@ describe("ActivateWorkoutPlanUseCase", () => {
       createdAt: new Date(),
       updatedAt: new Date(),
     };
-    const findByIdAndUserId = vi.fn().mockResolvedValue({ ...activated, isActive: false });
+    const findByIdAndUserId = vi
+      .fn()
+      .mockResolvedValue({ ...activated, isActive: false });
     const deactivateAllByUserId = vi.fn().mockResolvedValue(undefined);
     const updateIsActive = vi.fn().mockResolvedValue(activated);
     const repository: WorkoutPlanRepository = {

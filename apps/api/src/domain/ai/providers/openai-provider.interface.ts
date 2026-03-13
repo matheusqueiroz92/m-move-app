@@ -1,6 +1,6 @@
 import type { WeekDay } from "@m-move-app/constants";
 
-export interface GenerateWorkoutPlanParams {
+export interface GeneratedWorkoutPlanParams {
   objective: string;
   level: string;
   daysPerWeek: number;
@@ -34,7 +34,9 @@ export interface GeneratedWorkoutPlan {
 }
 
 export interface OpenAIPlanProvider {
-  generateWorkoutPlan(params: GenerateWorkoutPlanParams): Promise<GeneratedWorkoutPlan>;
+  generateWorkoutPlan(
+    params: GeneratedWorkoutPlanParams,
+  ): Promise<GeneratedWorkoutPlan>;
 }
 
 export interface ChatMessage {

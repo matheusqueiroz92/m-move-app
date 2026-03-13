@@ -1,7 +1,7 @@
 import type {
   WorkoutPlanRepository,
   WorkoutPlanResult,
-} from "../../domain/workout/repositories/workout-plant.repository.js";
+} from "../../domain/workout/repositories/workout-plan.repository.js";
 
 export interface ListWorkoutPlansInput {
   userId: string;

@@ -1,6 +1,6 @@
 import { InstructorLinkNotFoundError } from "../../domain/gym/errors/instructor-link-not-found.error.js";
-import type { GymInstructorRepository } from "../../domain/gym/repositories/gym-instructor.repository.js";
 import type { GymRepository } from "../../domain/gym/repositories/gym.repository.js";
+import type { GymInstructorRepository } from "../../domain/gym/repositories/gym-instructor.repository.js";
 
 export interface RemoveInstructorInput {
   linkId: string;

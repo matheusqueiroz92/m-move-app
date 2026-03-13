@@ -19,7 +19,33 @@ Backend da plataforma **M. Move**, construído com **Fastify**, **Prisma** e **P
 
 ```
 apps/api/src/
-
+├── domain/                    # Entidades, erros, interfaces de repositório
+│   ├── ai/                    # IA (providers, repositórios AIChat/AIChatMessage)
+│   ├── assessment/
+│   ├── gym/
+│   ├── pt-invite/
+│   ├── subscription/          # Subscription repository + Stripe provider interface
+│   ├── user/
+│   └── workout/
+├── application/               # Use cases (regras de negócio)
+│   ├── ai/                    # generate-plan, chat, list-chats, insights
+│   ├── assessment/
+│   ├── gym/
+│   ├── pt-invite/
+│   ├── subscription/
+│   ├── user/
+│   └── workout/
+├── infrastructure/            # Implementações concretas
+│   ├── database/prisma/       # Repositories, mappers
+│   └── providers/             # Stripe, OpenAI
+├── interface/http/            # Camada de entrada HTTP
+│   ├── controllers/
+│   ├── middlewares/           # authenticate, requireRole
+│   ├── routes/
+│   └── schemas/
+├── lib/                       # db, env, auth
+├── shared/                    # AppError, etc.
+└── test/                      # setup, factories, helpers, mocks
 ```
 
 ## Pré-requisitos
@@ -63,6 +89,7 @@ A API sobe por padrão em **http://localhost:3001**. A documentação Swagger/Sc
 | `pnpm test:run`         | Vitest uma execução (ideal para CI)                      |
 | `pnpm test:unit`        | Apenas testes unitários (exclui `*.integration.spec.ts`) |
 | `pnpm test:integration` | Apenas testes de integração (requer `TEST_DATABASE_URL`) |
+| `pnpm test:coverage`    | Testes unitários + integração com relatório de cobertura  |
 | `pnpm db:test:migrate`  | Aplica migrations no banco de teste (usa `.env.test`)    |
 | `pnpm db:test:push`     | Sincroniza schema no banco de teste sem migrations       |
 
@@ -95,7 +122,7 @@ STRIPE_PRICE_ID_GYM=
 OPENAI_API_KEY=
 ```
 
-Para **testes**, é obrigatório um PostgreSQL dedicado e a variável `TEST_DATABASE_URL`.
+Para **testes**, é obrigatório um PostgreSQL dedicado e a variável `TEST_DATABASE_URL`. As variáveis `OPENAI_API_KEY` e `STRIPE_SECRET_KEY`/`STRIPE_WEBHOOK_SECRET` são opcionais: endpoints que dependem delas retornam **503** quando não configuradas.
 
 ### Banco de testes com Docker
 
@@ -137,16 +164,16 @@ Os testes de integração de `GET /api/users/me` (200 e 404) dependem das tabela
 | Recurso           | Prefixo                           | Descrição                                                                   |
 | ----------------- | --------------------------------- | --------------------------------------------------------------------------- |
 | **Auth**          | `/api/auth`                       | `POST /register`, `POST /login`, `POST /logout`, `GET /me`, `POST /refresh` |
-| **Users**         | `/api/users`                      | `GET /`, `GET /:id`, `PATCH /:id`, `DELETE /:id`                            |
-| **Workout Plans** | `/api/workout-plans`              | CRUD + `POST /:id/activate`                                                 |
-| **Workout Days**  | `/api/workout-plans/:id/days`     | CRUD de dias do plano                                                       |
-| **Exercises**     | `/api/workout-days/:id/exercises` | CRUD + `PATCH /reorder`                                                     |
+| **Users**         | `/api/users`                      | `GET /me` (perfil do usuário autenticado)                                   |
+| **Workout Plans** | `/api/workout-plans`              | CRUD + `POST /:planId/activate`                                              |
+| **Workout Days**  | `/api/workout-plans/:planId/days` | CRUD de dias do plano                                                       |
+| **Exercises**     | `/api/workout-days/:dayId/exercises` | CRUD + `PATCH /reorder`                                                  |
 | **Sessions**      | `/api/sessions`                   | `POST /start`, `PATCH /:id/complete`, `GET /history`, `GET /streak`         |
-| **Assessments**   | `/api/assessments`                | CRUD + `GET /history/:userId`                                               |
-| **Gym**           | `/api/gym`                        | CRUD academia + `POST /members`, `DELETE /members/:id`                      |
-| **AI**            | `/api/ai`                         | `POST /chat`, `GET /chats`, `POST /generate-plan`, `GET /insights/:userId`  |
-| **PT Invites**    | `/api/pt/invites`                 | `POST /` (enviar), `GET /` (listar), `DELETE /:id`, `POST /accept`          |
-| **Subscriptions** | `/api/subscriptions`              | `POST /checkout`, `POST /portal`, `GET /status`, `POST /webhook`            |
+| **Assessments**   | `/api/assessments`                | CRUD + `GET /history/:userId` (autorizado: próprio usuário ou PT do aluno)  |
+| **Gym**           | `/api/gym`                        | CRUD academia (OWNER); `GET /:id/members`, `POST /members`, `DELETE /members/:id` |
+| **AI**            | `/api/ai`                         | `POST /generate-plan`, `GET /chats`, `POST /chat`, `GET /insights/:userId`  |
+| **PT Invites**    | `/api/pt/invites`                 | `POST /` (enviar), `GET /` (listar), `DELETE /:id` (revogar), `POST /accept` |
+| **Subscriptions** | `/api/subscriptions`              | `POST /checkout`, `POST /portal`, `GET /status`, `POST /webhook` (Stripe)   |
 
 A documentação detalhada (schemas, exemplos) está em **/docs** (Swagger/Scalar) com a API rodando.
 
@@ -158,7 +185,13 @@ A documentação detalhada (schemas, exemplos) está em **/docs** (Swagger/Scala
 - Índices em campos usados em `WHERE` com frequência
 - Operações múltiplas via `prisma.$transaction`
 
-Entidades principais: `User`, `WorkoutPlan`, `WorkoutDay`, `WorkoutExercise`, `WorkoutSession`, `PhysicalAssessment`, `Gym`, `Subscription`, `AIChat`, `AIChatMessage`, `PTStudentLink`.
+Entidades principais: `User`, `WorkoutPlan`, `WorkoutDay`, `WorkoutExercise`, `WorkoutSession`, `PhysicalAssessment`, `Gym`, `GymInstructor`, `Subscription`, `AIChat`, `AIChatMessage`, `PTStudentLink`.
+
+## IA (OpenAI)
+
+- **POST /api/ai/generate-plan** — Gera plano de treino com GPT-4o (objetivo, nível, dias/semana, equipamentos); persiste `WorkoutPlan`, `WorkoutDay` e `WorkoutExercise`. Requer `OPENAI_API_KEY`.
+- **GET /api/ai/chats** — Lista conversas do usuário (`AIChat`). **POST /api/ai/chat** — Envia mensagem (cria chat se `chatId` null), persiste em `AIChatMessage` e retorna resposta da IA.
+- **GET /api/ai/insights/:userId** — Retorna insights de progresso gerados por IA. Apenas o próprio `userId` (403 para outros).
 
 ## Pagamentos (Stripe)
 
@@ -189,12 +222,15 @@ pnpm test:run    # uma execução
 # Testes de integração (exige .env.test com TEST_DATABASE_URL e banco migrado)
 pnpm db:test:migrate
 pnpm test:integration
+
+# Cobertura (unitários + integração)
+pnpm test:coverage
 ```
 
 ## Packages compartilhados
 
 - **@m-move-app/types** — `IUser`, `IWorkoutPlan`, DTOs, `PaginatedResponse<T>`, etc.
-- **@m-move-app/validators** — schemas Zod (workout, assessment, auth, AI)
+- **@m-move-app/validators** — schemas Zod (workout, assessment, user, gym, pt-invite, subscription, ai)
 - **@m-move-app/utils** — `calculateStreak`, `calculateBMI`, `formatDuration`, `getWeekDayFromDate`
 
 ## Regras de desenvolvimento

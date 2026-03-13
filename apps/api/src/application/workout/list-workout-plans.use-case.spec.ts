@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import type {
   WorkoutPlanRepository,
   WorkoutPlanResult,
-} from "../../domain/workout/repositories/workout-plant.repository.js";
+} from "../../domain/workout/repositories/workout-plan.repository.js";
 import { ListWorkoutPlansUseCase } from "./list-workout-plans.use-case.js";
 
 describe("ListWorkoutPlansUseCase", () => {

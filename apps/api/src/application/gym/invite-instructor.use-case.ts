@@ -1,7 +1,7 @@
 import { GymNotFoundError } from "../../domain/gym/errors/gym-not-found.error.js";
 import { InstructorLimitReachedError } from "../../domain/gym/errors/instructor-limit-reached.error.js";
-import type { GymInstructorRepository } from "../../domain/gym/repositories/gym-instructor.repository.js";
 import type { GymRepository } from "../../domain/gym/repositories/gym.repository.js";
+import type { GymInstructorRepository } from "../../domain/gym/repositories/gym-instructor.repository.js";
 
 export interface InviteInstructorInput {
   gymId: string;
@@ -23,13 +23,11 @@ export class InviteInstructorUseCase {
       throw new GymNotFoundError(input.gymId);
     }
 
-    const count =
-      await this.gymInstructorRepository.countActiveByGymId(input.gymId);
+    const count = await this.gymInstructorRepository.countActiveByGymId(
+      input.gymId,
+    );
     if (count >= gym.maxInstructors) {
-      throw new InstructorLimitReachedError(
-        input.gymId,
-        gym.maxInstructors,
-      );
+      throw new InstructorLimitReachedError(input.gymId, gym.maxInstructors);
     }
 
     return this.gymInstructorRepository.create({

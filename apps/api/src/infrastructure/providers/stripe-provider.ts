@@ -74,7 +74,7 @@ export class StripeProviderImpl implements StripeProvider {
     return {
       type: event.type,
       data: {
-        object: event.data.object as Record<string, unknown>,
+        object: event.data.object as unknown as Record<string, unknown>,
       },
     };
   }
@@ -87,15 +87,22 @@ export class StripeProviderImpl implements StripeProvider {
     const sub = await stripe.subscriptions.retrieve(subscriptionId);
     const item = sub.items.data[0];
     const priceId = item?.price?.id ?? "";
+    type SubWithPeriod = {
+      current_period_start: number;
+      current_period_end: number;
+      trial_end: number | null;
+      cancel_at_period_end?: boolean;
+    };
+    const subPeriod = sub as unknown as SubWithPeriod;
     return {
       id: sub.id,
       stripePriceId: priceId,
       status: sub.status,
-      currentPeriodStart: new Date((sub.current_period_start as number) * 1000),
-      currentPeriodEnd: new Date((sub.current_period_end as number) * 1000),
-      cancelAtPeriodEnd: sub.cancel_at_period_end ?? false,
-      trialEnd: sub.trial_end
-        ? new Date((sub.trial_end as number) * 1000)
+      currentPeriodStart: new Date(subPeriod.current_period_start * 1000),
+      currentPeriodEnd: new Date(subPeriod.current_period_end * 1000),
+      cancelAtPeriodEnd: subPeriod.cancel_at_period_end ?? false,
+      trialEnd: subPeriod.trial_end
+        ? new Date(subPeriod.trial_end * 1000)
         : null,
     };
   }

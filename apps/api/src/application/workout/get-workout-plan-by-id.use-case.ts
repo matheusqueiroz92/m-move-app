@@ -2,7 +2,7 @@ import { PlanNotFoundError } from "../../domain/workout/errors/plan-not-found.er
 import type {
   WorkoutPlanRepository,
   WorkoutPlanResult,
-} from "../../domain/workout/repositories/workout-plant.repository.js";
+} from "../../domain/workout/repositories/workout-plan.repository.js";
 
 export interface GetWorkoutPlanByIdInput {
   planId: string;

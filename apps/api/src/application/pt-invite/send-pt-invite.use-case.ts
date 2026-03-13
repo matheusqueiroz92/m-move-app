@@ -1,5 +1,4 @@
 import type {
-  CreatePtStudentLinkInput,
   PtStudentLinkRepository,
   PtStudentLinkResult,
 } from "../../domain/pt-invite/repositories/pt-student-link.repository.js";

@@ -2,7 +2,7 @@ import type {
   CreateWorkoutPlanInput,
   WorkoutPlanRepository,
   WorkoutPlanResult,
-} from "../../domain/workout/repositories/workout-plant.repository.js";
+} from "../../domain/workout/repositories/workout-plan.repository.js";
 
 export class CreateWorkoutPlanUseCase {
   constructor(private readonly workoutPlanRepository: WorkoutPlanRepository) {}

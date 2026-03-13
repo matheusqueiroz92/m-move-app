@@ -1,9 +1,11 @@
+import type { PlanType } from "@m-move-app/constants";
 import type { FastifyReply, FastifyRequest } from "fastify";
 
-import type { PlanType } from "@m-move-app/constants";
-
 import type { AIChatMessageRepository } from "../../../domain/ai/repositories/ai-chat-message.repository.js";
-import type { UserRepository } from "../../../domain/user/repositories/user.repository.js";
+import type {
+  UserRepository,
+  UserRepositoryFindByIdResult,
+} from "../../../domain/user/repositories/user.repository.js";
 import { prisma } from "../../../lib/db.js";
 
 const PLAN_LIMITS: Record<PlanType, number | null> = {
@@ -54,22 +56,35 @@ export function createAIChatRateLimitMiddleware(deps?: {
       return reply.status(401).send({ message: "Unauthorized" });
     }
 
-    const user =
+    const user: (UserRepositoryFindByIdResult & {
+      planType: PlanType | null;
+      timezone: string | null;
+    }) | null =
       userRepo && typeof userRepo.findById === "function"
-        ? await userRepo.findById(userId)
+        ? ((await userRepo.findById(userId)) as UserRepositoryFindByIdResult & {
+            planType: PlanType | null;
+            timezone: string | null;
+          })
         : await prisma.user.findUnique({
             where: { id: userId },
-            select: { planType: true, timezone: true },
+            select: {
+              id: true,
+              name: true,
+              email: true,
+              role: true,
+              planType: true,
+              timezone: true,
+            },
           });
 
     if (!user) {
       return reply.status(404).send({ message: "User not found" });
     }
 
-    const planType = (user as any).planType as PlanType | null;
+    const planType = user.planType;
     const timezone =
-      (user as any).timezone && typeof (user as any).timezone === "string"
-        ? ((user as any).timezone as string)
+      user.timezone && typeof user.timezone === "string"
+        ? user.timezone
         : "America/Sao_Paulo";
 
     if (!planType) {
@@ -103,4 +118,3 @@ export function createAIChatRateLimitMiddleware(deps?: {
     }
   };
 }
-

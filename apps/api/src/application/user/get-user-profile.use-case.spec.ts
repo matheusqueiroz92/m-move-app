@@ -8,9 +8,15 @@ import { GetUserProfileUseCase } from "./get-user-profile.use-case.js";
 describe("GetUserProfileUseCase", () => {
   it("should return user profile when user exists", async () => {
     // Given: a user exists in the repository
-    const user = createUserFixture({ id: "user-1", name: "Jane Doe", email: "jane@example.com" });
+    const user = createUserFixture({
+      id: "user-1",
+      name: "Jane Doe",
+      email: "jane@example.com",
+    });
     const userRepository: UserRepository = {
       findById: vi.fn().mockResolvedValue(user),
+      getStripeCustomerId: vi.fn().mockResolvedValue("cust-1"),
+      updateSubscriptionFields: vi.fn().mockResolvedValue(undefined),
     };
     const useCase = new GetUserProfileUseCase(userRepository);
 
@@ -26,16 +32,18 @@ describe("GetUserProfileUseCase", () => {
     // Given: the repository returns null for the user
     const userRepository: UserRepository = {
       findById: vi.fn().mockResolvedValue(null),
+      getStripeCustomerId: vi.fn().mockResolvedValue(null),
+      updateSubscriptionFields: vi.fn().mockResolvedValue(undefined),
     };
     const useCase = new GetUserProfileUseCase(userRepository);
 
     // When: getting profile for non-existent user
     // Then: throws UserNotFoundError
     await expect(useCase.execute({ userId: "non-existent" })).rejects.toThrow(
-      UserNotFoundError
+      UserNotFoundError,
     );
     await expect(useCase.execute({ userId: "non-existent" })).rejects.toThrow(
-      "User not found: non-existent"
+      "User not found: non-existent",
     );
   });
 });

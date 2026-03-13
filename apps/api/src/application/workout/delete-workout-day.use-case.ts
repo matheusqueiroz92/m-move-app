@@ -1,7 +1,7 @@
 import { DayNotFoundError } from "../../domain/workout/errors/day-not-found.error.js";
 import { PlanNotFoundError } from "../../domain/workout/errors/plan-not-found.error.js";
 import type { WorkoutDayRepository } from "../../domain/workout/repositories/workout-day.repository.js";
-import type { WorkoutPlanRepository } from "../../domain/workout/repositories/workout-plant.repository.js";
+import type { WorkoutPlanRepository } from "../../domain/workout/repositories/workout-plan.repository.js";
 
 export interface DeleteWorkoutDayInput {
   planId: string;

@@ -1,7 +1,7 @@
 import type { OpenAIPlanProvider } from "../../domain/ai/providers/openai-provider.interface.js";
 import type { WorkoutDayRepository } from "../../domain/workout/repositories/workout-day.repository.js";
 import type { WorkoutExerciseRepository } from "../../domain/workout/repositories/workout-exercise.repository.js";
-import type { WorkoutPlanRepository } from "../../domain/workout/repositories/workout-plant.repository.js";
+import type { WorkoutPlanRepository } from "../../domain/workout/repositories/workout-plan.repository.js";
 
 export interface GenerateWorkoutPlanWithAIInput {
   userId: string;

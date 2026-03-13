@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 
 import { InstructorLinkNotFoundError } from "../../domain/gym/errors/instructor-link-not-found.error.js";
-import type { GymInstructorRepository } from "../../domain/gym/repositories/gym-instructor.repository.js";
 import type { GymRepository } from "../../domain/gym/repositories/gym.repository.js";
+import type { GymInstructorRepository } from "../../domain/gym/repositories/gym-instructor.repository.js";
 import { RemoveInstructorUseCase } from "./remove-instructor.use-case.js";
 
 describe("RemoveInstructorUseCase", () => {
@@ -97,6 +97,15 @@ describe("RemoveInstructorUseCase", () => {
       findByGymId: vi.fn(),
       countActiveByGymId: vi.fn(),
       delete: vi.fn(),
+      create: vi.fn().mockResolvedValue({
+        id: "link-1",
+        gymId: "gym-1",
+        instructorId: "instr-1",
+        inviteEmail: "instr@test.dev",
+        inviteToken: "t",
+        inviteExpiresAt: new Date(),
+        status: "ACTIVE",
+      }),
     };
     const useCase = new RemoveInstructorUseCase(
       gymRepository,

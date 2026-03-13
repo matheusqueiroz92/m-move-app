@@ -1,8 +1,8 @@
 import { DayNotFoundError } from "../../domain/workout/errors/day-not-found.error.js";
+import type { WorkoutDayRepository } from "../../domain/workout/repositories/workout-day.repository.js";
+import type { WorkoutPlanRepository } from "../../domain/workout/repositories/workout-plan.repository.js";
 import type { WorkoutSessionResult } from "../../domain/workout/repositories/workout-session.repository.js";
 import type { WorkoutSessionRepository } from "../../domain/workout/repositories/workout-session.repository.js";
-import type { WorkoutDayRepository } from "../../domain/workout/repositories/workout-day.repository.js";
-import type { WorkoutPlanRepository } from "../../domain/workout/repositories/workout-plant.repository.js";
 
 export interface StartWorkoutSessionInput {
   userId: string;
@@ -16,7 +16,9 @@ export class StartWorkoutSessionUseCase {
     private readonly workoutSessionRepository: WorkoutSessionRepository,
   ) {}
 
-  async execute(input: StartWorkoutSessionInput): Promise<WorkoutSessionResult> {
+  async execute(
+    input: StartWorkoutSessionInput,
+  ): Promise<WorkoutSessionResult> {
     await this.verifyDayOwnership(input.workoutDayId, input.userId);
     return this.workoutSessionRepository.create({
       userId: input.userId,

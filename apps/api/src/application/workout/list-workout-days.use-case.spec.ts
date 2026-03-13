@@ -5,7 +5,7 @@ import type {
   WorkoutDayRepository,
   WorkoutDayResult,
 } from "../../domain/workout/repositories/workout-day.repository.js";
-import type { WorkoutPlanRepository } from "../../domain/workout/repositories/workout-plant.repository.js";
+import type { WorkoutPlanRepository } from "../../domain/workout/repositories/workout-plan.repository.js";
 import { ListWorkoutDaysUseCase } from "./list-workout-days.use-case.js";
 
 describe("ListWorkoutDaysUseCase", () => {
@@ -36,7 +36,10 @@ describe("ListWorkoutDaysUseCase", () => {
     };
     const useCase = new ListWorkoutDaysUseCase(planRepository, dayRepository);
 
-    const result = await useCase.execute({ planId: "plan-1", userId: "user-1" });
+    const result = await useCase.execute({
+      planId: "plan-1",
+      userId: "user-1",
+    });
 
     expect(result).toEqual(days);
     expect(dayRepository.findByPlanId).toHaveBeenCalledWith("plan-1");

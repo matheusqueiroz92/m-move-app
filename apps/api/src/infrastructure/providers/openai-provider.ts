@@ -1,3 +1,4 @@
+import { generatedWorkoutPlanSchema } from "@m-move-app/validators";
 import OpenAI from "openai";
 
 import type {
@@ -10,7 +11,6 @@ import type {
   OpenAIPlanProvider,
 } from "../../domain/ai/providers/openai-provider.interface.js";
 import { env } from "../../lib/env.js";
-import { generatedWorkoutPlanSchema } from "@m-move-app/validators";
 
 function getClient(): OpenAI | null {
   const key = env.OPENAI_API_KEY;
@@ -85,7 +85,14 @@ Return only the JSON object.`;
       days: Array<{
         name: string;
         isRest: boolean;
-        weekDay: "MONDAY" | "TUESDAY" | "WEDNESDAY" | "THURSDAY" | "FRIDAY" | "SATURDAY" | "SUNDAY";
+        weekDay:
+          | "MONDAY"
+          | "TUESDAY"
+          | "WEDNESDAY"
+          | "THURSDAY"
+          | "FRIDAY"
+          | "SATURDAY"
+          | "SUNDAY";
         estimatedDurationInSeconds?: number | null;
         exercises: Array<{
           name: string;

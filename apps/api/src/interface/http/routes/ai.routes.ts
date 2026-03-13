@@ -14,8 +14,8 @@ import { generateWorkoutPlanHandler } from "../controllers/ai/generate-workout-p
 import { getInsightsHandler } from "../controllers/ai/get-insights.controller.js";
 import { listChatsHandler } from "../controllers/ai/list-chats.controller.js";
 import { sendChatMessageHandler } from "../controllers/ai/send-chat-message.controller.js";
-import { authenticate } from "../middlewares/authenticate.js";
 import { createAIChatRateLimitMiddleware } from "../middlewares/ai-chat-rate-limit.js";
+import { authenticate } from "../middlewares/authenticate.js";
 
 const messageResponseSchema = z.object({ message: z.string() });
 
@@ -49,7 +49,8 @@ export async function aiRoutes(app: FastifyInstance): Promise<void> {
   typed.post("/chat", {
     preHandler: [authenticate, createAIChatRateLimitMiddleware()],
     schema: {
-      description: "Send a message to the AI chat (creates chat if chatId is null)",
+      description:
+        "Send a message to the AI chat (creates chat if chatId is null)",
       body: sendChatMessageBodySchema,
       response: {
         200: chatResponseSchema,
@@ -65,7 +66,8 @@ export async function aiRoutes(app: FastifyInstance): Promise<void> {
   typed.get("/insights/:userId", {
     preHandler: [authenticate],
     schema: {
-      description: "Get AI-generated progress insights for a user (own userId only)",
+      description:
+        "Get AI-generated progress insights for a user (own userId only)",
       params: z.object({ userId: z.string().uuid() }),
       response: {
         200: insightsResponseSchema,

@@ -1,11 +1,10 @@
 import { DayNotFoundError } from "../../domain/workout/errors/day-not-found.error.js";
+import type { WorkoutDayRepository } from "../../domain/workout/repositories/workout-day.repository.js";
 import type {
-  CreateWorkoutExerciseInput,
   WorkoutExerciseRepository,
   WorkoutExerciseResult,
 } from "../../domain/workout/repositories/workout-exercise.repository.js";
-import type { WorkoutDayRepository } from "../../domain/workout/repositories/workout-day.repository.js";
-import type { WorkoutPlanRepository } from "../../domain/workout/repositories/workout-plant.repository.js";
+import type { WorkoutPlanRepository } from "../../domain/workout/repositories/workout-plan.repository.js";
 
 export interface CreateWorkoutExerciseUseCaseInput {
   dayId: string;

@@ -5,7 +5,7 @@ import type {
   WorkoutDayRepository,
   WorkoutDayResult,
 } from "../../domain/workout/repositories/workout-day.repository.js";
-import type { WorkoutPlanRepository } from "../../domain/workout/repositories/workout-plant.repository.js";
+import type { WorkoutPlanRepository } from "../../domain/workout/repositories/workout-plan.repository.js";
 
 export interface UpdateWorkoutDayUseCaseInput {
   planId: string;
@@ -24,7 +24,9 @@ export class UpdateWorkoutDayUseCase {
     private readonly workoutDayRepository: WorkoutDayRepository,
   ) {}
 
-  async execute(input: UpdateWorkoutDayUseCaseInput): Promise<WorkoutDayResult> {
+  async execute(
+    input: UpdateWorkoutDayUseCaseInput,
+  ): Promise<WorkoutDayResult> {
     const plan = await this.workoutPlanRepository.findByIdAndUserId(
       input.planId,
       input.userId,

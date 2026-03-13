@@ -17,6 +17,7 @@ describe("CreatePortalSessionUseCase", () => {
         url: "https://billing.stripe.com/session-456",
       }),
       constructWebhookEvent: vi.fn(),
+      getSubscriptionDetails: vi.fn(),
     };
 
     const useCase = new CreatePortalSessionUseCase(
@@ -46,6 +47,7 @@ describe("CreatePortalSessionUseCase", () => {
       createCheckoutSession: vi.fn(),
       createBillingPortalSession: vi.fn(),
       constructWebhookEvent: vi.fn(),
+      getSubscriptionDetails: vi.fn(),
     };
 
     const useCase = new CreatePortalSessionUseCase(

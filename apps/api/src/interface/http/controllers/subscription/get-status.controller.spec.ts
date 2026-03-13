@@ -26,8 +26,8 @@ describe("getSubscriptionStatusHandler", () => {
     };
 
     await getSubscriptionStatusHandler(
-      request as Parameters<typeof getSubscriptionStatusHandler>[0],
-      reply as Parameters<typeof getSubscriptionStatusHandler>[1],
+      request as unknown as Parameters<typeof getSubscriptionStatusHandler>[0],
+      reply as unknown as Parameters<typeof getSubscriptionStatusHandler>[1],
     );
 
     expect(mockExecute).toHaveBeenCalledWith({ userId: "user-1" });
@@ -54,8 +54,8 @@ describe("getSubscriptionStatusHandler", () => {
     };
 
     await getSubscriptionStatusHandler(
-      request as Parameters<typeof getSubscriptionStatusHandler>[0],
-      reply as Parameters<typeof getSubscriptionStatusHandler>[1],
+      request as unknown as Parameters<typeof getSubscriptionStatusHandler>[0],
+      reply as unknown as Parameters<typeof getSubscriptionStatusHandler>[1],
     );
 
     expect(reply.status).toHaveBeenCalledWith(200);

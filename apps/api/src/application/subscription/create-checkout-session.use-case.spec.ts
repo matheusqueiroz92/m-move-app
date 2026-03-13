@@ -12,6 +12,15 @@ describe("CreateCheckoutSessionUseCase", () => {
       }),
       createBillingPortalSession: vi.fn(),
       constructWebhookEvent: vi.fn(),
+      getSubscriptionDetails: vi.fn().mockResolvedValue({
+        id: "sub-1",
+        status: "active",
+        customerId: "cust-1",
+        priceId: "price-1",
+        interval: "month",
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      }),
     };
 
     const useCase = new CreateCheckoutSessionUseCase(stripeProvider);

@@ -2,11 +2,10 @@ import { describe, expect, it, vi } from "vitest";
 
 import { PlanNotFoundError } from "../../domain/workout/errors/plan-not-found.error.js";
 import type {
-  CreateWorkoutDayInput,
   WorkoutDayRepository,
   WorkoutDayResult,
 } from "../../domain/workout/repositories/workout-day.repository.js";
-import type { WorkoutPlanRepository } from "../../domain/workout/repositories/workout-plant.repository.js";
+import type { WorkoutPlanRepository } from "../../domain/workout/repositories/workout-plan.repository.js";
 import { CreateWorkoutDayUseCase } from "./create-workout-day.use-case.js";
 
 describe("CreateWorkoutDayUseCase", () => {
@@ -23,7 +22,9 @@ describe("CreateWorkoutDayUseCase", () => {
       updatedAt: new Date(),
     };
     const planRepository: WorkoutPlanRepository = {
-      findByIdAndUserId: vi.fn().mockResolvedValue({ id: "plan-1", userId: "user-1" }),
+      findByIdAndUserId: vi
+        .fn()
+        .mockResolvedValue({ id: "plan-1", userId: "user-1" }),
     } as unknown as WorkoutPlanRepository;
     const dayRepository: WorkoutDayRepository = {
       create: vi.fn().mockResolvedValue(created),

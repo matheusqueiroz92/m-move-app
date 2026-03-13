@@ -18,7 +18,7 @@ import type {
   CreateWorkoutPlanInput,
   WorkoutPlanRepository,
   WorkoutPlanResult,
-} from "../../domain/workout/repositories/workout-plant.repository.js";
+} from "../../domain/workout/repositories/workout-plan.repository.js";
 import { GenerateWorkoutPlanWithAIUseCase } from "./generate-workout-plan-with-ai.use-case.js";
 
 describe("GenerateWorkoutPlanWithAIUseCase", () => {

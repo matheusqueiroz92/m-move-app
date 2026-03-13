@@ -1,10 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 import type { StripeProvider } from "../../domain/subscription/providers/stripe-provider.interface.js";
-import type {
-  SubscriptionRepository,
-  SubscriptionResult,
-} from "../../domain/subscription/repositories/subscription.repository.js";
+import type { SubscriptionRepository } from "../../domain/subscription/repositories/subscription.repository.js";
 import type { UserRepository } from "../../domain/user/repositories/user.repository.js";
 import { HandleStripeWebhookUseCase } from "./handle-stripe-webhook.use-case.js";
 

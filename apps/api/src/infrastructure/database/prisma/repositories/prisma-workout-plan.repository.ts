@@ -2,7 +2,7 @@ import type {
   CreateWorkoutPlanInput,
   WorkoutPlanRepository,
   WorkoutPlanResult,
-} from "../../../../domain/workout/repositories/workout-plant.repository.js";
+} from "../../../../domain/workout/repositories/workout-plan.repository.js";
 import { prisma } from "../../../../lib/db.js";
 import { toWorkoutPlanResult } from "../mappers/workout-plan.mapper.js";
 

@@ -6,7 +6,7 @@ import type {
   WorkoutDayRepository,
   WorkoutDayResult,
 } from "../../domain/workout/repositories/workout-day.repository.js";
-import type { WorkoutPlanRepository } from "../../domain/workout/repositories/workout-plant.repository.js";
+import type { WorkoutPlanRepository } from "../../domain/workout/repositories/workout-plan.repository.js";
 import { UpdateWorkoutDayUseCase } from "./update-workout-day.use-case.js";
 
 describe("UpdateWorkoutDayUseCase", () => {

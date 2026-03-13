@@ -34,7 +34,7 @@ describe("stripeWebhookHandler", () => {
     };
 
     await stripeWebhookHandler(
-      request as Parameters<typeof stripeWebhookHandler>[0],
+      request as unknown as Parameters<typeof stripeWebhookHandler>[0],
       reply as unknown as Parameters<typeof stripeWebhookHandler>[1],
     );
 

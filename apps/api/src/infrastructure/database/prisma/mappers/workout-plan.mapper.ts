@@ -1,4 +1,4 @@
-import type { WorkoutPlanResult } from "../../../../domain/workout/repositories/workout-plant.repository.js";
+import type { WorkoutPlanResult } from "../../../../domain/workout/repositories/workout-plan.repository.js";
 import type { WorkoutPlan } from "../../../../generated/prisma/client.js";
 
 export function toWorkoutPlanResult(plan: WorkoutPlan): WorkoutPlanResult {

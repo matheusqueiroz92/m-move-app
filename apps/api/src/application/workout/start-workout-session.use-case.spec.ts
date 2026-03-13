@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
 
 import { DayNotFoundError } from "../../domain/workout/errors/day-not-found.error.js";
+import type { WorkoutDayRepository } from "../../domain/workout/repositories/workout-day.repository.js";
+import type { WorkoutPlanRepository } from "../../domain/workout/repositories/workout-plan.repository.js";
 import type { WorkoutSessionResult } from "../../domain/workout/repositories/workout-session.repository.js";
 import type { WorkoutSessionRepository } from "../../domain/workout/repositories/workout-session.repository.js";
-import type { WorkoutDayRepository } from "../../domain/workout/repositories/workout-day.repository.js";
-import type { WorkoutPlanRepository } from "../../domain/workout/repositories/workout-plant.repository.js";
 import { StartWorkoutSessionUseCase } from "./start-workout-session.use-case.js";
 
 describe("StartWorkoutSessionUseCase", () => {
