@@ -1,19 +1,21 @@
 # M. Move API (Backend)
 
-Backend da plataforma **M. Move**, construído com **Fastify**, **Prisma** e **PostgreSQL**. Segue Clean Architecture com camadas: Controllers → Services → Repositories → Domain.
+Backend da plataforma **M. Move**, construído com **Fastify**, **Prisma** e **PostgreSQL**. Segue Clean Architecture (Hexagonal) com camadas: Domain → Application (use cases) → Infrastructure → Interface HTTP.
 
 ## Stack
 
-- **Runtime**: Node.js
-- **Framework**: Fastify
+- **Runtime**: Node.js 24.x
+- **Framework**: Fastify 5
 - **ORM**: Prisma
 - **Banco**: PostgreSQL
-- **Auth**: Better Auth (Email, Google, GitHub)
+- **Auth**: Better Auth (Email, Google)
 - **Pagamentos**: Stripe (checkout, portal, webhooks)
 - **IA**: OpenAI (GPT-4o) — geração de planos, chat, insights
 - **Validação**: Zod (body, query, env)
 - **Documentação**: Swagger + Scalar
 - **Testes**: Vitest, Supertest
+- **Segurança**: Helmet (headers), rate-limit (100 req/min global)
+- **Performance**: @fastify/compress (gzip/brotli), bodyLimit 1MB
 
 ## Estrutura de diretórios
 
@@ -22,7 +24,8 @@ apps/api/src/
 ├── domain/                    # Entidades, erros, interfaces de repositório
 │   ├── ai/                    # IA (providers, repositórios AIChat/AIChatMessage)
 │   ├── assessment/
-│   ├── gym/
+│   ├── database/              # TransactionClient
+│   ├── gym/                   # gym, gym-instructor, gym-student-link
 │   ├── pt-invite/
 │   ├── subscription/          # Subscription repository + Stripe provider interface
 │   ├── user/
@@ -30,22 +33,23 @@ apps/api/src/
 ├── application/               # Use cases (regras de negócio)
 │   ├── ai/                    # generate-plan, chat, list-chats, insights
 │   ├── assessment/
-│   ├── gym/
+│   ├── gym/                   # CRUD gym, invite instructor, accept gym invite
 │   ├── pt-invite/
 │   ├── subscription/
 │   ├── user/
-│   └── workout/
+│   └── workout/               # CRUD planos, dias, exercícios, sessões
 ├── infrastructure/            # Implementações concretas
+│   ├── cache/                 # InMemoryUserProfileCache
 │   ├── database/prisma/       # Repositories, mappers
 │   └── providers/             # Stripe, OpenAI
 ├── interface/http/            # Camada de entrada HTTP
 │   ├── controllers/
-│   ├── middlewares/           # authenticate, requireRole
+│   ├── middlewares/           # authenticate, requireRole, ai-chat-rate-limit
+│   ├── plugins/               # api-routes
 │   ├── routes/
-│   └── schemas/
+│   └── error-handler.ts       # Tratamento centralizado (requestId em respostas)
 ├── lib/                       # db, env, auth
-├── shared/                    # AppError, etc.
-└── test/                      # setup, factories, helpers, mocks
+└── test/                      # setup, factories, helpers
 ```
 
 ## Pré-requisitos
@@ -102,13 +106,18 @@ Exemplo (ajustar conforme seu ambiente):
 ```env
 PORT=3001
 NODE_ENV=development
+LOG_LEVEL=info
 DATABASE_URL="postgresql://user:password@localhost:5432/mmove"
 
 # Better Auth
 BETTER_AUTH_SECRET=
-BETTER_AUTH_URL=http://localhost:3001
+API_BASE_URL=http://localhost:3001
+WEB_APP_BASE_URL=http://localhost:3000
 
-# Google
+# CORS (origens permitidas, separadas por vírgula)
+CORS_ORIGIN=http://localhost:3000
+
+# Google (OAuth + Generative AI)
 GOOGLE_CLIENT_ID=your-client-id-here
 GOOGLE_CLIENT_SECRET=your-client-secret-here
 GOOGLE_GENERATIVE_AI_API_KEY=your-api-key-here
@@ -116,15 +125,14 @@ GOOGLE_GENERATIVE_AI_API_KEY=your-api-key-here
 # Stripe
 STRIPE_SECRET_KEY=
 STRIPE_WEBHOOK_SECRET=
-STRIPE_PRICE_ID_STUDENT=
-STRIPE_PRICE_ID_PERSONAL=
-STRIPE_PRICE_ID_GYM=
 
 # OpenAI
 OPENAI_API_KEY=
 ```
 
-Para **testes**, é obrigatório um PostgreSQL dedicado e a variável `TEST_DATABASE_URL`. As variáveis `OPENAI_API_KEY` e `STRIPE_SECRET_KEY`/`STRIPE_WEBHOOK_SECRET` são opcionais: endpoints que dependem delas retornam **503** quando não configuradas.
+- **`LOG_LEVEL`**: `trace` | `debug` | `info` | `warn` | `error` (default: `info`)
+- **`TEST_DATABASE_URL`**: obrigatório para testes (`NODE_ENV=test`)
+- `OPENAI_API_KEY` e `STRIPE_SECRET_KEY`/`STRIPE_WEBHOOK_SECRET` são opcionais: endpoints que dependem delas retornam **503** quando não configuradas
 
 ### Banco de testes com Docker
 
@@ -165,17 +173,32 @@ Os testes de integração de `GET /api/users/me` (200 e 404) dependem das tabela
 
 | Recurso           | Prefixo                           | Descrição                                                                   |
 | ----------------- | --------------------------------- | --------------------------------------------------------------------------- |
+| **Health**        | `/health`                         | `GET` — health check com checagem de DB (readiness/liveness)                |
 | **Auth**          | `/api/auth`                       | `POST /register`, `POST /login`, `POST /logout`, `GET /me`, `POST /refresh` |
 | **Users**         | `/api/users`                      | `GET /me` (perfil do usuário autenticado)                                   |
-| **Workout Plans** | `/api/workout-plans`              | CRUD + `POST /:planId/activate`                                              |
+| **Workout Plans** | `/api/workout-plans`              | `GET /`, `POST /`, `GET /:id`, `PATCH /:id`, `DELETE /:id`, `POST /:id/activate` |
 | **Workout Days**  | `/api/workout-plans/:planId/days` | CRUD de dias do plano                                                       |
 | **Exercises**     | `/api/workout-days/:dayId/exercises` | CRUD + `PATCH /reorder`                                                  |
 | **Sessions**      | `/api/sessions`                   | `POST /start`, `PATCH /:id/complete`, `GET /history`, `GET /streak`         |
 | **Assessments**   | `/api/assessments`                | CRUD + `GET /history/:userId` (autorizado: próprio usuário ou PT do aluno)  |
-| **Gym**           | `/api/gym`                        | CRUD academia (OWNER); `GET /:id/members`, `POST /members`, `DELETE /members/:id` |
+| **Gym**           | `/api/gym`                        | `POST /accept-invite`, CRUD academia (OWNER), `GET /:id/members`, `POST /members`, `DELETE /members/:id` |
 | **AI**            | `/api/ai`                         | `POST /generate-plan`, `GET /chats`, `POST /chat`, `GET /insights/:userId`  |
 | **PT Invites**    | `/api/pt/invites`                 | `POST /` (enviar), `GET /` (listar), `DELETE /:id` (revogar), `POST /accept` |
 | **Subscriptions** | `/api/subscriptions`              | `POST /checkout`, `POST /portal`, `GET /status`, `POST /webhook` (Stripe)   |
+
+### Health check
+
+`GET /health` retorna:
+- **200** `{ status: "ok", database: "connected" }` — DB saudável
+- **503** `{ status: "unavailable", database: "disconnected", message? }` — DB indisponível
+
+Útil para readiness/liveness em Kubernetes e load balancers.
+
+### Segurança e erros
+
+- **Helmet**: headers de segurança (X-Frame-Options, X-Content-Type-Options, etc.)
+- **Rate limit**: 100 requisições/minuto global; rate limit específico para AI Chat por plano
+- **Erros**: todas as respostas de erro incluem `requestId` para rastreamento
 
 A documentação detalhada (schemas, exemplos) está em **/docs** (Swagger/Scalar) com a API rodando.
 
@@ -197,7 +220,7 @@ A documentação detalhada (schemas, exemplos) está em **/docs** (Swagger/Scala
 - Índices em campos usados em `WHERE` com frequência
 - Operações múltiplas via `prisma.$transaction`
 
-Entidades principais: `User`, `WorkoutPlan`, `WorkoutDay`, `WorkoutExercise`, `WorkoutSession`, `PhysicalAssessment`, `Gym`, `GymInstructor`, `Subscription`, `AIChat`, `AIChatMessage`, `PTStudentLink`.
+Entidades principais: `User`, `WorkoutPlan`, `WorkoutDay`, `WorkoutExercise`, `WorkoutSession`, `PhysicalAssessment`, `Gym`, `GymInstructor`, `GymStudentLink`, `Subscription`, `AIChat`, `AIChatMessage`, `PTStudentLink`.
 
 ## IA (OpenAI)
 
