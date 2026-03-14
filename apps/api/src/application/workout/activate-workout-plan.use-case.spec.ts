@@ -19,17 +19,15 @@ describe("ActivateWorkoutPlanUseCase", () => {
       createdAt: new Date(),
       updatedAt: new Date(),
     };
-    const findByIdAndUserId = vi
-      .fn()
-      .mockResolvedValue({ ...activated, isActive: false });
-    const deactivateAllByUserId = vi.fn().mockResolvedValue(undefined);
-    const updateIsActive = vi.fn().mockResolvedValue(activated);
+    const activatePlanForUser = vi.fn().mockResolvedValue(activated);
     const repository: WorkoutPlanRepository = {
       create: vi.fn(),
+      createWithDaysAndExercises: vi.fn(),
       findByUserId: vi.fn(),
-      findByIdAndUserId,
-      deactivateAllByUserId,
-      updateIsActive,
+      findByIdAndUserId: vi.fn(),
+      deactivateAllByUserId: vi.fn(),
+      updateIsActive: vi.fn(),
+      activatePlanForUser,
     };
     const useCase = new ActivateWorkoutPlanUseCase(repository);
 
@@ -39,18 +37,18 @@ describe("ActivateWorkoutPlanUseCase", () => {
     });
 
     expect(result).toEqual(activated);
-    expect(findByIdAndUserId).toHaveBeenCalledWith("plan-1", "user-1");
-    expect(deactivateAllByUserId).toHaveBeenCalledWith("user-1");
-    expect(updateIsActive).toHaveBeenCalledWith("plan-1", "user-1", true);
+    expect(activatePlanForUser).toHaveBeenCalledWith("plan-1", "user-1");
   });
 
   it("should throw PlanNotFoundError when plan does not exist or belongs to another user", async () => {
     const repository: WorkoutPlanRepository = {
       create: vi.fn(),
+      createWithDaysAndExercises: vi.fn(),
       findByUserId: vi.fn(),
-      findByIdAndUserId: vi.fn().mockResolvedValue(null),
+      findByIdAndUserId: vi.fn(),
       deactivateAllByUserId: vi.fn(),
       updateIsActive: vi.fn(),
+      activatePlanForUser: vi.fn().mockResolvedValue(null),
     };
     const useCase = new ActivateWorkoutPlanUseCase(repository);
 

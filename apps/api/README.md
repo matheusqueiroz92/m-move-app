@@ -90,8 +90,10 @@ A API sobe por padrão em **http://localhost:3001**. A documentação Swagger/Sc
 | `pnpm test:unit`        | Apenas testes unitários (exclui `*.integration.spec.ts`) |
 | `pnpm test:integration` | Apenas testes de integração (requer `TEST_DATABASE_URL`) |
 | `pnpm test:coverage`    | Testes unitários + integração com relatório de cobertura  |
-| `pnpm db:test:migrate`  | Aplica migrations no banco de teste (usa `.env.test`)    |
-| `pnpm db:test:push`     | Sincroniza schema no banco de teste sem migrations       |
+| `pnpm prisma:migrate:dev`   | Cria e aplica migrations em desenvolvimento            |
+| `pnpm prisma:migrate:deploy`| Aplica migrations pendentes (produção/CI)              |
+| `pnpm db:test:migrate`      | Aplica migrations no banco de teste (usa `.env.test`)  |
+| `pnpm db:test:push`         | Sincroniza schema no banco de teste sem migrations     |
 
 ## Variáveis de ambiente
 
@@ -181,6 +183,16 @@ A documentação detalhada (schemas, exemplos) está em **/docs** (Swagger/Scala
 
 - **PostgreSQL** + **Prisma**
 - Migrations obrigatórias; não alterar migrations já aplicadas em produção
+
+### Fluxo de migrations (desenvolvimento vs produção)
+
+| Ambiente | Comando | Uso |
+|----------|---------|-----|
+| **Desenvolvimento** | `pnpm prisma:migrate:dev` | Cria e aplica novas migrations (com nome descritivo: `--name nome_da_mudanca`) |
+| **Produção / CI** | `pnpm prisma:migrate:deploy` | Aplica apenas migrations pendentes; não cria novas |
+| **Setup rápido** | `pnpm prisma:push` | Sincroniza schema sem migrations (apenas prototipação; evitar em produção) |
+
+**Recomendação para produção:** Usar sempre `prisma:migrate:deploy` no pipeline de deploy (antes de subir a aplicação). Se ainda não houver pasta `prisma/migrations`, crie a primeira migration com `pnpm prisma:migrate:dev --name init` no banco de desenvolvimento e versionar os arquivos gerados.
 - Preferir **soft delete** em entidades principais
 - Índices em campos usados em `WHERE` com frequência
 - Operações múltiplas via `prisma.$transaction`

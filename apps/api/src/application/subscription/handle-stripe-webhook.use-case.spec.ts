@@ -56,10 +56,17 @@ describe("HandleStripeWebhookUseCase", () => {
       }),
     };
 
+    const transactionRunner = {
+      run: vi.fn().mockImplementation(async (fn: (tx: object) => Promise<unknown>) =>
+        fn({}),
+      ),
+    };
+
     const useCase = new HandleStripeWebhookUseCase(
       stripeProvider,
       subscriptionRepository,
       userRepository,
+      transactionRunner,
     );
 
     await useCase.execute({
@@ -76,6 +83,7 @@ describe("HandleStripeWebhookUseCase", () => {
         planType: "STUDENT",
         status: "ACTIVE",
       }),
+      expect.any(Object),
     );
     expect(userRepository.updateSubscriptionFields).toHaveBeenCalledWith(
       "user-1",
@@ -85,6 +93,7 @@ describe("HandleStripeWebhookUseCase", () => {
         planType: "STUDENT",
         subscriptionStatus: "ACTIVE",
       }),
+      expect.any(Object),
     );
   });
 });

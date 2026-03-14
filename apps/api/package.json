@@ -9,6 +9,8 @@
     "check-types": "tsc --noEmit",
     "prisma:push": "prisma db push",
     "prisma:generate": "prisma generate",
+    "prisma:migrate:dev": "prisma migrate dev",
+    "prisma:migrate:deploy": "prisma migrate deploy",
     "test": "vitest",
     "test:run": "vitest run",
     "test:unit": "vitest run --exclude '**/*.integration.spec.ts'",

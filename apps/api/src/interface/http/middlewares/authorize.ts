@@ -1,15 +1,11 @@
 import type { FastifyReply, FastifyRequest } from "fastify";
 
-import { PrismaUserRepository } from "../../../infrastructure/database/prisma/repositories/prisma-user.repository.js";
-
 type UserRole =
   | "OWNER"
   | "PERSONAL_TRAINER"
   | "INSTRUCTOR"
   | "STUDENT"
   | "LINKED_STUDENT";
-
-const userRepository = new PrismaUserRepository();
 
 export function requireRole(allowedRoles: UserRole[]) {
   return async function authorize(
@@ -21,6 +17,7 @@ export function requireRole(allowedRoles: UserRole[]) {
       return reply.status(401).send({ message: "Unauthorized" });
     }
 
+    const userRepository = request.server.userRepository;
     const user = await userRepository.findById(userId);
     if (!user) {
       return reply.status(404).send({ message: "User not found" });

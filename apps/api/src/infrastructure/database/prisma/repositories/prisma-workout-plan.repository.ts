@@ -1,4 +1,5 @@
 import type {
+  CreateWorkoutPlanFullInput,
   CreateWorkoutPlanInput,
   WorkoutPlanRepository,
   WorkoutPlanResult,
@@ -14,6 +15,39 @@ export class PrismaWorkoutPlanRepository implements WorkoutPlanRepository {
         description: input.description ?? undefined,
         userId: input.userId,
         createdBy: input.createdBy ?? undefined,
+      },
+    });
+    return toWorkoutPlanResult(plan);
+  }
+
+  async createWithDaysAndExercises(
+    input: CreateWorkoutPlanFullInput,
+  ): Promise<WorkoutPlanResult> {
+    const plan = await prisma.workoutPlan.create({
+      data: {
+        name: input.name,
+        description: input.description ?? undefined,
+        userId: input.userId,
+        createdBy: input.createdBy ?? undefined,
+        workoutDays: {
+          create: input.days.map((d) => ({
+            name: d.name,
+            isRest: d.isRest,
+            weekDay: d.weekDay,
+            estimatedDurationInSeconds: d.estimatedDurationInSeconds ?? undefined,
+            exercises: {
+              create: d.exercises.map((e) => ({
+                name: e.name,
+                order: e.order,
+                sets: e.sets,
+                reps: e.reps,
+                restTimeInSeconds: e.restTimeInSeconds,
+                description: e.description ?? undefined,
+                notes: e.notes ?? undefined,
+              })),
+            },
+          })),
+        },
       },
     });
     return toWorkoutPlanResult(plan);
@@ -56,6 +90,28 @@ export class PrismaWorkoutPlanRepository implements WorkoutPlanRepository {
     const updated = await prisma.workoutPlan.update({
       where: { id: planId },
       data: { isActive },
+    });
+    return toWorkoutPlanResult(updated);
+  }
+
+  async activatePlanForUser(
+    planId: string,
+    userId: string,
+  ): Promise<WorkoutPlanResult | null> {
+    const plan = await prisma.workoutPlan.findFirst({
+      where: { id: planId, userId },
+    });
+    if (!plan) return null;
+
+    const updated = await prisma.$transaction(async (tx) => {
+      await tx.workoutPlan.updateMany({
+        where: { userId },
+        data: { isActive: false },
+      });
+      return tx.workoutPlan.update({
+        where: { id: planId },
+        data: { isActive: true },
+      });
     });
     return toWorkoutPlanResult(updated);
   }

@@ -1,6 +1,4 @@
 import type { OpenAIPlanProvider } from "../../domain/ai/providers/openai-provider.interface.js";
-import type { WorkoutDayRepository } from "../../domain/workout/repositories/workout-day.repository.js";
-import type { WorkoutExerciseRepository } from "../../domain/workout/repositories/workout-exercise.repository.js";
 import type { WorkoutPlanRepository } from "../../domain/workout/repositories/workout-plan.repository.js";
 
 export interface GenerateWorkoutPlanWithAIInput {
@@ -16,8 +14,6 @@ export class GenerateWorkoutPlanWithAIUseCase {
   constructor(
     private readonly aiProvider: OpenAIPlanProvider,
     private readonly workoutPlanRepository: WorkoutPlanRepository,
-    private readonly workoutDayRepository: WorkoutDayRepository,
-    private readonly workoutExerciseRepository: WorkoutExerciseRepository,
   ) {}
 
   async execute(
@@ -32,25 +28,17 @@ export class GenerateWorkoutPlanWithAIUseCase {
       restrictions: input.restrictions,
     });
 
-    const plan = await this.workoutPlanRepository.create({
+    const plan = await this.workoutPlanRepository.createWithDaysAndExercises({
       userId: input.userId,
       name: generated.name,
       description: generated.description,
       createdBy: null,
-    });
-
-    for (const day of generated.days) {
-      const createdDay = await this.workoutDayRepository.create({
-        workoutPlanId: plan.id,
+      days: generated.days.map((day) => ({
         name: day.name,
         isRest: day.isRest,
         weekDay: day.weekDay,
         estimatedDurationInSeconds: day.estimatedDurationInSeconds ?? null,
-      });
-
-      for (const ex of day.exercises) {
-        await this.workoutExerciseRepository.create({
-          workoutDayId: createdDay.id,
+        exercises: day.exercises.map((ex) => ({
           name: ex.name,
           order: ex.order,
           sets: ex.sets,
@@ -58,19 +46,14 @@ export class GenerateWorkoutPlanWithAIUseCase {
           restTimeInSeconds: ex.restTimeInSeconds,
           description: ex.description ?? null,
           notes: ex.notes ?? null,
-        });
-      }
-    }
+        })),
+      })),
+    });
 
-    const result = await this.workoutPlanRepository.findByIdAndUserId(
-      plan.id,
-      input.userId,
-    );
-    if (!result) throw new Error("Plan not found after create");
     return {
-      id: result.id,
-      name: result.name,
-      description: result.description,
+      id: plan.id,
+      name: plan.name,
+      description: plan.description,
     };
   }
 }

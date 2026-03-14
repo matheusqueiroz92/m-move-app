@@ -43,8 +43,13 @@ export interface UpdateSubscriptionInput {
   trialEnd?: Date | null;
 }
 
+import type { TransactionClient } from "../../database/transaction-client.js";
+
 export interface SubscriptionRepository {
-  create(input: CreateSubscriptionInput): Promise<SubscriptionResult>;
+  create(
+    input: CreateSubscriptionInput,
+    tx?: TransactionClient,
+  ): Promise<SubscriptionResult>;
   findByUserId(userId: string): Promise<SubscriptionResult | null>;
   findByStripeSubscriptionId(
     stripeSubscriptionId: string,
@@ -52,5 +57,6 @@ export interface SubscriptionRepository {
   update(
     id: string,
     input: UpdateSubscriptionInput,
+    tx?: TransactionClient,
   ): Promise<SubscriptionResult | null>;
 }

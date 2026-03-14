@@ -1,3 +1,4 @@
+import type { Prisma } from "../../../../generated/prisma/client.js";
 import type {
   CreateSubscriptionInput,
   SubscriptionRepository,
@@ -10,8 +11,10 @@ import { toSubscriptionResult } from "../mappers/subscription.mapper.js";
 export class PrismaSubscriptionRepository implements SubscriptionRepository {
   async create(
     input: CreateSubscriptionInput,
+    tx?: Prisma.TransactionClient,
   ): Promise<SubscriptionResult> {
-    const sub = await prisma.subscription.create({
+    const client = (tx ?? prisma) as typeof prisma;
+    const sub = await client.subscription.create({
       data: {
         userId: input.userId,
         stripeSubscriptionId: input.stripeSubscriptionId,
@@ -46,12 +49,14 @@ export class PrismaSubscriptionRepository implements SubscriptionRepository {
   async update(
     id: string,
     input: UpdateSubscriptionInput,
+    tx?: Prisma.TransactionClient,
   ): Promise<SubscriptionResult | null> {
-    const existing = await prisma.subscription.findUnique({
+    const client = (tx ?? prisma) as typeof prisma;
+    const existing = await client.subscription.findUnique({
       where: { id },
     });
     if (!existing) return null;
-    const sub = await prisma.subscription.update({
+    const sub = await client.subscription.update({
       where: { id },
       data: {
         ...(input.stripePriceId !== undefined && {

@@ -13,19 +13,9 @@ export class ActivateWorkoutPlanUseCase {
   constructor(private readonly workoutPlanRepository: WorkoutPlanRepository) {}
 
   async execute(input: ActivateWorkoutPlanInput): Promise<WorkoutPlanResult> {
-    const plan = await this.workoutPlanRepository.findByIdAndUserId(
+    const updated = await this.workoutPlanRepository.activatePlanForUser(
       input.planId,
       input.userId,
-    );
-    if (!plan) {
-      throw new PlanNotFoundError(input.planId);
-    }
-
-    await this.workoutPlanRepository.deactivateAllByUserId(input.userId);
-    const updated = await this.workoutPlanRepository.updateIsActive(
-      input.planId,
-      input.userId,
-      true,
     );
     if (!updated) {
       throw new PlanNotFoundError(input.planId);

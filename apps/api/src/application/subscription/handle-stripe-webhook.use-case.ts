@@ -1,3 +1,4 @@
+import type { TransactionRunner } from "../../domain/database/transaction-client.js";
 import type { StripeProvider } from "../../domain/subscription/providers/stripe-provider.interface.js";
 import type {
   PlanType,
@@ -40,6 +41,7 @@ export class HandleStripeWebhookUseCase {
     private readonly stripeProvider: StripeProvider,
     private readonly subscriptionRepository: SubscriptionRepository,
     private readonly userRepository: UserRepository,
+    private readonly transactionRunner: TransactionRunner,
   ) {}
 
   async execute(input: HandleStripeWebhookInput): Promise<void> {
@@ -72,24 +74,33 @@ export class HandleStripeWebhookUseCase {
           await this.subscriptionRepository.findByStripeSubscriptionId(
             subscriptionId,
           );
-        if (!existing) {
-          await this.subscriptionRepository.create({
+        await this.transactionRunner.run(async (tx) => {
+          if (!existing) {
+            await this.subscriptionRepository.create(
+              {
+                userId,
+                stripeSubscriptionId: subscriptionId,
+                stripePriceId: details.stripePriceId,
+                planType,
+                status,
+                currentPeriodStart: details.currentPeriodStart,
+                currentPeriodEnd: details.currentPeriodEnd,
+                cancelAtPeriodEnd: details.cancelAtPeriodEnd,
+                trialEnd: details.trialEnd,
+              },
+              tx,
+            );
+          }
+          await this.userRepository.updateSubscriptionFields(
             userId,
-            stripeSubscriptionId: subscriptionId,
-            stripePriceId: details.stripePriceId,
-            planType,
-            status,
-            currentPeriodStart: details.currentPeriodStart,
-            currentPeriodEnd: details.currentPeriodEnd,
-            cancelAtPeriodEnd: details.cancelAtPeriodEnd,
-            trialEnd: details.trialEnd,
-          });
-        }
-        await this.userRepository.updateSubscriptionFields(userId, {
-          ...(customerId && { stripeCustomerId: customerId }),
-          stripeSubscriptionId: subscriptionId,
-          planType,
-          subscriptionStatus: status,
+            {
+              ...(customerId && { stripeCustomerId: customerId }),
+              stripeSubscriptionId: subscriptionId,
+              planType,
+              subscriptionStatus: status,
+            },
+            tx,
+          );
         });
         break;
       }
@@ -111,18 +122,25 @@ export class HandleStripeWebhookUseCase {
         const status = mapStatus(details.status);
         const planType = mapPlanType(details.stripePriceId);
 
-        await this.subscriptionRepository.update(existing.id, {
-          stripePriceId: details.stripePriceId,
-          planType,
-          status,
-          currentPeriodStart: details.currentPeriodStart,
-          currentPeriodEnd: details.currentPeriodEnd,
-          cancelAtPeriodEnd: details.cancelAtPeriodEnd,
-          trialEnd: details.trialEnd,
-        });
-        await this.userRepository.updateSubscriptionFields(existing.userId, {
-          planType,
-          subscriptionStatus: status,
+        await this.transactionRunner.run(async (tx) => {
+          await this.subscriptionRepository.update(
+            existing.id,
+            {
+              stripePriceId: details.stripePriceId,
+              planType,
+              status,
+              currentPeriodStart: details.currentPeriodStart,
+              currentPeriodEnd: details.currentPeriodEnd,
+              cancelAtPeriodEnd: details.cancelAtPeriodEnd,
+              trialEnd: details.trialEnd,
+            },
+            tx,
+          );
+          await this.userRepository.updateSubscriptionFields(
+            existing.userId,
+            { planType, subscriptionStatus: status },
+            tx,
+          );
         });
         break;
       }
@@ -137,13 +155,21 @@ export class HandleStripeWebhookUseCase {
           );
         if (!existing) return;
 
-        await this.subscriptionRepository.update(existing.id, {
-          status: "CANCELED",
-        });
-        await this.userRepository.updateSubscriptionFields(existing.userId, {
-          stripeSubscriptionId: null,
-          planType: null,
-          subscriptionStatus: "CANCELED",
+        await this.transactionRunner.run(async (tx) => {
+          await this.subscriptionRepository.update(
+            existing.id,
+            { status: "CANCELED" },
+            tx,
+          );
+          await this.userRepository.updateSubscriptionFields(
+            existing.userId,
+            {
+              stripeSubscriptionId: null,
+              planType: null,
+              subscriptionStatus: "CANCELED",
+            },
+            tx,
+          );
         });
         break;
       }
@@ -158,11 +184,17 @@ export class HandleStripeWebhookUseCase {
           );
         if (!existing) return;
 
-        await this.subscriptionRepository.update(existing.id, {
-          status: "PAST_DUE",
-        });
-        await this.userRepository.updateSubscriptionFields(existing.userId, {
-          subscriptionStatus: "PAST_DUE",
+        await this.transactionRunner.run(async (tx) => {
+          await this.subscriptionRepository.update(
+            existing.id,
+            { status: "PAST_DUE" },
+            tx,
+          );
+          await this.userRepository.updateSubscriptionFields(
+            existing.userId,
+            { subscriptionStatus: "PAST_DUE" },
+            tx,
+          );
         });
         break;
       }

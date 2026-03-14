@@ -3,23 +3,10 @@
  * Controllers receive use cases via request.server.useCases (decorated in app.ts).
  */
 
-import { ActivateWorkoutPlanUseCase } from "./application/workout/activate-workout-plan.use-case.js";
-import { CompleteWorkoutSessionUseCase } from "./application/workout/complete-workout-session.use-case.js";
-import { CreateWorkoutDayUseCase } from "./application/workout/create-workout-day.use-case.js";
-import { CreateWorkoutExerciseUseCase } from "./application/workout/create-workout-exercise.use-case.js";
-import { CreateWorkoutPlanUseCase } from "./application/workout/create-workout-plan.use-case.js";
-import { DeleteWorkoutDayUseCase } from "./application/workout/delete-workout-day.use-case.js";
-import { DeleteWorkoutExerciseUseCase } from "./application/workout/delete-workout-exercise.use-case.js";
-import { GetSessionHistoryUseCase } from "./application/workout/get-session-history.use-case.js";
-import { GetStreakUseCase } from "./application/workout/get-streak.use-case.js";
-import { GetWorkoutPlanByIdUseCase } from "./application/workout/get-workout-plan-by-id.use-case.js";
-import { ListWorkoutDaysUseCase } from "./application/workout/list-workout-days.use-case.js";
-import { ListWorkoutExercisesUseCase } from "./application/workout/list-workout-exercises.use-case.js";
-import { ListWorkoutPlansUseCase } from "./application/workout/list-workout-plans.use-case.js";
-import { ReorderWorkoutExercisesUseCase } from "./application/workout/reorder-workout-exercises.use-case.js";
-import { StartWorkoutSessionUseCase } from "./application/workout/start-workout-session.use-case.js";
-import { UpdateWorkoutDayUseCase } from "./application/workout/update-workout-day.use-case.js";
-import { UpdateWorkoutExerciseUseCase } from "./application/workout/update-workout-exercise.use-case.js";
+import { GenerateWorkoutPlanWithAIUseCase } from "./application/ai/generate-workout-plan-with-ai.use-case.js";
+import { GetUserInsightsUseCase } from "./application/ai/get-user-insights.use-case.js";
+import { ListUserChatsUseCase } from "./application/ai/list-user-chats.use-case.js";
+import { SendChatMessageUseCase } from "./application/ai/send-chat-message.use-case.js";
 import { CreatePhysicalAssessmentUseCase } from "./application/assessment/create-physical-assessment.use-case.js";
 import { GetPhysicalAssessmentByIdUseCase } from "./application/assessment/get-physical-assessment-by-id.use-case.js";
 import { ListPhysicalAssessmentsByUserUseCase } from "./application/assessment/list-physical-assessments-by-user.use-case.js";
@@ -38,14 +25,27 @@ import { CreatePortalSessionUseCase } from "./application/subscription/create-po
 import { GetSubscriptionStatusUseCase } from "./application/subscription/get-subscription-status.use-case.js";
 import { HandleStripeWebhookUseCase } from "./application/subscription/handle-stripe-webhook.use-case.js";
 import { GetUserProfileUseCase } from "./application/user/get-user-profile.use-case.js";
-import { GenerateWorkoutPlanWithAIUseCase } from "./application/ai/generate-workout-plan-with-ai.use-case.js";
-import { GetUserInsightsUseCase } from "./application/ai/get-user-insights.use-case.js";
-import { ListUserChatsUseCase } from "./application/ai/list-user-chats.use-case.js";
-import { SendChatMessageUseCase } from "./application/ai/send-chat-message.use-case.js";
-import { PrismaAIChatMessageRepository } from "./infrastructure/database/prisma/repositories/prisma-ai-chat-message.repository.js";
+import { ActivateWorkoutPlanUseCase } from "./application/workout/activate-workout-plan.use-case.js";
+import { CompleteWorkoutSessionUseCase } from "./application/workout/complete-workout-session.use-case.js";
+import { CreateWorkoutDayUseCase } from "./application/workout/create-workout-day.use-case.js";
+import { CreateWorkoutExerciseUseCase } from "./application/workout/create-workout-exercise.use-case.js";
+import { CreateWorkoutPlanUseCase } from "./application/workout/create-workout-plan.use-case.js";
+import { DeleteWorkoutDayUseCase } from "./application/workout/delete-workout-day.use-case.js";
+import { DeleteWorkoutExerciseUseCase } from "./application/workout/delete-workout-exercise.use-case.js";
+import { GetSessionHistoryUseCase } from "./application/workout/get-session-history.use-case.js";
+import { GetStreakUseCase } from "./application/workout/get-streak.use-case.js";
+import { GetWorkoutPlanByIdUseCase } from "./application/workout/get-workout-plan-by-id.use-case.js";
+import { ListWorkoutDaysUseCase } from "./application/workout/list-workout-days.use-case.js";
+import { ListWorkoutExercisesUseCase } from "./application/workout/list-workout-exercises.use-case.js";
+import { ListWorkoutPlansUseCase } from "./application/workout/list-workout-plans.use-case.js";
+import { ReorderWorkoutExercisesUseCase } from "./application/workout/reorder-workout-exercises.use-case.js";
+import { StartWorkoutSessionUseCase } from "./application/workout/start-workout-session.use-case.js";
+import { UpdateWorkoutDayUseCase } from "./application/workout/update-workout-day.use-case.js";
+import { UpdateWorkoutExerciseUseCase } from "./application/workout/update-workout-exercise.use-case.js";
 import { PrismaAIChatRepository } from "./infrastructure/database/prisma/repositories/prisma-ai-chat.repository.js";
-import { PrismaGymInstructorRepository } from "./infrastructure/database/prisma/repositories/prisma-gym-instructor.repository.js";
+import { PrismaAIChatMessageRepository } from "./infrastructure/database/prisma/repositories/prisma-ai-chat-message.repository.js";
 import { PrismaGymRepository } from "./infrastructure/database/prisma/repositories/prisma-gym.repository.js";
+import { PrismaGymInstructorRepository } from "./infrastructure/database/prisma/repositories/prisma-gym-instructor.repository.js";
 import { PrismaPhysicalAssessmentRepository } from "./infrastructure/database/prisma/repositories/prisma-physical-assessment.repository.js";
 import { PrismaPtStudentLinkRepository } from "./infrastructure/database/prisma/repositories/prisma-pt-student-link.repository.js";
 import { PrismaSubscriptionRepository } from "./infrastructure/database/prisma/repositories/prisma-subscription.repository.js";
@@ -56,6 +56,7 @@ import { PrismaWorkoutPlanRepository } from "./infrastructure/database/prisma/re
 import { PrismaWorkoutSessionRepository } from "./infrastructure/database/prisma/repositories/prisma-workout-session.repository.js";
 import { OpenAIPlanProviderImpl } from "./infrastructure/providers/openai-provider.js";
 import { StripeProviderImpl } from "./infrastructure/providers/stripe-provider.js";
+import { runTransaction } from "./lib/db.js";
 
 // Repositories
 const userRepository = new PrismaUserRepository();
@@ -79,7 +80,9 @@ const openAIPlanProvider = new OpenAIPlanProviderImpl();
 const createWorkoutPlan = new CreateWorkoutPlanUseCase(workoutPlanRepository);
 const listWorkoutPlans = new ListWorkoutPlansUseCase(workoutPlanRepository);
 const getWorkoutPlanById = new GetWorkoutPlanByIdUseCase(workoutPlanRepository);
-const activateWorkoutPlan = new ActivateWorkoutPlanUseCase(workoutPlanRepository);
+const activateWorkoutPlan = new ActivateWorkoutPlanUseCase(
+  workoutPlanRepository,
+);
 
 const createWorkoutDay = new CreateWorkoutDayUseCase(
   workoutPlanRepository,
@@ -132,7 +135,9 @@ const startWorkoutSession = new StartWorkoutSessionUseCase(
 const completeWorkoutSession = new CompleteWorkoutSessionUseCase(
   workoutSessionRepository,
 );
-const getSessionHistory = new GetSessionHistoryUseCase(workoutSessionRepository);
+const getSessionHistory = new GetSessionHistoryUseCase(
+  workoutSessionRepository,
+);
 const getStreak = new GetStreakUseCase(workoutSessionRepository);
 
 const getUserProfile = new GetUserProfileUseCase(userRepository);
@@ -176,17 +181,17 @@ const createPortalSession = new CreatePortalSessionUseCase(
 const getSubscriptionStatus = new GetSubscriptionStatusUseCase(
   subscriptionRepository,
 );
+const transactionRunner = { run: runTransaction };
 const handleStripeWebhook = new HandleStripeWebhookUseCase(
   stripeProvider,
   subscriptionRepository,
   userRepository,
+  transactionRunner,
 );
 
 const generateWorkoutPlanWithAI = new GenerateWorkoutPlanWithAIUseCase(
   openAIPlanProvider,
   workoutPlanRepository,
-  workoutDayRepository,
-  workoutExerciseRepository,
 );
 const listUserChats = new ListUserChatsUseCase(aiChatRepository);
 const sendChatMessage = new SendChatMessageUseCase(
@@ -195,6 +200,8 @@ const sendChatMessage = new SendChatMessageUseCase(
   openAIPlanProvider,
 );
 const getUserInsights = new GetUserInsightsUseCase(openAIPlanProvider);
+
+export { userRepository };
 
 export const useCases = {
   createWorkoutPlan,

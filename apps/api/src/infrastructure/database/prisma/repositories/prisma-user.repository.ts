@@ -1,3 +1,4 @@
+import type { Prisma } from "../../../../generated/prisma/client.js";
 import type {
   UpdateUserSubscriptionInput,
   UserRepository,
@@ -26,8 +27,10 @@ export class PrismaUserRepository implements UserRepository {
   async updateSubscriptionFields(
     userId: string,
     input: UpdateUserSubscriptionInput,
+    tx?: Prisma.TransactionClient,
   ): Promise<void> {
-    await prisma.user.update({
+    const client = (tx ?? prisma) as typeof prisma;
+    await client.user.update({
       where: { id: userId },
       data: {
         ...(input.stripeCustomerId !== undefined && {

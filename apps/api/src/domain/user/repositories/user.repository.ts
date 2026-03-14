@@ -12,11 +12,14 @@ export interface UpdateUserSubscriptionInput {
   subscriptionStatus?: "ACTIVE" | "TRIALING" | "PAST_DUE" | "CANCELED" | "UNPAID" | null;
 }
 
+import type { TransactionClient } from "../../database/transaction-client.js";
+
 export interface UserRepository {
   findById(userId: string): Promise<UserRepositoryFindByIdResult | null>;
   getStripeCustomerId(userId: string): Promise<string | null>;
   updateSubscriptionFields(
     userId: string,
     input: UpdateUserSubscriptionInput,
+    tx?: TransactionClient,
   ): Promise<void>;
 }
