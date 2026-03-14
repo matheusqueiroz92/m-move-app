@@ -62,4 +62,10 @@ export interface WorkoutPlanRepository {
   updateIsActive(planId: string, userId: string, isActive: boolean): Promise<WorkoutPlanResult | null>;
   /** Desativa todos os planos do usuário e ativa o planId em uma transação atômica. */
   activatePlanForUser(planId: string, userId: string): Promise<WorkoutPlanResult | null>;
+  update(
+    planId: string,
+    userId: string,
+    data: { name?: string; description?: string | null },
+  ): Promise<WorkoutPlanResult | null>;
+  delete(planId: string, userId: string): Promise<boolean>;
 }

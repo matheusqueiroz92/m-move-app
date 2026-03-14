@@ -3,6 +3,7 @@ import {
   createWorkoutPlanBodySchema,
   paginationQuerystringSchema,
   updateWorkoutDayBodySchema,
+  updateWorkoutPlanBodySchema,
   workoutDayListResponseSchema,
   workoutDayResponseSchema,
   workoutPlanPaginatedResponseSchema,
@@ -15,11 +16,13 @@ import { z } from "zod";
 import { activateWorkoutPlanHandler } from "../controllers/workout/activate-workout-plan.controller.js";
 import { createWorkoutDayHandler } from "../controllers/workout/create-workout-day.controller.js";
 import { createWorkoutPlanHandler } from "../controllers/workout/create-workout-plan.controller.js";
+import { deleteWorkoutPlanHandler } from "../controllers/workout/delete-workout-plan.controller.js";
 import { deleteWorkoutDayHandler } from "../controllers/workout/delete-workout-day.controller.js";
 import { getWorkoutPlanByIdHandler } from "../controllers/workout/get-workout-plan-by-id.controller.js";
 import { listWorkoutDaysHandler } from "../controllers/workout/list-workout-days.controller.js";
 import { listWorkoutPlansHandler } from "../controllers/workout/list-workout-plans.controller.js";
 import { updateWorkoutDayHandler } from "../controllers/workout/update-workout-day.controller.js";
+import { updateWorkoutPlanHandler } from "../controllers/workout/update-workout-plan.controller.js";
 import { authenticate } from "../middlewares/authenticate.js";
 
 export async function workoutRoutes(app: FastifyInstance): Promise<void> {
@@ -108,6 +111,29 @@ export async function workoutRoutes(app: FastifyInstance): Promise<void> {
       },
     },
     handler: createWorkoutPlanHandler,
+  });
+
+  typed.patch("/:id", {
+    preHandler: [authenticate],
+    schema: {
+      description: "Update a workout plan (plan must belong to user)",
+      params: z.object({ id: z.string().min(1) }),
+      body: updateWorkoutPlanBodySchema,
+      response: {
+        200: workoutPlanResponseSchema,
+      },
+    },
+    handler: updateWorkoutPlanHandler,
+  });
+
+  typed.delete("/:id", {
+    preHandler: [authenticate],
+    schema: {
+      description: "Delete a workout plan (plan must belong to user)",
+      params: z.object({ id: z.string().min(1) }),
+      response: { 204: z.object({}) },
+    },
+    handler: deleteWorkoutPlanHandler,
   });
 
   typed.post("/:id/activate", {

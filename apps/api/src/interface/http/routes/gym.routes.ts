@@ -1,8 +1,10 @@
 import {
+  acceptGymInviteBodySchema,
   createGymBodySchema,
   gymInstructorPaginatedResponseSchema,
   gymInstructorResponseSchema,
   gymResponseSchema,
+  gymStudentLinkResponseSchema,
   inviteInstructorBodySchema,
   paginationQuerystringSchema,
   updateGymBodySchema,
@@ -11,6 +13,7 @@ import type { FastifyInstance } from "fastify";
 import { ZodTypeProvider } from "fastify-type-provider-zod";
 import { z } from "zod";
 
+import { acceptGymInviteHandler } from "../controllers/gym/accept-gym-invite.controller.js";
 import { createGymHandler } from "../controllers/gym/create-gym.controller.js";
 import { getGymByIdHandler } from "../controllers/gym/get-gym-by-id.controller.js";
 import { inviteInstructorHandler } from "../controllers/gym/invite-instructor.controller.js";
@@ -22,6 +25,17 @@ import { requireRole } from "../middlewares/authorize.js";
 
 export async function gymRoutes(app: FastifyInstance): Promise<void> {
   const typed = app.withTypeProvider<ZodTypeProvider>();
+
+  typed.post("/accept-invite", {
+    preHandler: [authenticate],
+    schema: {
+      description:
+        "Accept gym student invite by token (authenticated user becomes linked student)",
+      body: acceptGymInviteBodySchema,
+      response: { 200: gymStudentLinkResponseSchema },
+    },
+    handler: acceptGymInviteHandler,
+  });
 
   typed.post("/", {
     preHandler: [authenticate, requireRole(["OWNER"])],

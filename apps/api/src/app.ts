@@ -1,6 +1,8 @@
 import { randomUUID } from "node:crypto";
 
+import fastifyCompress from "@fastify/compress";
 import fastifyCors from "@fastify/cors";
+import helmet from "@fastify/helmet";
 import rateLimit from "@fastify/rate-limit";
 import fastifySwagger from "@fastify/swagger";
 import fastifyApiReference from "@scalar/fastify-api-reference";
@@ -23,11 +25,20 @@ import { auth } from "./lib/auth.js";
 import { prisma } from "./lib/db.js";
 import { env } from "./lib/env.js";
 
-const healthResponseSchema = z.object({ status: z.string() });
+const healthResponseOkSchema = z.object({
+  status: z.literal("ok"),
+  database: z.literal("connected"),
+});
+const healthResponseUnavailableSchema = z.object({
+  status: z.literal("unavailable"),
+  database: z.literal("disconnected"),
+  message: z.string().optional(),
+});
 
 const app = fastify({
+  bodyLimit: 1048576,
   logger: {
-    level: process.env.LOG_LEVEL ?? "info",
+    level: env.LOG_LEVEL,
     formatters: {
       level: (label) => ({ level: label }),
     },
@@ -80,6 +91,12 @@ await app.register(fastifyCors, {
   credentials: true,
 });
 
+await app.register(helmet, {
+  contentSecurityPolicy: false,
+});
+
+await app.register(fastifyCompress);
+
 await app.register(rateLimit, {
   max: 100,
   timeWindow: "1 minute",
@@ -107,11 +124,25 @@ app.withTypeProvider<ZodTypeProvider>().route({
   method: "GET",
   url: "/health",
   schema: {
+    description:
+      "Health check with database connectivity (readiness/liveness for orchestrators)",
     response: {
-      200: healthResponseSchema,
+      200: healthResponseOkSchema,
+      503: healthResponseUnavailableSchema,
     },
   },
-  handler: async () => ({ status: "ok" }),
+  handler: async (_request, reply) => {
+    try {
+      await prisma.$queryRaw`SELECT 1`;
+      return { status: "ok", database: "connected" } as const;
+    } catch (error) {
+      return reply.status(503).send({
+        status: "unavailable",
+        database: "disconnected",
+        message: error instanceof Error ? error.message : "Database check failed",
+      });
+    }
+  },
 });
 
 app.withTypeProvider<ZodTypeProvider>().route({

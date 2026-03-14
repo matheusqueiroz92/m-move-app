@@ -8,7 +8,7 @@ describe("GET /health (integration)", () => {
     await app.ready();
   });
 
-  it("should return 200 and status ok", async () => {
+  it("should return 200 with status ok and database connected when DB is healthy", async () => {
     // Given: app is ready and using test database
     // When: GET /health
     const response = await app.inject({
@@ -16,9 +16,10 @@ describe("GET /health (integration)", () => {
       url: "/health",
     });
 
-    // Then: response is ok
+    // Then: response is ok with database connected
     expect(response.statusCode).toBe(200);
-    const body = response.json() as { status: string };
+    const body = response.json() as { status: string; database: string };
     expect(body.status).toBe("ok");
+    expect(body.database).toBe("connected");
   });
 });

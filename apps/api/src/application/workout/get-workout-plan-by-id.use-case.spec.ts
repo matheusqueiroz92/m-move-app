@@ -29,6 +29,8 @@ describe("GetWorkoutPlanByIdUseCase", () => {
       deactivateAllByUserId: vi.fn(),
       updateIsActive: vi.fn(),
       activatePlanForUser: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
     };
     const useCase = new GetWorkoutPlanByIdUseCase(repository);
 
@@ -51,6 +53,8 @@ describe("GetWorkoutPlanByIdUseCase", () => {
       deactivateAllByUserId: vi.fn(),
       updateIsActive: vi.fn(),
       activatePlanForUser: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
     };
     const useCase = new GetWorkoutPlanByIdUseCase(repository);
 

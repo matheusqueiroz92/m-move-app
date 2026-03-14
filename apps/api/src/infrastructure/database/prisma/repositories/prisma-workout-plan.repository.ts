@@ -135,4 +135,34 @@ export class PrismaWorkoutPlanRepository implements WorkoutPlanRepository {
     });
     return toWorkoutPlanResult(updated);
   }
+
+  async update(
+    planId: string,
+    userId: string,
+    data: { name?: string; description?: string | null },
+  ): Promise<WorkoutPlanResult | null> {
+    const plan = await prisma.workoutPlan.findFirst({
+      where: { id: planId, userId },
+    });
+    if (!plan) return null;
+    const updated = await prisma.workoutPlan.update({
+      where: { id: planId },
+      data: {
+        ...(data.name !== undefined && { name: data.name }),
+        ...(data.description !== undefined && { description: data.description }),
+      },
+    });
+    return toWorkoutPlanResult(updated);
+  }
+
+  async delete(planId: string, userId: string): Promise<boolean> {
+    const plan = await prisma.workoutPlan.findFirst({
+      where: { id: planId, userId },
+    });
+    if (!plan) return false;
+    await prisma.workoutPlan.delete({
+      where: { id: planId },
+    });
+    return true;
+  }
 }
