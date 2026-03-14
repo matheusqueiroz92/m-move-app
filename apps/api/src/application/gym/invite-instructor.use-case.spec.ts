@@ -34,6 +34,7 @@ describe("InviteInstructorUseCase", () => {
       create: vi.fn().mockResolvedValue(created),
       findById: vi.fn(),
       findByGymId: vi.fn(),
+      findByGymIdPaginated: vi.fn(),
       countActiveByGymId: vi.fn().mockResolvedValue(2),
       delete: vi.fn(),
     };
@@ -70,6 +71,7 @@ describe("InviteInstructorUseCase", () => {
       create: vi.fn(),
       findById: vi.fn(),
       findByGymId: vi.fn(),
+      findByGymIdPaginated: vi.fn(),
       countActiveByGymId: vi.fn(),
       delete: vi.fn(),
     };
@@ -104,6 +106,7 @@ describe("InviteInstructorUseCase", () => {
       create: vi.fn(),
       findById: vi.fn(),
       findByGymId: vi.fn(),
+      findByGymIdPaginated: vi.fn(),
       countActiveByGymId: vi.fn().mockResolvedValue(2),
       delete: vi.fn(),
     };

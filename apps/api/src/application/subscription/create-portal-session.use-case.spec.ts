@@ -8,6 +8,7 @@ describe("CreatePortalSessionUseCase", () => {
   it("should return portal url when user has stripeCustomerId", async () => {
     const userRepository: UserRepository = {
       findById: vi.fn(),
+      findByIdWithPlanAndTimezone: vi.fn(),
       getStripeCustomerId: vi.fn().mockResolvedValue("cus_123"),
       updateSubscriptionFields: vi.fn(),
     };
@@ -40,6 +41,7 @@ describe("CreatePortalSessionUseCase", () => {
   it("should throw when user has no stripe customer id", async () => {
     const userRepository: UserRepository = {
       findById: vi.fn(),
+      findByIdWithPlanAndTimezone: vi.fn(),
       getStripeCustomerId: vi.fn().mockResolvedValue(null),
       updateSubscriptionFields: vi.fn(),
     };

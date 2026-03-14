@@ -30,34 +30,56 @@ describe("ListWorkoutPlansUseCase", () => {
         updatedAt: new Date("2025-01-02"),
       },
     ];
-    const findByUserId = vi.fn().mockResolvedValue(plans);
+    const findByUserIdPaginated = vi.fn().mockResolvedValue({
+      items: plans,
+      total: plans.length,
+    });
     const repository: WorkoutPlanRepository = {
       create: vi.fn(),
-      findByUserId,
+      createWithDaysAndExercises: vi.fn(),
+      findByUserId: vi.fn(),
+      findByUserIdPaginated,
       findByIdAndUserId: vi.fn(),
       deactivateAllByUserId: vi.fn(),
       updateIsActive: vi.fn(),
+      activatePlanForUser: vi.fn(),
     };
     const useCase = new ListWorkoutPlansUseCase(repository);
 
-    const result = await useCase.execute({ userId: "user-1" });
+    const result = await useCase.execute({
+      userId: "user-1",
+      limit: 20,
+      offset: 0,
+    });
 
-    expect(result).toEqual(plans);
-    expect(findByUserId).toHaveBeenCalledWith("user-1");
+    expect(result.items).toEqual(plans);
+    expect(result.total).toBe(2);
+    expect(findByUserIdPaginated).toHaveBeenCalledWith("user-1", {
+      limit: 20,
+      offset: 0,
+    });
   });
 
-  it("should return empty array when user has no plans", async () => {
+  it("should return empty items when user has no plans", async () => {
     const repository: WorkoutPlanRepository = {
       create: vi.fn(),
-      findByUserId: vi.fn().mockResolvedValue([]),
+      createWithDaysAndExercises: vi.fn(),
+      findByUserId: vi.fn(),
+      findByUserIdPaginated: vi.fn().mockResolvedValue({ items: [], total: 0 }),
       findByIdAndUserId: vi.fn(),
       deactivateAllByUserId: vi.fn(),
       updateIsActive: vi.fn(),
+      activatePlanForUser: vi.fn(),
     };
     const useCase = new ListWorkoutPlansUseCase(repository);
 
-    const result = await useCase.execute({ userId: "user-empty" });
+    const result = await useCase.execute({
+      userId: "user-empty",
+      limit: 20,
+      offset: 0,
+    });
 
-    expect(result).toEqual([]);
+    expect(result.items).toEqual([]);
+    expect(result.total).toBe(0);
   });
 });

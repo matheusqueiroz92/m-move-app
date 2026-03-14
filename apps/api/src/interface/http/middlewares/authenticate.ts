@@ -23,6 +23,7 @@ export async function authenticate(
     const testUserId = request.headers["x-test-user-id"];
     if (typeof testUserId === "string" && testUserId.length > 0) {
       request.userId = testUserId;
+      request.log = request.log.child({ userId: testUserId });
       return;
     }
   }
@@ -35,4 +36,5 @@ export async function authenticate(
   }
 
   request.userId = session.user.id;
+  request.log = request.log.child({ userId: session.user.id });
 }

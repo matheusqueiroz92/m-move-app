@@ -4,6 +4,7 @@ import type {
   WorkoutPlanRepository,
   WorkoutPlanResult,
 } from "../../../../domain/workout/repositories/workout-plan.repository.js";
+import type { WeekDay } from "../../../../generated/prisma/client.js";
 import { prisma } from "../../../../lib/db.js";
 import { toWorkoutPlanResult } from "../mappers/workout-plan.mapper.js";
 
@@ -33,7 +34,7 @@ export class PrismaWorkoutPlanRepository implements WorkoutPlanRepository {
           create: input.days.map((d) => ({
             name: d.name,
             isRest: d.isRest,
-            weekDay: d.weekDay,
+            weekDay: d.weekDay as WeekDay,
             estimatedDurationInSeconds: d.estimatedDurationInSeconds ?? undefined,
             exercises: {
               create: d.exercises.map((e) => ({
@@ -59,6 +60,25 @@ export class PrismaWorkoutPlanRepository implements WorkoutPlanRepository {
       orderBy: { createdAt: "desc" },
     });
     return plans.map(toWorkoutPlanResult);
+  }
+
+  async findByUserIdPaginated(
+    userId: string,
+    options: { limit: number; offset: number },
+  ) {
+    const [items, total] = await Promise.all([
+      prisma.workoutPlan.findMany({
+        where: { userId },
+        orderBy: { createdAt: "desc" },
+        take: options.limit,
+        skip: options.offset,
+      }),
+      prisma.workoutPlan.count({ where: { userId } }),
+    ]);
+    return {
+      items: items.map(toWorkoutPlanResult),
+      total,
+    };
   }
 
   async findByIdAndUserId(

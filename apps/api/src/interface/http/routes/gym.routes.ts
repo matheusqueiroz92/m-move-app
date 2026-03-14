@@ -1,9 +1,10 @@
 import {
   createGymBodySchema,
-  gymInstructorListResponseSchema,
+  gymInstructorPaginatedResponseSchema,
   gymInstructorResponseSchema,
   gymResponseSchema,
   inviteInstructorBodySchema,
+  paginationQuerystringSchema,
   updateGymBodySchema,
 } from "@m-move-app/validators";
 import type { FastifyInstance } from "fastify";
@@ -37,10 +38,12 @@ export async function gymRoutes(app: FastifyInstance): Promise<void> {
   typed.get("/:id/members", {
     preHandler: [authenticate],
     schema: {
-      description: "List gym members (instructor links). OWNER of the gym only.",
+      description:
+        "List gym members (instructor links). OWNER of the gym only. (paginated)",
       params: z.object({ id: z.string().uuid() }),
+      querystring: paginationQuerystringSchema,
       response: {
-        200: gymInstructorListResponseSchema,
+        200: gymInstructorPaginatedResponseSchema,
       },
     },
     handler: listGymMembersHandler,

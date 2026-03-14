@@ -158,9 +158,10 @@ describe("PT Invites API (integration)", () => {
       });
 
       expect(response.statusCode).toBe(200);
-      const body = response.json() as unknown[];
-      expect(Array.isArray(body)).toBe(true);
-      expect(body).toHaveLength(0);
+      const body = response.json() as { items: unknown[]; total: number };
+      expect(body).toHaveProperty("items");
+      expect(body.items).toHaveLength(0);
+      expect(body.total).toBe(0);
     });
   });
 

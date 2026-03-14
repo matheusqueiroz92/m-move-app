@@ -1,6 +1,8 @@
 import { WEEK_DAYS } from "@m-move-app/constants";
 import { z } from "zod";
 
+import { createPaginatedResponseSchema } from "./pagination.js";
+
 const weekDaySchema = z.enum(WEEK_DAYS);
 
 export const generatedWorkoutExerciseSchema = z.object({
@@ -69,6 +71,8 @@ export const aiChatResponseSchema = z.object({
   updatedAt: z.string(),
 });
 export const aiChatListResponseSchema = z.array(aiChatResponseSchema);
+export const aiChatPaginatedResponseSchema =
+  createPaginatedResponseSchema(aiChatResponseSchema);
 
 export const insightsResponseSchema = z.object({
   insights: z.string(),

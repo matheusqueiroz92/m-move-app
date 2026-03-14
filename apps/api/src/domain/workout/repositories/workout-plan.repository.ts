@@ -42,12 +42,21 @@ export interface WorkoutPlanResult {
   updatedAt: Date;
 }
 
+export interface PaginatedResult<T> {
+  items: T[];
+  total: number;
+}
+
 export interface WorkoutPlanRepository {
   create(input: CreateWorkoutPlanInput): Promise<WorkoutPlanResult>;
   createWithDaysAndExercises(
     input: CreateWorkoutPlanFullInput,
   ): Promise<WorkoutPlanResult>;
   findByUserId(userId: string): Promise<WorkoutPlanResult[]>;
+  findByUserIdPaginated(
+    userId: string,
+    options: { limit: number; offset: number },
+  ): Promise<PaginatedResult<WorkoutPlanResult>>;
   findByIdAndUserId(planId: string, userId: string): Promise<WorkoutPlanResult | null>;
   deactivateAllByUserId(userId: string): Promise<void>;
   updateIsActive(planId: string, userId: string, isActive: boolean): Promise<WorkoutPlanResult | null>;

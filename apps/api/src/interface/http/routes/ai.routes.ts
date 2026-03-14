@@ -1,9 +1,10 @@
 import {
-  aiChatListResponseSchema,
+  aiChatPaginatedResponseSchema,
   chatResponseSchema,
   generateWorkoutPlanBodySchema,
   generateWorkoutPlanResponseSchema,
   insightsResponseSchema,
+  paginationQuerystringSchema,
   sendChatMessageBodySchema,
 } from "@m-move-app/validators";
 import type { FastifyInstance } from "fastify";
@@ -40,14 +41,25 @@ export async function aiRoutes(app: FastifyInstance): Promise<void> {
   typed.get("/chats", {
     preHandler: [authenticate],
     schema: {
-      description: "List AI chats for the authenticated user",
-      response: { 200: aiChatListResponseSchema, 401: messageResponseSchema },
+      description:
+        "List AI chats for the authenticated user (paginated)",
+      querystring: paginationQuerystringSchema,
+      response: {
+        200: aiChatPaginatedResponseSchema,
+        401: messageResponseSchema,
+      },
     },
     handler: listChatsHandler,
   });
 
   typed.post("/chat", {
-    preHandler: [authenticate, createAIChatRateLimitMiddleware()],
+    preHandler: [
+      authenticate,
+      createAIChatRateLimitMiddleware({
+        userRepository: app.userRepository,
+        aiChatMessageRepository: app.aiChatMessageRepository,
+      }),
+    ],
     schema: {
       description:
         "Send a message to the AI chat (creates chat if chatId is null)",

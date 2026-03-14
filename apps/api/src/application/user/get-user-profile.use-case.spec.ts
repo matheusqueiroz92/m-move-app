@@ -15,6 +15,7 @@ describe("GetUserProfileUseCase", () => {
     });
     const userRepository: UserRepository = {
       findById: vi.fn().mockResolvedValue(user),
+      findByIdWithPlanAndTimezone: vi.fn(),
       getStripeCustomerId: vi.fn().mockResolvedValue("cust-1"),
       updateSubscriptionFields: vi.fn().mockResolvedValue(undefined),
     };
@@ -32,6 +33,7 @@ describe("GetUserProfileUseCase", () => {
     // Given: the repository returns null for the user
     const userRepository: UserRepository = {
       findById: vi.fn().mockResolvedValue(null),
+      findByIdWithPlanAndTimezone: vi.fn(),
       getStripeCustomerId: vi.fn().mockResolvedValue(null),
       updateSubscriptionFields: vi.fn().mockResolvedValue(undefined),
     };

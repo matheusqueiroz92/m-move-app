@@ -2,16 +2,13 @@ import type { FastifyReply, FastifyRequest } from "fastify";
 
 export async function getSessionHistoryHandler(
   request: FastifyRequest<{
-    Querystring: { limit?: string; offset?: string };
+    Querystring: { limit?: number; offset?: number };
   }>,
   reply: FastifyReply,
 ): Promise<void> {
   const userId = request.userId!;
-
-  const limit = request.query.limit ? parseInt(request.query.limit, 10) : 50;
-  const offset = request.query.offset
-    ? parseInt(request.query.offset, 10)
-    : 0;
+  const limit = request.query.limit ?? 50;
+  const offset = request.query.offset ?? 0;
 
   const sessions = await request.server.useCases.getSessionHistory.execute({
     userId,

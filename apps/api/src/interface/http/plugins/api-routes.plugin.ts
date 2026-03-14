@@ -17,7 +17,11 @@ import { workoutDaysRoutes } from "../routes/workout-days.routes.js";
 export async function apiRoutesPlugin(
   instance: FastifyInstance,
 ): Promise<void> {
-  instance.setErrorHandler(createErrorHandler((err) => instance.log.error(err)));
+  instance.setErrorHandler(
+    createErrorHandler((err, req) =>
+      (req?.log ?? instance.log).error(err),
+    ),
+  );
 
   await instance.register(userRoutes, { prefix: "/api/users" });
   await instance.register(workoutRoutes, { prefix: "/api/workout-plans" });

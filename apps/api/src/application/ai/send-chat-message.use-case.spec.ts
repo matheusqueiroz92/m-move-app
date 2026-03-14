@@ -36,6 +36,7 @@ describe("SendChatMessageUseCase", () => {
       create: vi.fn().mockResolvedValue(chatResult),
       findById: vi.fn().mockResolvedValue(null),
       findByUserId: vi.fn(),
+      findByUserIdPaginated: vi.fn(),
     };
     const messageRepo: AIChatMessageRepository = {
       create: vi
@@ -43,6 +44,7 @@ describe("SendChatMessageUseCase", () => {
         .mockResolvedValueOnce(userMsg)
         .mockResolvedValueOnce(assistantMsg),
       findByChatId: vi.fn().mockResolvedValue([userMsg]),
+      countUserMessagesByDateRange: vi.fn(),
     };
     const chatProvider: OpenAIChatProvider = {
       chat: vi.fn().mockResolvedValue("Olá! Como posso ajudar?"),

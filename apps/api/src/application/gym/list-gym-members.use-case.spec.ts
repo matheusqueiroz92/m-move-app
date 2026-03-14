@@ -30,10 +30,15 @@ describe("ListGymMembersUseCase", () => {
         createdAt: new Date(),
       },
     ];
+    const findByGymIdPaginated = vi.fn().mockResolvedValue({
+      items: links,
+      total: links.length,
+    });
     const instructorRepository: GymInstructorRepository = {
       create: vi.fn(),
       findById: vi.fn(),
-      findByGymId: vi.fn().mockResolvedValue(links),
+      findByGymId: vi.fn(),
+      findByGymIdPaginated,
       countActiveByGymId: vi.fn(),
       delete: vi.fn(),
     };
@@ -45,10 +50,15 @@ describe("ListGymMembersUseCase", () => {
     const result = await useCase.execute({
       gymId: "gym-1",
       userId: "owner-1",
+      limit: 20,
+      offset: 0,
     });
 
-    expect(result).toEqual(links);
-    expect(instructorRepository.findByGymId).toHaveBeenCalledWith("gym-1");
+    expect(result.items).toEqual(links);
+    expect(findByGymIdPaginated).toHaveBeenCalledWith("gym-1", {
+      limit: 20,
+      offset: 0,
+    });
   });
 
   it("should throw GymNotFoundError when gym does not exist", async () => {
@@ -62,6 +72,7 @@ describe("ListGymMembersUseCase", () => {
       create: vi.fn(),
       findById: vi.fn(),
       findByGymId: vi.fn(),
+      findByGymIdPaginated: vi.fn(),
       countActiveByGymId: vi.fn(),
       delete: vi.fn(),
     };
@@ -71,7 +82,12 @@ describe("ListGymMembersUseCase", () => {
     );
 
     await expect(
-      useCase.execute({ gymId: "gym-404", userId: "owner-1" }),
+      useCase.execute({
+        gymId: "gym-404",
+        userId: "owner-1",
+        limit: 20,
+        offset: 0,
+      }),
     ).rejects.toThrow(GymNotFoundError);
   });
 
@@ -89,6 +105,7 @@ describe("ListGymMembersUseCase", () => {
       create: vi.fn(),
       findById: vi.fn(),
       findByGymId: vi.fn(),
+      findByGymIdPaginated: vi.fn(),
       countActiveByGymId: vi.fn(),
       delete: vi.fn(),
     };
@@ -98,7 +115,12 @@ describe("ListGymMembersUseCase", () => {
     );
 
     await expect(
-      useCase.execute({ gymId: "gym-1", userId: "other-user" }),
+      useCase.execute({
+        gymId: "gym-1",
+        userId: "other-user",
+        limit: 20,
+        offset: 0,
+      }),
     ).rejects.toThrow(GymNotFoundError);
   });
 });

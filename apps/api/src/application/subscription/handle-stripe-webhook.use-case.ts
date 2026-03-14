@@ -1,4 +1,5 @@
 import type { TransactionRunner } from "../../domain/database/transaction-client.js";
+import type { UserProfileCache } from "../../domain/user/cache/user-profile-cache.interface.js";
 import type { StripeProvider } from "../../domain/subscription/providers/stripe-provider.interface.js";
 import type {
   PlanType,
@@ -42,6 +43,7 @@ export class HandleStripeWebhookUseCase {
     private readonly subscriptionRepository: SubscriptionRepository,
     private readonly userRepository: UserRepository,
     private readonly transactionRunner: TransactionRunner,
+    private readonly userProfileCache?: UserProfileCache,
   ) {}
 
   async execute(input: HandleStripeWebhookInput): Promise<void> {
@@ -102,6 +104,7 @@ export class HandleStripeWebhookUseCase {
             tx,
           );
         });
+        this.userProfileCache?.invalidate(userId);
         break;
       }
       case "customer.subscription.updated": {
@@ -142,6 +145,7 @@ export class HandleStripeWebhookUseCase {
             tx,
           );
         });
+        this.userProfileCache?.invalidate(existing.userId);
         break;
       }
       case "customer.subscription.deleted": {
@@ -171,6 +175,7 @@ export class HandleStripeWebhookUseCase {
             tx,
           );
         });
+        this.userProfileCache?.invalidate(existing.userId);
         break;
       }
       case "invoice.payment_failed": {
@@ -196,6 +201,7 @@ export class HandleStripeWebhookUseCase {
             tx,
           );
         });
+        this.userProfileCache?.invalidate(existing.userId);
         break;
       }
       default:

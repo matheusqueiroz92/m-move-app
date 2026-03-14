@@ -18,10 +18,19 @@ export interface GymInstructorResult {
   createdAt: Date;
 }
 
+export interface PaginatedResult<T> {
+  items: T[];
+  total: number;
+}
+
 export interface GymInstructorRepository {
   create(input: CreateGymInstructorInput): Promise<GymInstructorResult>;
   findById(id: string): Promise<GymInstructorResult | null>;
   findByGymId(gymId: string): Promise<GymInstructorResult[]>;
+  findByGymIdPaginated(
+    gymId: string,
+    options: { limit: number; offset: number },
+  ): Promise<PaginatedResult<GymInstructorResult>>;
   countActiveByGymId(gymId: string): Promise<number>;
   delete(id: string): Promise<boolean>;
 }

@@ -25,4 +25,18 @@ export class PrismaAIChatMessageRepository implements AIChatMessageRepository {
     });
     return rows.map(toAIChatMessageResult);
   }
+
+  async countUserMessagesByDateRange(
+    userId: string,
+    start: Date,
+    end: Date,
+  ): Promise<number> {
+    return prisma.aIChatMessage.count({
+      where: {
+        role: "USER",
+        createdAt: { gte: start, lte: end },
+        chat: { userId },
+      },
+    });
+  }
 }

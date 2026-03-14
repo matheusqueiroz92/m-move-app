@@ -1,4 +1,7 @@
+import { randomUUID } from "node:crypto";
+
 import fastifyCors from "@fastify/cors";
+import rateLimit from "@fastify/rate-limit";
 import fastifySwagger from "@fastify/swagger";
 import fastifyApiReference from "@scalar/fastify-api-reference";
 import fastify from "fastify";
@@ -10,15 +13,42 @@ import {
 } from "fastify-type-provider-zod";
 import { z } from "zod";
 
-import { useCases, userRepository } from "./composition-root.js";
+import {
+  aiChatMessageRepository,
+  useCases,
+  userRepository,
+} from "./composition-root.js";
 import { apiRoutesPlugin } from "./interface/http/plugins/api-routes.plugin.js";
 import { auth } from "./lib/auth.js";
+import { prisma } from "./lib/db.js";
 import { env } from "./lib/env.js";
 
 const healthResponseSchema = z.object({ status: z.string() });
 
 const app = fastify({
-  logger: true,
+  logger: {
+    level: process.env.LOG_LEVEL ?? "info",
+    formatters: {
+      level: (label) => ({ level: label }),
+    },
+    serializers: {
+      req: (req: { method: string; url: string; id: string }) => ({
+        method: req.method,
+        url: req.url,
+        requestId: req.id,
+      }),
+      err: (err: Error & { type?: string }) => ({
+        type: err.type ?? "Error",
+        message: err.message,
+        stack: err.stack ?? "",
+      }),
+    },
+  },
+  genReqId: (req) => {
+    const id = req.headers["x-request-id"];
+    return (Array.isArray(id) ? id[0] : id) ?? randomUUID();
+  },
+  requestIdLogLabel: "requestId",
 });
 
 app.setSerializerCompiler(serializerCompiler);
@@ -48,6 +78,11 @@ const corsOrigins = env.CORS_ORIGIN.split(",")
 await app.register(fastifyCors, {
   origin: corsOrigins,
   credentials: true,
+});
+
+await app.register(rateLimit, {
+  max: 100,
+  timeWindow: "1 minute",
 });
 
 await app.register(fastifyApiReference, {
@@ -92,6 +127,11 @@ app.withTypeProvider<ZodTypeProvider>().route({
 
 app.decorate("useCases", useCases);
 app.decorate("userRepository", userRepository);
+app.decorate("aiChatMessageRepository", aiChatMessageRepository);
+
+app.addHook("onClose", async () => {
+  await prisma.$disconnect();
+});
 
 await app.register(apiRoutesPlugin);
 

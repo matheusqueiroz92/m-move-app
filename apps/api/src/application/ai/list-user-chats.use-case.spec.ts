@@ -14,14 +14,26 @@ describe("ListUserChatsUseCase", () => {
         updatedAt: new Date(),
       },
     ];
+    const findByUserIdPaginated = vi.fn().mockResolvedValue({
+      items: chats,
+      total: chats.length,
+    });
     const repo: AIChatRepository = {
       create: vi.fn(),
       findById: vi.fn(),
-      findByUserId: vi.fn().mockResolvedValue(chats),
+      findByUserId: vi.fn(),
+      findByUserIdPaginated,
     };
     const useCase = new ListUserChatsUseCase(repo);
-    const result = await useCase.execute({ userId: "user-1" });
-    expect(repo.findByUserId).toHaveBeenCalledWith("user-1");
-    expect(result).toEqual(chats);
+    const result = await useCase.execute({
+      userId: "user-1",
+      limit: 20,
+      offset: 0,
+    });
+    expect(findByUserIdPaginated).toHaveBeenCalledWith("user-1", {
+      limit: 20,
+      offset: 0,
+    });
+    expect(result.items).toEqual(chats);
   });
 });

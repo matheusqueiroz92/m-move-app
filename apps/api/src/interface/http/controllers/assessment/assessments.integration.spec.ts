@@ -56,9 +56,10 @@ describe("GET /api/assessments (integration)", () => {
     });
 
     expect(response.statusCode).toBe(200);
-    const body = response.json() as unknown[];
-    expect(Array.isArray(body)).toBe(true);
-    expect(body).toHaveLength(0);
+    const body = response.json() as { items: unknown[]; total: number };
+    expect(body).toHaveProperty("items");
+    expect(body.items).toHaveLength(0);
+    expect(body.total).toBe(0);
   });
 
   it("should return 200 and list of assessments when user has assessments", async () => {
@@ -92,11 +93,15 @@ describe("GET /api/assessments (integration)", () => {
     });
 
     expect(response.statusCode).toBe(200);
-    const body = response.json() as Array<{ id: string; userId: string; weightKg: number; heightCm: number }>;
-    expect(body).toHaveLength(1);
-    expect(body[0]?.userId).toBe(fixture.id);
-    expect(body[0]?.weightKg).toBe(80);
-    expect(body[0]?.heightCm).toBe(175);
+    const body = response.json() as {
+      items: Array<{ id: string; userId: string; weightKg: number; heightCm: number }>;
+      total: number;
+    };
+    expect(body.items).toHaveLength(1);
+    expect(body.total).toBe(1);
+    expect(body.items[0]?.userId).toBe(fixture.id);
+    expect(body.items[0]?.weightKg).toBe(80);
+    expect(body.items[0]?.heightCm).toBe(175);
   });
 });
 
@@ -335,9 +340,10 @@ describe("GET /api/assessments/history/:userId (integration)", () => {
     });
 
     expect(response.statusCode).toBe(200);
-    const body = response.json() as Array<{ userId: string }>;
-    expect(body).toHaveLength(1);
-    expect(body[0]?.userId).toBe(fixture.id);
+    const body = response.json() as { items: Array<{ userId: string }>; total: number };
+    expect(body.items).toHaveLength(1);
+    expect(body.total).toBe(1);
+    expect(body.items[0]?.userId).toBe(fixture.id);
   });
 
   it("should return 403 when userId is not the authenticated user", async () => {

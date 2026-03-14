@@ -33,6 +33,7 @@ describe("CreatePhysicalAssessmentUseCase", () => {
       create,
       findById: vi.fn(),
       findByUserId: vi.fn(),
+      findByUserIdPaginated: vi.fn(),
     };
     const useCase = new CreatePhysicalAssessmentUseCase(repository);
 
@@ -86,6 +87,7 @@ describe("CreatePhysicalAssessmentUseCase", () => {
       create,
       findById: vi.fn(),
       findByUserId: vi.fn(),
+      findByUserIdPaginated: vi.fn(),
     };
     const useCase = new CreatePhysicalAssessmentUseCase(repository);
 

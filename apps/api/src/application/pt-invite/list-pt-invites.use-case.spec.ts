@@ -22,34 +22,54 @@ describe("ListPtInvitesUseCase", () => {
         createdAt: new Date(),
       },
     ];
-    const findByPersonalTrainerId = vi.fn().mockResolvedValue(links);
+    const findByPersonalTrainerIdPaginated = vi.fn().mockResolvedValue({
+      items: links,
+      total: links.length,
+    });
     const repository: PtStudentLinkRepository = {
       create: vi.fn(),
       findById: vi.fn(),
       findByToken: vi.fn(),
-      findByPersonalTrainerId,
+      findByPersonalTrainerId: vi.fn(),
+      findByPersonalTrainerIdPaginated,
       updateStatus: vi.fn(),
     };
     const useCase = new ListPtInvitesUseCase(repository);
 
-    const result = await useCase.execute({ personalTrainerId: "pt-1" });
+    const result = await useCase.execute({
+      personalTrainerId: "pt-1",
+      limit: 20,
+      offset: 0,
+    });
 
-    expect(result).toEqual(links);
-    expect(findByPersonalTrainerId).toHaveBeenCalledWith("pt-1");
+    expect(result.items).toEqual(links);
+    expect(findByPersonalTrainerIdPaginated).toHaveBeenCalledWith("pt-1", {
+      limit: 20,
+      offset: 0,
+    });
   });
 
-  it("should return empty array when PT has no invites", async () => {
+  it("should return empty items when PT has no invites", async () => {
     const repository: PtStudentLinkRepository = {
       create: vi.fn(),
       findById: vi.fn(),
       findByToken: vi.fn(),
-      findByPersonalTrainerId: vi.fn().mockResolvedValue([]),
+      findByPersonalTrainerId: vi.fn(),
+      findByPersonalTrainerIdPaginated: vi.fn().mockResolvedValue({
+        items: [],
+        total: 0,
+      }),
       updateStatus: vi.fn(),
     };
     const useCase = new ListPtInvitesUseCase(repository);
 
-    const result = await useCase.execute({ personalTrainerId: "pt-1" });
+    const result = await useCase.execute({
+      personalTrainerId: "pt-1",
+      limit: 20,
+      offset: 0,
+    });
 
-    expect(result).toEqual([]);
+    expect(result.items).toEqual([]);
+    expect(result.total).toBe(0);
   });
 });

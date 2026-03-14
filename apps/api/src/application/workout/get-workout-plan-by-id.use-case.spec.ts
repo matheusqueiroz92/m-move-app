@@ -22,10 +22,13 @@ describe("GetWorkoutPlanByIdUseCase", () => {
     const findByIdAndUserId = vi.fn().mockResolvedValue(plan);
     const repository: WorkoutPlanRepository = {
       create: vi.fn(),
+      createWithDaysAndExercises: vi.fn(),
       findByUserId: vi.fn(),
+      findByUserIdPaginated: vi.fn(),
       findByIdAndUserId,
       deactivateAllByUserId: vi.fn(),
       updateIsActive: vi.fn(),
+      activatePlanForUser: vi.fn(),
     };
     const useCase = new GetWorkoutPlanByIdUseCase(repository);
 
@@ -41,10 +44,13 @@ describe("GetWorkoutPlanByIdUseCase", () => {
   it("should throw PlanNotFoundError when plan does not exist or belongs to another user", async () => {
     const repository: WorkoutPlanRepository = {
       create: vi.fn(),
+      createWithDaysAndExercises: vi.fn(),
       findByUserId: vi.fn(),
+      findByUserIdPaginated: vi.fn(),
       findByIdAndUserId: vi.fn().mockResolvedValue(null),
       deactivateAllByUserId: vi.fn(),
       updateIsActive: vi.fn(),
+      activatePlanForUser: vi.fn(),
     };
     const useCase = new GetWorkoutPlanByIdUseCase(repository);
 

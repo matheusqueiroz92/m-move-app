@@ -2,6 +2,8 @@ import { z } from "zod";
 
 import { WEEK_DAYS } from "@m-move-app/constants";
 
+import { createPaginatedResponseSchema } from "./pagination.js";
+
 const weekDaySchema = z.enum(WEEK_DAYS);
 
 export const createWorkoutPlanBodySchema = z.object({
@@ -23,6 +25,8 @@ export const workoutPlanResponseSchema = z.object({
 export type WorkoutPlanResponse = z.infer<typeof workoutPlanResponseSchema>;
 
 export const workoutPlanListResponseSchema = z.array(workoutPlanResponseSchema);
+export const workoutPlanPaginatedResponseSchema =
+  createPaginatedResponseSchema(workoutPlanResponseSchema);
 
 export const createWorkoutDayBodySchema = z.object({
   name: z.string().min(1, "Name is required"),

@@ -2,11 +2,7 @@ import type { PlanType } from "@m-move-app/constants";
 import type { FastifyReply, FastifyRequest } from "fastify";
 
 import type { AIChatMessageRepository } from "../../../domain/ai/repositories/ai-chat-message.repository.js";
-import type {
-  UserRepository,
-  UserRepositoryFindByIdResult,
-} from "../../../domain/user/repositories/user.repository.js";
-import { prisma } from "../../../lib/db.js";
+import type { UserRepository } from "../../../domain/user/repositories/user.repository.js";
 
 const PLAN_LIMITS: Record<PlanType, number | null> = {
   STUDENT: 50,
@@ -41,11 +37,11 @@ function getTodayRange(timezone: string): { start: Date; end: Date } {
   return { start, end };
 }
 
-export function createAIChatRateLimitMiddleware(deps?: {
-  userRepository?: UserRepository;
-  aiChatMessageRepository?: AIChatMessageRepository;
+export function createAIChatRateLimitMiddleware(deps: {
+  userRepository: UserRepository;
+  aiChatMessageRepository: AIChatMessageRepository;
 }) {
-  const userRepo = deps?.userRepository;
+  const { userRepository, aiChatMessageRepository } = deps;
 
   return async function aiChatRateLimit(
     request: FastifyRequest,
@@ -56,27 +52,7 @@ export function createAIChatRateLimitMiddleware(deps?: {
       return reply.status(401).send({ message: "Unauthorized" });
     }
 
-    const user: (UserRepositoryFindByIdResult & {
-      planType: PlanType | null;
-      timezone: string | null;
-    }) | null =
-      userRepo && typeof userRepo.findById === "function"
-        ? ((await userRepo.findById(userId)) as UserRepositoryFindByIdResult & {
-            planType: PlanType | null;
-            timezone: string | null;
-          })
-        : await prisma.user.findUnique({
-            where: { id: userId },
-            select: {
-              id: true,
-              name: true,
-              email: true,
-              role: true,
-              planType: true,
-              timezone: true,
-            },
-          });
-
+    const user = await userRepository.findByIdWithPlanAndTimezone(userId);
     if (!user) {
       return reply.status(404).send({ message: "User not found" });
     }
@@ -97,19 +73,11 @@ export function createAIChatRateLimitMiddleware(deps?: {
     }
 
     const { start, end } = getTodayRange(timezone);
-
-    const todayCount = await prisma.aIChatMessage.count({
-      where: {
-        role: "USER",
-        createdAt: {
-          gte: start,
-          lte: end,
-        },
-        chat: {
-          userId,
-        },
-      },
-    });
+    const todayCount = await aiChatMessageRepository.countUserMessagesByDateRange(
+      userId,
+      start,
+      end,
+    );
 
     if (todayCount >= limit) {
       return reply.status(429).send({

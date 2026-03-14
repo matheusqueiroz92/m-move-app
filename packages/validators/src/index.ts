@@ -1,4 +1,5 @@
 export * from "./ai.js";
+export * from "./pagination.js";
 export * from "./workout.js";
 export * from "./user.js";
 export * from "./assessment.js";

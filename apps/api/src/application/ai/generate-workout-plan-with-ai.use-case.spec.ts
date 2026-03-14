@@ -56,6 +56,7 @@ describe("GenerateWorkoutPlanWithAIUseCase", () => {
       create: vi.fn(),
       createWithDaysAndExercises: vi.fn().mockResolvedValue(planResult),
       findByUserId: vi.fn(),
+      findByUserIdPaginated: vi.fn(),
       findByIdAndUserId: vi.fn(),
       deactivateAllByUserId: vi.fn(),
       updateIsActive: vi.fn(),

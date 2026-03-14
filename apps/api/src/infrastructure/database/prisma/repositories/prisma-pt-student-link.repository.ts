@@ -41,6 +41,25 @@ export class PrismaPtStudentLinkRepository implements PtStudentLinkRepository {
     return links.map(toPtStudentLinkResult);
   }
 
+  async findByPersonalTrainerIdPaginated(
+    ptId: string,
+    options: { limit: number; offset: number },
+  ) {
+    const [items, total] = await Promise.all([
+      prisma.pTStudentLink.findMany({
+        where: { personalTrainerId: ptId },
+        orderBy: { createdAt: "desc" },
+        take: options.limit,
+        skip: options.offset,
+      }),
+      prisma.pTStudentLink.count({ where: { personalTrainerId: ptId } }),
+    ]);
+    return {
+      items: items.map(toPtStudentLinkResult),
+      total,
+    };
+  }
+
   async updateStatus(
     id: string,
     status: "PENDING" | "ACTIVE" | "REVOKED" | "EXPIRED",

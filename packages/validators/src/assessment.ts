@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { createPaginatedResponseSchema } from "./pagination.js";
+
 const optionalFloat = z.number().min(0).optional().nullable();
 const requiredFloat = z.number().min(0);
 
@@ -66,3 +68,5 @@ export type PhysicalAssessmentResponse = z.infer<
 export const physicalAssessmentListResponseSchema = z.array(
   physicalAssessmentResponseSchema,
 );
+export const physicalAssessmentPaginatedResponseSchema =
+  createPaginatedResponseSchema(physicalAssessmentResponseSchema);

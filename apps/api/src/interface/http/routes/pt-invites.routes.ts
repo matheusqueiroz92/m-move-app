@@ -1,6 +1,7 @@
 import {
   acceptPtInviteBodySchema,
-  ptInviteListResponseSchema,
+  paginationQuerystringSchema,
+  ptInvitePaginatedResponseSchema,
   ptInviteResponseSchema,
   sendPtInviteBodySchema,
 } from "@m-move-app/validators";
@@ -31,8 +32,9 @@ export async function ptInvitesRoutes(app: FastifyInstance): Promise<void> {
   typed.get("/", {
     preHandler: [authenticate, requireRole(["PERSONAL_TRAINER"])],
     schema: {
-      description: "List PT invites (PERSONAL_TRAINER only)",
-      response: { 200: ptInviteListResponseSchema },
+      description: "List PT invites (PERSONAL_TRAINER only) (paginated)",
+      querystring: paginationQuerystringSchema,
+      response: { 200: ptInvitePaginatedResponseSchema },
     },
     handler: listPtInvitesHandler,
   });

@@ -17,4 +17,9 @@ export interface AIChatMessageResult {
 export interface AIChatMessageRepository {
   create(input: CreateAIChatMessageInput): Promise<AIChatMessageResult>;
   findByChatId(chatId: string): Promise<AIChatMessageResult[]>;
+  countUserMessagesByDateRange(
+    userId: string,
+    start: Date,
+    end: Date,
+  ): Promise<number>;
 }

@@ -1,6 +1,7 @@
 import {
   createPhysicalAssessmentBodySchema,
-  physicalAssessmentListResponseSchema,
+  paginationQuerystringSchema,
+  physicalAssessmentPaginatedResponseSchema,
   physicalAssessmentResponseSchema,
 } from "@m-move-app/validators";
 import type { FastifyInstance } from "fastify";
@@ -19,9 +20,11 @@ export async function assessmentRoutes(app: FastifyInstance): Promise<void> {
   typed.get("/", {
     preHandler: [authenticate],
     schema: {
-      description: "List physical assessments of the authenticated user",
+      description:
+        "List physical assessments of the authenticated user (paginated)",
+      querystring: paginationQuerystringSchema,
       response: {
-        200: physicalAssessmentListResponseSchema,
+        200: physicalAssessmentPaginatedResponseSchema,
       },
     },
     handler: listPhysicalAssessmentsHandler,
@@ -61,10 +64,11 @@ export async function assessmentHistoryRoutes(
     preHandler: [authenticate],
     schema: {
       description:
-        "List physical assessments history for a user (own userId only for now)",
+        "List physical assessments history for a user (own userId only) (paginated)",
       params: z.object({ userId: z.string().uuid() }),
+      querystring: paginationQuerystringSchema,
       response: {
-        200: physicalAssessmentListResponseSchema,
+        200: physicalAssessmentPaginatedResponseSchema,
       },
     },
     handler: getHistoryPhysicalAssessmentsHandler,

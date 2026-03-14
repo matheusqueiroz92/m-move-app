@@ -26,6 +26,7 @@ describe("SendPtInviteUseCase", () => {
       findById: vi.fn(),
       findByToken: vi.fn(),
       findByPersonalTrainerId: vi.fn(),
+      findByPersonalTrainerIdPaginated: vi.fn(),
       updateStatus: vi.fn(),
     };
     const useCase = new SendPtInviteUseCase(repository);

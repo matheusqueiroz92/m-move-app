@@ -34,8 +34,17 @@ export interface PhysicalAssessmentResult {
   assessedAt: Date;
 }
 
+export interface PaginatedResult<T> {
+  items: T[];
+  total: number;
+}
+
 export interface PhysicalAssessmentRepository {
   create(input: CreatePhysicalAssessmentInput): Promise<PhysicalAssessmentResult>;
   findById(id: string): Promise<PhysicalAssessmentResult | null>;
   findByUserId(userId: string): Promise<PhysicalAssessmentResult[]>;
+  findByUserIdPaginated(
+    userId: string,
+    options: { limit: number; offset: number },
+  ): Promise<PaginatedResult<PhysicalAssessmentResult>>;
 }

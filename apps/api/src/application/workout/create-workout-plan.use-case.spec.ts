@@ -23,10 +23,13 @@ describe("CreateWorkoutPlanUseCase", () => {
     const create = vi.fn().mockResolvedValue(created);
     const repository: WorkoutPlanRepository = {
       create,
+      createWithDaysAndExercises: vi.fn(),
       findByUserId: vi.fn(),
+      findByUserIdPaginated: vi.fn(),
       findByIdAndUserId: vi.fn(),
       deactivateAllByUserId: vi.fn(),
       updateIsActive: vi.fn(),
+      activatePlanForUser: vi.fn(),
     };
     const useCase = new CreateWorkoutPlanUseCase(repository);
 
@@ -63,10 +66,13 @@ describe("CreateWorkoutPlanUseCase", () => {
     const create = vi.fn().mockResolvedValue(created);
     const repository: WorkoutPlanRepository = {
       create,
+      createWithDaysAndExercises: vi.fn(),
       findByUserId: vi.fn(),
+      findByUserIdPaginated: vi.fn(),
       findByIdAndUserId: vi.fn(),
       deactivateAllByUserId: vi.fn(),
       updateIsActive: vi.fn(),
+      activatePlanForUser: vi.fn(),
     };
     const useCase = new CreateWorkoutPlanUseCase(repository);
 

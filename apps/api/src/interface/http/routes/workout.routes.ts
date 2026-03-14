@@ -1,10 +1,11 @@
 import {
   createWorkoutDayBodySchema,
   createWorkoutPlanBodySchema,
+  paginationQuerystringSchema,
   updateWorkoutDayBodySchema,
   workoutDayListResponseSchema,
   workoutDayResponseSchema,
-  workoutPlanListResponseSchema,
+  workoutPlanPaginatedResponseSchema,
   workoutPlanResponseSchema,
 } from "@m-move-app/validators";
 import type { FastifyInstance } from "fastify";
@@ -27,9 +28,10 @@ export async function workoutRoutes(app: FastifyInstance): Promise<void> {
   typed.get("/", {
     preHandler: [authenticate],
     schema: {
-      description: "List all workout plans for the authenticated user",
+      description: "List all workout plans for the authenticated user (paginated)",
+      querystring: paginationQuerystringSchema,
       response: {
-        200: workoutPlanListResponseSchema,
+        200: workoutPlanPaginatedResponseSchema,
       },
     },
     handler: listWorkoutPlansHandler,

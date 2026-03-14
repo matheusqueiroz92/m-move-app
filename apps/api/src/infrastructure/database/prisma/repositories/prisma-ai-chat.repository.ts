@@ -29,4 +29,23 @@ export class PrismaAIChatRepository implements AIChatRepository {
     });
     return rows.map(toAIChatResult);
   }
+
+  async findByUserIdPaginated(
+    userId: string,
+    options: { limit: number; offset: number },
+  ) {
+    const [items, total] = await Promise.all([
+      prisma.aIChat.findMany({
+        where: { userId },
+        orderBy: { updatedAt: "desc" },
+        take: options.limit,
+        skip: options.offset,
+      }),
+      prisma.aIChat.count({ where: { userId } }),
+    ]);
+    return {
+      items: items.map(toAIChatResult),
+      total,
+    };
+  }
 }

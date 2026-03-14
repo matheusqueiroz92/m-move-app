@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { createPaginatedResponseSchema } from "./pagination.js";
+
 export const sendPtInviteBodySchema = z.object({
   inviteEmail: z.string().email("Invalid email"),
 });
@@ -27,6 +29,8 @@ export const ptInviteResponseSchema = z.object({
 export type PtInviteResponse = z.infer<typeof ptInviteResponseSchema>;
 
 export const ptInviteListResponseSchema = z.array(ptInviteResponseSchema);
+export const ptInvitePaginatedResponseSchema =
+  createPaginatedResponseSchema(ptInviteResponseSchema);
 
 export const acceptPtInviteBodySchema = z.object({
   token: z.string().min(1, "Token is required"),

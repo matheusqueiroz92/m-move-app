@@ -34,6 +34,25 @@ export class PrismaGymInstructorRepository implements GymInstructorRepository {
     return links.map(toGymInstructorResult);
   }
 
+  async findByGymIdPaginated(
+    gymId: string,
+    options: { limit: number; offset: number },
+  ) {
+    const [items, total] = await Promise.all([
+      prisma.gymInstructor.findMany({
+        where: { gymId },
+        orderBy: { createdAt: "desc" },
+        take: options.limit,
+        skip: options.offset,
+      }),
+      prisma.gymInstructor.count({ where: { gymId } }),
+    ]);
+    return {
+      items: items.map(toGymInstructorResult),
+      total,
+    };
+  }
+
   async countActiveByGymId(gymId: string): Promise<number> {
     return prisma.gymInstructor.count({
       where: {

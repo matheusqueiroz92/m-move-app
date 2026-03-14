@@ -31,6 +31,7 @@ describe("GetPhysicalAssessmentByIdUseCase", () => {
       create: vi.fn(),
       findById: vi.fn().mockResolvedValue(assessment),
       findByUserId: vi.fn(),
+      findByUserIdPaginated: vi.fn(),
     };
     const useCase = new GetPhysicalAssessmentByIdUseCase(repository);
 
@@ -45,6 +46,7 @@ describe("GetPhysicalAssessmentByIdUseCase", () => {
       create: vi.fn(),
       findById: vi.fn().mockResolvedValue(null),
       findByUserId: vi.fn(),
+      findByUserIdPaginated: vi.fn(),
     };
     const useCase = new GetPhysicalAssessmentByIdUseCase(repository);
 

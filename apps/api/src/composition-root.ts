@@ -42,6 +42,7 @@ import { ReorderWorkoutExercisesUseCase } from "./application/workout/reorder-wo
 import { StartWorkoutSessionUseCase } from "./application/workout/start-workout-session.use-case.js";
 import { UpdateWorkoutDayUseCase } from "./application/workout/update-workout-day.use-case.js";
 import { UpdateWorkoutExerciseUseCase } from "./application/workout/update-workout-exercise.use-case.js";
+import { InMemoryUserProfileCache } from "./infrastructure/cache/in-memory-user-profile-cache.js";
 import { PrismaAIChatRepository } from "./infrastructure/database/prisma/repositories/prisma-ai-chat.repository.js";
 import { PrismaAIChatMessageRepository } from "./infrastructure/database/prisma/repositories/prisma-ai-chat-message.repository.js";
 import { PrismaGymRepository } from "./infrastructure/database/prisma/repositories/prisma-gym.repository.js";
@@ -71,6 +72,9 @@ const ptStudentLinkRepository = new PrismaPtStudentLinkRepository();
 const subscriptionRepository = new PrismaSubscriptionRepository();
 const aiChatRepository = new PrismaAIChatRepository();
 const aiChatMessageRepository = new PrismaAIChatMessageRepository();
+
+// Cache
+const userProfileCache = new InMemoryUserProfileCache();
 
 // Providers
 const stripeProvider = new StripeProviderImpl();
@@ -140,7 +144,10 @@ const getSessionHistory = new GetSessionHistoryUseCase(
 );
 const getStreak = new GetStreakUseCase(workoutSessionRepository);
 
-const getUserProfile = new GetUserProfileUseCase(userRepository);
+const getUserProfile = new GetUserProfileUseCase(
+  userRepository,
+  userProfileCache,
+);
 
 const listPhysicalAssessmentsByUser = new ListPhysicalAssessmentsByUserUseCase(
   physicalAssessmentRepository,
@@ -187,6 +194,7 @@ const handleStripeWebhook = new HandleStripeWebhookUseCase(
   subscriptionRepository,
   userRepository,
   transactionRunner,
+  userProfileCache,
 );
 
 const generateWorkoutPlanWithAI = new GenerateWorkoutPlanWithAIUseCase(
@@ -201,7 +209,7 @@ const sendChatMessage = new SendChatMessageUseCase(
 );
 const getUserInsights = new GetUserInsightsUseCase(openAIPlanProvider);
 
-export { userRepository };
+export { aiChatMessageRepository, userRepository };
 
 export const useCases = {
   createWorkoutPlan,

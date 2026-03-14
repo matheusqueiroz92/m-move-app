@@ -31,6 +31,7 @@ describe("RemoveInstructorUseCase", () => {
         createdAt: new Date(),
       }),
       findByGymId: vi.fn(),
+      findByGymIdPaginated: vi.fn(),
       countActiveByGymId: vi.fn(),
       delete: vi.fn().mockResolvedValue(true),
     };
@@ -58,6 +59,7 @@ describe("RemoveInstructorUseCase", () => {
       findById: vi.fn().mockResolvedValue(null),
       create: vi.fn(),
       findByGymId: vi.fn(),
+      findByGymIdPaginated: vi.fn(),
       countActiveByGymId: vi.fn(),
       delete: vi.fn(),
     };
@@ -95,6 +97,7 @@ describe("RemoveInstructorUseCase", () => {
         createdAt: new Date(),
       }),
       findByGymId: vi.fn(),
+      findByGymIdPaginated: vi.fn(),
       countActiveByGymId: vi.fn(),
       delete: vi.fn(),
       create: vi.fn().mockResolvedValue({

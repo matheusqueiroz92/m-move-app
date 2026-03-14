@@ -22,9 +22,9 @@ type ErrorWithMeta = Error & {
 };
 
 export function createErrorHandler(
-  log: (error: unknown) => void,
+  log: (error: unknown, request?: FastifyRequest) => void,
 ): (error: FastifyError, request: FastifyRequest, reply: FastifyReply) => void {
-  return (error, _request, reply) => {
+  return (error, request, reply) => {
     if (error instanceof ZodError) {
       return reply.status(400).send({
         message: "Validation error",
@@ -80,7 +80,7 @@ export function createErrorHandler(
       return reply.status(err.statusCode).send({ message: message });
     }
 
-    log(error);
+    log(error, request);
     return reply.status(500).send({ message: "Internal server error" });
   };
 }

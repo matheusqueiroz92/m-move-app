@@ -29,6 +29,7 @@ describe("RevokePtInviteUseCase", () => {
       }),
       findByToken: vi.fn(),
       findByPersonalTrainerId: vi.fn(),
+      findByPersonalTrainerIdPaginated: vi.fn(),
       updateStatus: vi.fn().mockResolvedValue(revoked),
     };
     const useCase = new RevokePtInviteUseCase(repository);
@@ -50,6 +51,7 @@ describe("RevokePtInviteUseCase", () => {
       findById: vi.fn().mockResolvedValue(null),
       findByToken: vi.fn(),
       findByPersonalTrainerId: vi.fn(),
+      findByPersonalTrainerIdPaginated: vi.fn(),
       updateStatus: vi.fn(),
     };
     const useCase = new RevokePtInviteUseCase(repository);
@@ -68,6 +70,7 @@ describe("RevokePtInviteUseCase", () => {
       }),
       findByToken: vi.fn(),
       findByPersonalTrainerId: vi.fn(),
+      findByPersonalTrainerIdPaginated: vi.fn(),
       updateStatus: vi.fn(),
     };
     const useCase = new RevokePtInviteUseCase(repository);

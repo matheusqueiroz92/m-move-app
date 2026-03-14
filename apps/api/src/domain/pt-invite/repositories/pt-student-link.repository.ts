@@ -20,11 +20,20 @@ export interface PtStudentLinkResult {
   createdAt: Date;
 }
 
+export interface PaginatedResult<T> {
+  items: T[];
+  total: number;
+}
+
 export interface PtStudentLinkRepository {
   create(input: CreatePtStudentLinkInput): Promise<PtStudentLinkResult>;
   findById(id: string): Promise<PtStudentLinkResult | null>;
   findByToken(token: string): Promise<PtStudentLinkResult | null>;
   findByPersonalTrainerId(ptId: string): Promise<PtStudentLinkResult[]>;
+  findByPersonalTrainerIdPaginated(
+    ptId: string,
+    options: { limit: number; offset: number },
+  ): Promise<PaginatedResult<PtStudentLinkResult>>;
   updateStatus(
     id: string,
     status: LinkStatus,

@@ -125,7 +125,10 @@ describe("AI API (integration)", () => {
         headers: { "X-Test-User-Id": fixture.id },
       });
       expect(response.statusCode).toBe(200);
-      expect(response.json()).toEqual([]);
+      const body = response.json() as { items: unknown[]; total: number };
+      expect(body).toHaveProperty("items");
+      expect(body.items).toEqual([]);
+      expect(body.total).toBe(0);
     });
   });
 

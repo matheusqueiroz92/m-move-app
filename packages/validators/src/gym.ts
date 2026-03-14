@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { createPaginatedResponseSchema } from "./pagination.js";
+
 export const createGymBodySchema = z.object({
   name: z.string().min(1, "Name is required"),
   maxInstructors: z.number().int().min(1).max(100).optional(),
@@ -58,3 +60,5 @@ export type GymInstructorResponse = z.infer<
 export const gymInstructorListResponseSchema = z.array(
   gymInstructorResponseSchema,
 );
+export const gymInstructorPaginatedResponseSchema =
+  createPaginatedResponseSchema(gymInstructorResponseSchema);

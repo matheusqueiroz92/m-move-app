@@ -45,4 +45,23 @@ export class PrismaPhysicalAssessmentRepository implements PhysicalAssessmentRep
     });
     return assessments.map(toPhysicalAssessmentResult);
   }
+
+  async findByUserIdPaginated(
+    userId: string,
+    options: { limit: number; offset: number },
+  ) {
+    const [items, total] = await Promise.all([
+      prisma.physicalAssessment.findMany({
+        where: { userId },
+        orderBy: { assessedAt: "desc" },
+        take: options.limit,
+        skip: options.offset,
+      }),
+      prisma.physicalAssessment.count({ where: { userId } }),
+    ]);
+    return {
+      items: items.map(toPhysicalAssessmentResult),
+      total,
+    };
+  }
 }

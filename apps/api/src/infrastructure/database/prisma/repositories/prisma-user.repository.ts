@@ -3,6 +3,7 @@ import type {
   UpdateUserSubscriptionInput,
   UserRepository,
   UserRepositoryFindByIdResult,
+  UserRepositoryFindByIdWithPlanResult,
 } from "../../../../domain/user/repositories/user.repository.js";
 import { prisma } from "../../../../lib/db.js";
 import { toUserProfile } from "../mappers/user.mapper.js";
@@ -14,6 +15,21 @@ export class PrismaUserRepository implements UserRepository {
       select: { id: true, name: true, email: true, role: true },
     });
     return user ? toUserProfile(user) : null;
+  }
+
+  async findByIdWithPlanAndTimezone(
+    userId: string,
+  ): Promise<UserRepositoryFindByIdWithPlanResult | null> {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { planType: true, timezone: true },
+    });
+    return user
+      ? {
+          planType: user.planType,
+          timezone: user.timezone ?? null,
+        }
+      : null;
   }
 
   async getStripeCustomerId(userId: string): Promise<string | null> {
