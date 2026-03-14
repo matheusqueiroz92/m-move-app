@@ -19,21 +19,10 @@ export async function stripeWebhookHandler(
     return reply.status(500).send({ message: "Webhook secret not configured" });
   }
 
-  try {
-    await request.server.useCases.handleStripeWebhook.execute({
-      payload,
-      signature,
-      secret,
-    });
-    return reply.status(200).send({ received: true });
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Webhook handler failed";
-
-    if (message === "Invalid signature") {
-      return reply.status(400).send({ message });
-    }
-
-    return reply.status(500).send({ message });
-  }
+  await request.server.useCases.handleStripeWebhook.execute({
+    payload,
+    signature,
+    secret,
+  });
+  return reply.status(200).send({ received: true });
 }

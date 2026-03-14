@@ -14,22 +14,13 @@ export async function generateWorkoutPlanHandler(
 ): Promise<void> {
   const userId = request.userId!;
 
-  try {
-    const result = await request.server.useCases.generateWorkoutPlanWithAI.execute({
-      userId,
-      objective: request.body.objective,
-      level: request.body.level,
-      daysPerWeek: request.body.daysPerWeek,
-      equipment: request.body.equipment,
-      restrictions: request.body.restrictions,
-    });
-    return reply.status(201).send(result);
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Failed to generate plan";
-    if (message.includes("OPENAI_API_KEY")) {
-      return reply.status(503).send({ message });
-    }
-    return reply.status(500).send({ message });
-  }
+  const result = await request.server.useCases.generateWorkoutPlanWithAI.execute({
+    userId,
+    objective: request.body.objective,
+    level: request.body.level,
+    daysPerWeek: request.body.daysPerWeek,
+    equipment: request.body.equipment,
+    restrictions: request.body.restrictions,
+  });
+  return reply.status(201).send(result);
 }

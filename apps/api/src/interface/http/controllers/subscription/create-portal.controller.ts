@@ -6,18 +6,9 @@ export async function createPortalHandler(
 ): Promise<void> {
   const userId = request.userId!;
 
-  try {
-    const result = await request.server.useCases.createPortalSession.execute({
-      userId,
-      returnUrl: request.body.returnUrl,
-    });
-    return reply.status(200).send(result);
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Portal session failed";
-    if (message.includes("no Stripe customer")) {
-      return reply.status(400).send({ message });
-    }
-    return reply.status(500).send({ message });
-  }
+  const result = await request.server.useCases.createPortalSession.execute({
+    userId,
+    returnUrl: request.body.returnUrl,
+  });
+  return reply.status(200).send(result);
 }

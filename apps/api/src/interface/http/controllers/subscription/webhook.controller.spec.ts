@@ -119,7 +119,7 @@ describe("stripeWebhookHandler", () => {
     expect(mockExecute.mock.calls.length).toBe(callCountBefore);
   });
 
-  it("should return 400 when use case throws", async () => {
+  it("should propagate error when use case throws (handled by global error handler)", async () => {
     mockExecute.mockRejectedValueOnce(new Error("Invalid signature"));
     const request = createRequest({
       body: Buffer.from("{}"),
@@ -130,14 +130,12 @@ describe("stripeWebhookHandler", () => {
       send: vi.fn(),
     };
 
-    await stripeWebhookHandler(
-      request as unknown as Parameters<typeof stripeWebhookHandler>[0],
-      reply as unknown as Parameters<typeof stripeWebhookHandler>[1],
-    );
-
-    expect(reply.status).toHaveBeenCalledWith(400);
-    expect(reply.send).toHaveBeenCalledWith({
-      message: "Invalid signature",
-    });
+    await expect(
+      stripeWebhookHandler(
+        request as unknown as Parameters<typeof stripeWebhookHandler>[0],
+        reply as unknown as Parameters<typeof stripeWebhookHandler>[1],
+      ),
+    ).rejects.toThrow("Invalid signature");
+    expect(reply.status).not.toHaveBeenCalled();
   });
 });

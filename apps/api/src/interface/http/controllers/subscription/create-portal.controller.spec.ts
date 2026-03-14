@@ -44,7 +44,7 @@ describe("createPortalHandler", () => {
     });
   });
 
-  it("should return 400 when user has no Stripe customer", async () => {
+  it("should propagate error when user has no Stripe customer (handled by global error handler)", async () => {
     mockExecute.mockRejectedValueOnce(new Error("User has no Stripe customer"));
     const request = createRequest();
     const reply = {
@@ -52,18 +52,16 @@ describe("createPortalHandler", () => {
       send: vi.fn(),
     };
 
-    await createPortalHandler(
-      request as unknown as Parameters<typeof createPortalHandler>[0],
-      reply as unknown as Parameters<typeof createPortalHandler>[1],
-    );
-
-    expect(reply.status).toHaveBeenCalledWith(400);
-    expect(reply.send).toHaveBeenCalledWith({
-      message: "User has no Stripe customer",
-    });
+    await expect(
+      createPortalHandler(
+        request as unknown as Parameters<typeof createPortalHandler>[0],
+        reply as unknown as Parameters<typeof createPortalHandler>[1],
+      ),
+    ).rejects.toThrow("User has no Stripe customer");
+    expect(reply.status).not.toHaveBeenCalled();
   });
 
-  it("should return 500 when use case throws other error", async () => {
+  it("should propagate error when use case throws (handled by global error handler)", async () => {
     mockExecute.mockRejectedValueOnce(new Error("Portal error"));
     const request = createRequest();
     const reply = {
@@ -71,12 +69,12 @@ describe("createPortalHandler", () => {
       send: vi.fn(),
     };
 
-    await createPortalHandler(
-      request as unknown as Parameters<typeof createPortalHandler>[0],
-      reply as unknown as Parameters<typeof createPortalHandler>[1],
-    );
-
-    expect(reply.status).toHaveBeenCalledWith(500);
-    expect(reply.send).toHaveBeenCalledWith({ message: "Portal error" });
+    await expect(
+      createPortalHandler(
+        request as unknown as Parameters<typeof createPortalHandler>[0],
+        reply as unknown as Parameters<typeof createPortalHandler>[1],
+      ),
+    ).rejects.toThrow("Portal error");
+    expect(reply.status).not.toHaveBeenCalled();
   });
 });

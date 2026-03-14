@@ -61,7 +61,7 @@ describe("createCheckoutHandler", () => {
     });
   });
 
-  it("should return 500 when use case throws", async () => {
+  it("should propagate error when use case throws (handled by global error handler)", async () => {
     mockExecute.mockRejectedValueOnce(new Error("Stripe error"));
     const request = createRequest();
     const reply = {
@@ -69,14 +69,12 @@ describe("createCheckoutHandler", () => {
       send: vi.fn(),
     };
 
-    await createCheckoutHandler(
-      request as unknown as Parameters<typeof createCheckoutHandler>[0],
-      reply as unknown as Parameters<typeof createCheckoutHandler>[1],
-    );
-
-    expect(reply.status).toHaveBeenCalledWith(500);
-    expect(reply.send).toHaveBeenCalledWith({
-      message: "Stripe error",
-    });
+    await expect(
+      createCheckoutHandler(
+        request as unknown as Parameters<typeof createCheckoutHandler>[0],
+        reply as unknown as Parameters<typeof createCheckoutHandler>[1],
+      ),
+    ).rejects.toThrow("Stripe error");
+    expect(reply.status).not.toHaveBeenCalled();
   });
 });

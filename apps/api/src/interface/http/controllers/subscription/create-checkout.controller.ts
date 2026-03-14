@@ -8,17 +8,11 @@ export async function createCheckoutHandler(
 ): Promise<void> {
   const userId = request.userId!;
 
-  try {
-    const result = await request.server.useCases.createCheckoutSession.execute({
-      priceId: request.body.priceId,
-      userId,
-      successUrl: request.body.successUrl,
-      cancelUrl: request.body.cancelUrl,
-    });
-    return reply.status(200).send(result);
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : "Checkout session failed";
-    return reply.status(500).send({ message });
-  }
+  const result = await request.server.useCases.createCheckoutSession.execute({
+    priceId: request.body.priceId,
+    userId,
+    successUrl: request.body.successUrl,
+    cancelUrl: request.body.cancelUrl,
+  });
+  return reply.status(200).send(result);
 }

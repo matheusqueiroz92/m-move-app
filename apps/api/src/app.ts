@@ -8,37 +8,12 @@ import {
   validatorCompiler,
   ZodTypeProvider,
 } from "fastify-type-provider-zod";
-import { z, ZodError } from "zod";
+import { z } from "zod";
 
 import { useCases, userRepository } from "./composition-root.js";
-import { ChatNotFoundError } from "./domain/ai/errors/chat-not-found.error.js";
-import { AssessmentNotFoundError } from "./domain/assessment/errors/assessment-not-found.error.js";
-import { GymNotFoundError } from "./domain/gym/errors/gym-not-found.error.js";
-import { InstructorLimitReachedError } from "./domain/gym/errors/instructor-limit-reached.error.js";
-import { InstructorLinkNotFoundError } from "./domain/gym/errors/instructor-link-not-found.error.js";
-import { InviteAlreadyUsedError } from "./domain/pt-invite/errors/invite-already-used.error.js";
-import { InviteExpiredError } from "./domain/pt-invite/errors/invite-expired.error.js";
-import { PtInviteNotFoundError } from "./domain/pt-invite/errors/pt-invite-not-found.error.js";
-import { UserNotFoundError } from "./domain/user/errors/user-not-found.error.js";
-import { DayNotFoundError } from "./domain/workout/errors/day-not-found.error.js";
-import { ExerciseNotFoundError } from "./domain/workout/errors/exercise-not-found.error.js";
-import { PlanNotFoundError } from "./domain/workout/errors/plan-not-found.error.js";
-import { SessionNotFoundError } from "./domain/workout/errors/session-not-found.error.js";
-import { aiRoutes } from "./interface/http/routes/ai.routes.js";
-import {
-  assessmentHistoryRoutes,
-  assessmentRoutes,
-} from "./interface/http/routes/assessment.routes.js";
-import { gymRoutes } from "./interface/http/routes/gym.routes.js";
-import { ptInvitesRoutes } from "./interface/http/routes/pt-invites.routes.js";
-import { sessionRoutes } from "./interface/http/routes/session.routes.js";
-import { subscriptionRoutes } from "./interface/http/routes/subscription.routes.js";
-import { userRoutes } from "./interface/http/routes/user.routes.js";
-import { workoutRoutes } from "./interface/http/routes/workout.routes.js";
-import { workoutDaysRoutes } from "./interface/http/routes/workout-days.routes.js";
+import { apiRoutesPlugin } from "./interface/http/plugins/api-routes.plugin.js";
 import { auth } from "./lib/auth.js";
 import { env } from "./lib/env.js";
-import { AppError } from "./shared/errors/app-error.js";
 
 const healthResponseSchema = z.object({ status: z.string() });
 
@@ -118,18 +93,7 @@ app.withTypeProvider<ZodTypeProvider>().route({
 app.decorate("useCases", useCases);
 app.decorate("userRepository", userRepository);
 
-await app.register(userRoutes, { prefix: "/api/users" });
-await app.register(workoutRoutes, { prefix: "/api/workout-plans" });
-await app.register(workoutDaysRoutes, { prefix: "/api/workout-days" });
-await app.register(sessionRoutes, { prefix: "/api/sessions" });
-await app.register(assessmentHistoryRoutes, {
-  prefix: "/api/assessments/history",
-});
-await app.register(assessmentRoutes, { prefix: "/api/assessments" });
-await app.register(gymRoutes, { prefix: "/api/gym" });
-await app.register(ptInvitesRoutes, { prefix: "/api/pt/invites" });
-await app.register(subscriptionRoutes, { prefix: "/api/subscriptions" });
-await app.register(aiRoutes, { prefix: "/api/ai" });
+await app.register(apiRoutesPlugin);
 
 app.route({
   method: ["GET", "POST"],
@@ -163,74 +127,6 @@ app.route({
       });
     }
   },
-});
-
-app.setErrorHandler((error, _, reply) => {
-  if (error instanceof ZodError) {
-    return reply.status(400).send({
-      message: "Validation error",
-      issues: error.flatten().fieldErrors,
-    });
-  }
-
-  if (error instanceof AssessmentNotFoundError) {
-    return reply.status(404).send({ message: error.message });
-  }
-
-  if (error instanceof ChatNotFoundError) {
-    return reply.status(404).send({ message: error.message });
-  }
-
-  if (error instanceof GymNotFoundError) {
-    return reply.status(404).send({ message: error.message });
-  }
-
-  if (error instanceof InstructorLinkNotFoundError) {
-    return reply.status(404).send({ message: error.message });
-  }
-
-  if (error instanceof PtInviteNotFoundError) {
-    return reply.status(404).send({ message: error.message });
-  }
-
-  if (error instanceof InviteExpiredError) {
-    return reply.status(400).send({ message: error.message });
-  }
-
-  if (error instanceof InviteAlreadyUsedError) {
-    return reply.status(400).send({ message: error.message });
-  }
-
-  if (error instanceof InstructorLimitReachedError) {
-    return reply.status(409).send({ message: error.message });
-  }
-
-  if (error instanceof UserNotFoundError) {
-    return reply.status(404).send({ message: error.message });
-  }
-
-  if (error instanceof PlanNotFoundError) {
-    return reply.status(404).send({ message: error.message });
-  }
-
-  if (error instanceof DayNotFoundError) {
-    return reply.status(404).send({ message: error.message });
-  }
-
-  if (error instanceof ExerciseNotFoundError) {
-    return reply.status(404).send({ message: error.message });
-  }
-
-  if (error instanceof SessionNotFoundError) {
-    return reply.status(404).send({ message: error.message });
-  }
-
-  if (error instanceof AppError) {
-    return reply.status(error.statusCode).send({ message: error.message });
-  }
-
-  app.log.error(error);
-  return reply.status(500).send({ message: "Internal server error" });
 });
 
 export default app;
