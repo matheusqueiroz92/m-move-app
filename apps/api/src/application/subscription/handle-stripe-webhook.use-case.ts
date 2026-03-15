@@ -204,6 +204,22 @@ export class HandleStripeWebhookUseCase {
         this.userProfileCache?.invalidate(existing.userId);
         break;
       }
+      case "customer.subscription.trial_will_end": {
+        const sub = event.data.object as { id?: string };
+        const subscriptionId = sub.id;
+        if (!subscriptionId) return;
+
+        const existing =
+          await this.subscriptionRepository.findByStripeSubscriptionId(
+            subscriptionId,
+          );
+        if (!existing) return;
+
+        this.userProfileCache?.invalidate(existing.userId);
+        // TODO: Enviar notificação ao usuário (email/push) 3 dias antes do trial acabar.
+        // Conforme payments.mdc: "Notificar usuário 3 dias antes do trial acabar"
+        break;
+      }
       default:
         break;
     }

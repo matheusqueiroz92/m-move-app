@@ -97,4 +97,52 @@ describe("HandleStripeWebhookUseCase", () => {
       expect.any(Object),
     );
   });
+
+  it("should handle customer.subscription.trial_will_end and invalidate cache", async () => {
+    const invalidate = vi.fn();
+    const subscriptionRepository: SubscriptionRepository = {
+      create: vi.fn(),
+      findByUserId: vi.fn(),
+      findByStripeSubscriptionId: vi.fn().mockResolvedValue({
+        id: "sub-1",
+        userId: "user-1",
+        stripeSubscriptionId: "sub_stripe_1",
+      }),
+      update: vi.fn(),
+    };
+    const userRepository: UserRepository = {
+      findById: vi.fn(),
+      findByIdWithPlanAndTimezone: vi.fn(),
+      getStripeCustomerId: vi.fn(),
+      updateSubscriptionFields: vi.fn(),
+    };
+    const stripeProvider: StripeProvider = {
+      createCheckoutSession: vi.fn(),
+      createBillingPortalSession: vi.fn(),
+      constructWebhookEvent: vi.fn().mockReturnValue({
+        type: "customer.subscription.trial_will_end",
+        data: { object: { id: "sub_stripe_1" } },
+      }),
+      getSubscriptionDetails: vi.fn(),
+    };
+
+    const useCase = new HandleStripeWebhookUseCase(
+      stripeProvider,
+      subscriptionRepository,
+      userRepository,
+      { run: vi.fn().mockResolvedValue(undefined) },
+      { invalidate },
+    );
+
+    await useCase.execute({
+      payload: "{}",
+      signature: "whsec_xxx",
+      secret: "whsec_secret",
+    });
+
+    expect(subscriptionRepository.findByStripeSubscriptionId).toHaveBeenCalledWith(
+      "sub_stripe_1",
+    );
+    expect(invalidate).toHaveBeenCalledWith("user-1");
+  });
 });
