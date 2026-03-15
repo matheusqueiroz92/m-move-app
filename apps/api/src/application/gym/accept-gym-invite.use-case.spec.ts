@@ -1,11 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { InviteAlreadyUsedError } from "../../domain/pt-invite/errors/invite-already-used.error.js";
-import { InviteExpiredError } from "../../domain/pt-invite/errors/invite-expired.error.js";
 import type {
   GymStudentLinkRepository,
   GymStudentLinkResult,
 } from "../../domain/gym/repositories/gym-student-link.repository.js";
+import { InviteAlreadyUsedError } from "../../domain/pt-invite/errors/invite-already-used.error.js";
+import { InviteExpiredError } from "../../domain/pt-invite/errors/invite-expired.error.js";
 import { AcceptGymInviteUseCase } from "./accept-gym-invite.use-case.js";
 
 describe("AcceptGymInviteUseCase", () => {

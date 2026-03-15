@@ -12,6 +12,12 @@ export const createWorkoutPlanBodySchema = z.object({
 });
 export type CreateWorkoutPlanBody = z.infer<typeof createWorkoutPlanBodySchema>;
 
+export const updateWorkoutPlanBodySchema = z.object({
+  name: z.string().min(1).optional(),
+  description: z.string().optional().nullable(),
+});
+export type UpdateWorkoutPlanBody = z.infer<typeof updateWorkoutPlanBodySchema>;
+
 export const workoutPlanResponseSchema = z.object({
   id: z.string(),
   name: z.string(),

@@ -62,3 +62,25 @@ export const gymInstructorListResponseSchema = z.array(
 );
 export const gymInstructorPaginatedResponseSchema =
   createPaginatedResponseSchema(gymInstructorResponseSchema);
+
+export const acceptGymInviteBodySchema = z.object({
+  token: z.string().min(1, "Token is required"),
+});
+export type AcceptGymInviteBody = z.infer<typeof acceptGymInviteBodySchema>;
+
+export const gymStudentLinkResponseSchema = z.object({
+  id: z.string(),
+  gymId: z.string(),
+  instructorId: z.string().nullable(),
+  studentId: z.string().nullable(),
+  inviteEmail: z.string(),
+  inviteToken: z.string(),
+  inviteExpiresAt: z.string(),
+  status: linkStatusSchema,
+  acceptedAt: z.string().nullable(),
+  revokedAt: z.string().nullable(),
+  createdAt: z.string(),
+});
+export type GymStudentLinkResponse = z.infer<
+  typeof gymStudentLinkResponseSchema
+>;

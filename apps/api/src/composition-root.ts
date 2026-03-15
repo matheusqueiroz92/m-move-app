@@ -27,13 +27,13 @@ import { GetSubscriptionStatusUseCase } from "./application/subscription/get-sub
 import { HandleStripeWebhookUseCase } from "./application/subscription/handle-stripe-webhook.use-case.js";
 import { GetUserProfileUseCase } from "./application/user/get-user-profile.use-case.js";
 import { ActivateWorkoutPlanUseCase } from "./application/workout/activate-workout-plan.use-case.js";
-import { DeleteWorkoutPlanUseCase } from "./application/workout/delete-workout-plan.use-case.js";
 import { CompleteWorkoutSessionUseCase } from "./application/workout/complete-workout-session.use-case.js";
 import { CreateWorkoutDayUseCase } from "./application/workout/create-workout-day.use-case.js";
 import { CreateWorkoutExerciseUseCase } from "./application/workout/create-workout-exercise.use-case.js";
 import { CreateWorkoutPlanUseCase } from "./application/workout/create-workout-plan.use-case.js";
 import { DeleteWorkoutDayUseCase } from "./application/workout/delete-workout-day.use-case.js";
 import { DeleteWorkoutExerciseUseCase } from "./application/workout/delete-workout-exercise.use-case.js";
+import { DeleteWorkoutPlanUseCase } from "./application/workout/delete-workout-plan.use-case.js";
 import { GetSessionHistoryUseCase } from "./application/workout/get-session-history.use-case.js";
 import { GetStreakUseCase } from "./application/workout/get-streak.use-case.js";
 import { GetWorkoutPlanByIdUseCase } from "./application/workout/get-workout-plan-by-id.use-case.js";
@@ -43,8 +43,8 @@ import { ListWorkoutPlansUseCase } from "./application/workout/list-workout-plan
 import { ReorderWorkoutExercisesUseCase } from "./application/workout/reorder-workout-exercises.use-case.js";
 import { StartWorkoutSessionUseCase } from "./application/workout/start-workout-session.use-case.js";
 import { UpdateWorkoutDayUseCase } from "./application/workout/update-workout-day.use-case.js";
-import { UpdateWorkoutPlanUseCase } from "./application/workout/update-workout-plan.use-case.js";
 import { UpdateWorkoutExerciseUseCase } from "./application/workout/update-workout-exercise.use-case.js";
+import { UpdateWorkoutPlanUseCase } from "./application/workout/update-workout-plan.use-case.js";
 import { InMemoryUserProfileCache } from "./infrastructure/cache/in-memory-user-profile-cache.js";
 import { PrismaAIChatRepository } from "./infrastructure/database/prisma/repositories/prisma-ai-chat.repository.js";
 import { PrismaAIChatMessageRepository } from "./infrastructure/database/prisma/repositories/prisma-ai-chat-message.repository.js";

@@ -1,10 +1,10 @@
-import type { Prisma } from "../../../../generated/prisma/client.js";
 import type {
   CreateSubscriptionInput,
   SubscriptionRepository,
   SubscriptionResult,
   UpdateSubscriptionInput,
 } from "../../../../domain/subscription/repositories/subscription.repository.js";
+import type { Prisma } from "../../../../generated/prisma/client.js";
 import { prisma } from "../../../../lib/db.js";
 import { toSubscriptionResult } from "../mappers/subscription.mapper.js";
 

@@ -1,9 +1,9 @@
+import type { UserProfileCache } from "../../domain/user/cache/user-profile-cache.interface.js";
 import { UserNotFoundError } from "../../domain/user/errors/user-not-found.error.js";
 import type {
   UserRepository,
   UserRepositoryFindByIdResult,
 } from "../../domain/user/repositories/user.repository.js";
-import type { UserProfileCache } from "../../domain/user/cache/user-profile-cache.interface.js";
 
 export interface GetUserProfileInput {
   userId: string;

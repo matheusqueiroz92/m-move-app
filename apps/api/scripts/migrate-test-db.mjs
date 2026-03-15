@@ -3,9 +3,10 @@
  * Loads .env.test and sets DATABASE_URL from TEST_DATABASE_URL so Prisma uses the test DB.
  * Usage: pnpm db:test:migrate (from apps/api)
  */
-import { config } from "dotenv";
 import { execSync } from "node:child_process";
 import { resolve } from "node:path";
+
+import { config } from "dotenv";
 
 const envTestPath = resolve(process.cwd(), ".env.test");
 config({ path: envTestPath });

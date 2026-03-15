@@ -3,9 +3,10 @@
  * Use when you have no migrations yet or want to sync the test DB with the current schema.
  * Usage: pnpm db:test:push (from apps/api)
  */
-import { config } from "dotenv";
 import { execSync } from "node:child_process";
 import { resolve } from "node:path";
+
+import { config } from "dotenv";
 
 const envTestPath = resolve(process.cwd(), ".env.test");
 config({ path: envTestPath });

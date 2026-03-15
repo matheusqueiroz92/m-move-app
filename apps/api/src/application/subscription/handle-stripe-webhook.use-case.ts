@@ -1,11 +1,11 @@
 import type { TransactionRunner } from "../../domain/database/transaction-client.js";
-import type { UserProfileCache } from "../../domain/user/cache/user-profile-cache.interface.js";
 import type { StripeProvider } from "../../domain/subscription/providers/stripe-provider.interface.js";
 import type {
   PlanType,
   SubscriptionRepository,
   SubscriptionStatus,
 } from "../../domain/subscription/repositories/subscription.repository.js";
+import type { UserProfileCache } from "../../domain/user/cache/user-profile-cache.interface.js";
 import type { UserRepository } from "../../domain/user/repositories/user.repository.js";
 
 const STRIPE_STATUS_TO_OUR: Record<string, SubscriptionStatus> = {
