@@ -2,11 +2,13 @@
 
 Documento gerado para verificar se a API está pronta para consumo pelo frontend e identificar lacunas ou ajustes necessários.
 
+**Última atualização:** após implementação das lacunas críticas GYM (convite, listagem e revogação de alunos).
+
 ---
 
 ## 1. Resumo executivo
 
-A API está **bem estruturada** e cobre a maior parte dos requisitos funcionais e regras de negócio. Há **lacunas importantes** na área de **plano GYM** (convite de alunos, listagem de alunos, revogação) e **um ajuste opcional** para o perfil do aluno (listar planos de um aluno por PT/OWNER/INSTRUCTOR). O restante (auth, workout, sessions, assessments, PT invites, subscriptions, AI) está alinhado com a documentação e com o frontend previsto.
+A API está **pronta para o desenvolvimento do frontend**. As lacunas críticas do plano GYM foram implementadas: **POST /api/gym/invites** (enviar convite a aluno), **GET /api/gym/:id/students** (listar alunos) e **DELETE /api/gym/students/:linkId** (revogar acesso de aluno). Auth, workout, sessions, assessments, PT invites, subscriptions, AI e gym (CRUD, instrutores, alunos) estão alinhados com a documentação e com o frontend previsto. Itens **opcionais** (listar planos de um aluno por userId e GET /users/:id para perfil de aluno) permanecem como melhoria futura conforme UX da tela "Perfil do Aluno".
 
 ---
 
@@ -65,7 +67,7 @@ A API está **bem estruturada** e cobre a maior parte dos requisitos funcionais 
 - **Exercises**: `GET/POST /api/workout-days/:dayId/exercises`, `PATCH/DELETE /api/workout-days/:dayId/exercises/:exerciseId`, `PATCH /api/workout-days/:dayId/exercises/reorder`.
 - **Sessions**: `POST /api/sessions/start`, `PATCH /api/sessions/:id/complete`, `GET /api/sessions/history`, `GET /api/sessions/streak`.
 - **Assessments**: `GET/POST /api/assessments`, `GET /api/assessments/:id`, `GET /api/assessments/history/:userId` (com RBAC: próprio usuário ou aluno vinculado a PT/GYM).
-- **Gym**: `POST /api/gym/accept-invite`, `POST/GET/PATCH /api/gym`, `GET /api/gym/:id/members` (lista **instrutores**), `POST /api/gym/members` (convite a **instrutor**), `DELETE /api/gym/members/:id` (remover **instrutor**).
+- **Gym**: `POST /api/gym/accept-invite`, `POST/GET/PATCH /api/gym`, `GET /api/gym/:id/members` (lista **instrutores**), `POST /api/gym/members` (convite a **instrutor**), `DELETE /api/gym/members/:id` (remover **instrutor**), `POST /api/gym/invites` (convite a **aluno**), `GET /api/gym/:id/students` (lista **alunos**), `DELETE /api/gym/students/:linkId` (revogar **aluno**).
 - **PT Invites**: `POST/GET /api/pt/invites`, `DELETE /api/pt/invites/:id`, `POST /api/pt/invites/accept`.
 - **Subscriptions**: `POST /api/subscriptions/checkout`, `POST /api/subscriptions/portal`, `GET /api/subscriptions/status`, `POST /api/subscriptions/webhook`.
 - **AI**: `POST /api/ai/generate-plan`, `GET /api/ai/chats`, `POST /api/ai/chat`, `GET /api/ai/insights/:userId`.
@@ -74,38 +76,27 @@ A API está **bem estruturada** e cobre a maior parte dos requisitos funcionais 
 
 ## 3. Lacunas e recomendações
 
-### 3.1 Crítico: Plano GYM — convite e gestão de alunos (LINKED_STUDENT)
+### 3.1 ~~Crítico~~ Implementado: Plano GYM — convite e gestão de alunos (LINKED_STUDENT)
 
 **RN-005:** “Usuário vinculado ao plano GYM (OWNER ou INSTRUCTORS), pode enviar convites para cadastro de LINKED_STUDENTS.”
 
-- **Problema:** Não existe endpoint para **enviar convite a aluno** (criar `GymStudentLink` PENDING e enviar email com token). Existe apenas:
-  - `POST /api/gym/accept-invite` — aluno aceita com o token.
-  - Não há “send gym student invite” (equivalente ao `POST /api/pt/invites` para PT).
-- **Impacto:** Frontend “Meus Alunos” / “Convites” para GYM não pode enviar convites; apenas aceitar não basta.
-- **Recomendação:** Implementar **POST /api/gym/invites** (ou similar), apenas para OWNER e INSTRUCTOR do gym, com body `{ gymId, inviteEmail, instructorId? }`, criando `GymStudentLink` (PENDING), gerando token e enviando email (validade 7 dias). Respeitar RN-012 (limite de alunos do plano).
+- **Status:** **Implementado.** **POST /api/gym/invites** — body `{ gymId, inviteEmail, instructorId? }`, apenas OWNER ou INSTRUCTOR do gym. Cria `GymStudentLink` (PENDING), token UUID, validade 7 dias. RN-012 (limite `maxStudents`) aplicado. Resposta 201 com o link criado.
 
 ---
 
-### 3.2 Crítico: Listar alunos da academia (GYM)
+### 3.2 ~~Crítico~~ Implementado: Listar alunos da academia (GYM)
 
 **Frontend:** “Meus Alunos” (PT + GYM) — lista e gestão de alunos.
 
-- **Problema:** `GET /api/gym/:id/members` hoje devolve **instrutores** (GymInstructor), não alunos (GymStudentLink). Não há endpoint para listar alunos da academia.
-- **Impacto:** Tela “Meus Alunos” do GYM não tem como listar alunos; só há lista de instrutores.
-- **Recomendação:** Criar **GET /api/gym/:id/students** (ou incluir em um único recurso “members” com tipo): listar `GymStudentLink` com status ACTIVE (e eventualmente PENDING), paginado. RBAC:
-  - **OWNER:** todos os alunos da academia.
-  - **INSTRUCTOR:** apenas alunos com `instructorId` = esse instrutor (RN-006, RF-002f).
-  - Retorno deve permitir exibir lista (nome, email, status, data aceite, etc.) e suportar “Perfil do Aluno”.
+- **Status:** **Implementado.** **GET /api/gym/:id/students** — paginado (limit/offset). RBAC: OWNER vê todos; INSTRUCTOR vê apenas alunos com `instructorId` = seu link. Retorno inclui `items` (com `studentName`, `studentEmail` quando link aceito), `total`, `limit`, `offset`.
 
 ---
 
-### 3.3 Crítico: Revogar acesso de aluno na academia (RN-014)
+### 3.3 ~~Crítico~~ Implementado: Revogar acesso de aluno na academia (RN-014)
 
 **RN-014:** “O OWNER pode revogar o acesso de um LINKED_STUDENT, vinculado ao seu plano GYM, a qualquer momento.”
 
-- **Problema:** Não existe endpoint para revogar vínculo de **aluno** com a academia (marcar `GymStudentLink` como REVOKED). Existe apenas revogação de **convite PT** (`DELETE /api/pt/invites/:id`).
-- **Impacto:** OWNER não consegue revogar acesso de um aluno pelo frontend.
-- **Recomendação:** Implementar **DELETE /api/gym/students/:linkId** (ou **PATCH /api/gym/students/:linkId** com `status: "REVOKED"`), apenas para OWNER do gym ao qual o link pertence. Atualizar `GymStudentLink` para `status: REVOKED` e `revokedAt`.
+- **Status:** **Implementado.** **DELETE /api/gym/students/:linkId** — apenas OWNER (requireRole). Atualiza `GymStudentLink` para `status: REVOKED` e `revokedAt`. Respostas: 204 sucesso, 403 não-OWNER, 404 link não encontrado.
 
 ---
 
@@ -132,37 +123,34 @@ A API está **bem estruturada** e cobre a maior parte dos requisitos funcionais 
 
 - **Swagger/Scalar:** Disponível em `/docs`; schemas e rotas descritos.
 - **Packages compartilhados:** `@m-move-app/types` e `@m-move-app/validators` existem e são usados pela API; o frontend pode reutilizar para tipos e validação.
-- **README da API:** Descreve rotas, auth, RBAC, testes e CI; está alinhado com o que está implementado. Vale atualizar o README quando forem implementados os endpoints de convite, listagem e revogação de alunos GYM (seções 3.1–3.3).
+- **README da API:** Descreve rotas (incluindo gym invites, students, revoke), auth, RBAC, testes e CI; alinhado com a implementação atual.
 
 ---
 
 ## 5. Checklist antes do frontend
 
-| Item                                                       | Status       |
-| ---------------------------------------------------------- | ------------ |
-| Auth (email, OAuth, sessão 30 dias)                        | OK           |
-| RBAC e requireActivePlan                                   | OK           |
-| CRUD workout plans/days/exercises + reorder                | OK           |
-| Sessions (start, complete, history, streak)                | OK           |
-| Assessments (CRUD + history por userId com RBAC)           | OK           |
-| PT invites (send, list, revoke, accept)                    | OK           |
-| Subscriptions (checkout, portal, status, webhook)          | OK           |
-| AI (generate-plan, chats, chat, insights)                  | OK           |
-| Gym: CRUD, accept-invite, instrutores (list/invite/remove) | OK           |
-| **Gym: enviar convite a aluno**                            | **Faltando** |
-| **Gym: listar alunos (OWNER / INSTRUCTOR)**                | **Faltando** |
-| **Gym: revogar acesso de aluno (OWNER)**                   | **Faltando** |
-| Listar planos de um aluno (PT/GYM) para “Perfil do Aluno”  | Opcional     |
-| GET /users/:id para perfil de aluno                        | Opcional     |
+| Item                                                            | Status   |
+| --------------------------------------------------------------- | -------- |
+| Auth (email, OAuth, sessão 30 dias)                             | OK       |
+| RBAC e requireActivePlan                                        | OK       |
+| CRUD workout plans/days/exercises + reorder                     | OK       |
+| Sessions (start, complete, history, streak)                     | OK       |
+| Assessments (CRUD + history por userId com RBAC)                | OK       |
+| PT invites (send, list, revoke, accept)                         | OK       |
+| Subscriptions (checkout, portal, status, webhook)               | OK       |
+| AI (generate-plan, chats, chat, insights)                       | OK       |
+| Gym: CRUD, accept-invite, instrutores (list/invite/remove)      | OK       |
+| Gym: enviar convite a aluno (POST /api/gym/invites)             | OK       |
+| Gym: listar alunos (GET /api/gym/:id/students)                  | OK       |
+| Gym: revogar acesso de aluno (DELETE /api/gym/students/:linkId) | OK       |
+| Listar planos de um aluno (PT/GYM) para “Perfil do Aluno”       | Opcional |
+| GET /users/:id para perfil de aluno                             | Opcional |
 
 ---
 
 ## 6. Conclusão
 
-- A API está **pronta para o frontend** nas áreas de auth, treinos, sessões, avaliações, convites PT, assinaturas e IA.
-- Para o fluxo completo do **plano GYM** e da tela “Meus Alunos” no frontend, é recomendável implementar **antes** (ou em paralelo ao início do front):
-  1. **Enviar convite a aluno (GYM)** — ex.: `POST /api/gym/invites`.
-  2. **Listar alunos da academia** — ex.: `GET /api/gym/:id/students` com RBAC OWNER/INSTRUCTOR.
-  3. **Revogar acesso de aluno (OWNER)** — ex.: `DELETE /api/gym/students/:linkId` ou PATCH com status REVOKED.
-
-Os itens opcionais (listar planos por userId e GET user por id) podem ser decididos conforme a UX da tela “Perfil do Aluno” e se a listagem de alunos já trouxer dados suficientes.
+- A API está **pronta para iniciar o desenvolvimento do frontend**. Todas as lacunas críticas foram preenchidas:
+  - **Auth, treinos, sessões, avaliações, convites PT, assinaturas e IA** — já estavam alinhados.
+  - **Plano GYM:** implementados `POST /api/gym/invites`, `GET /api/gym/:id/students` e `DELETE /api/gym/students/:linkId`, permitindo fluxo completo de “Meus Alunos” (enviar convite, listar, revogar).
+- **Itens opcionais** (listar planos de um aluno por `userId` e `GET /api/users/:id` para perfil de aluno) podem ser implementados depois, conforme a UX da tela “Perfil do Aluno”; a listagem de alunos já retorna `studentName` e `studentEmail` quando o link está aceito, o que pode ser suficiente para listas e cards.
