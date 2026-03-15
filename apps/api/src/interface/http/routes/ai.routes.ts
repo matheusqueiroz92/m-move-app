@@ -17,6 +17,7 @@ import { listChatsHandler } from "../controllers/ai/list-chats.controller.js";
 import { sendChatMessageHandler } from "../controllers/ai/send-chat-message.controller.js";
 import { createAIChatRateLimitMiddleware } from "../middlewares/ai-chat-rate-limit.js";
 import { authenticate } from "../middlewares/authenticate.js";
+import { requireRole } from "../middlewares/authorize.js";
 
 const messageResponseSchema = z.object({ message: z.string() });
 
@@ -24,7 +25,10 @@ export async function aiRoutes(app: FastifyInstance): Promise<void> {
   const typed = app.withTypeProvider<ZodTypeProvider>();
 
   typed.post("/generate-plan", {
-    preHandler: [authenticate],
+    preHandler: [
+      authenticate,
+      requireRole(["OWNER", "PERSONAL_TRAINER", "INSTRUCTOR", "STUDENT"]),
+    ],
     schema: {
       description: "Generate a workout plan using AI (GPT-4o)",
       body: generateWorkoutPlanBodySchema,
@@ -39,7 +43,10 @@ export async function aiRoutes(app: FastifyInstance): Promise<void> {
   });
 
   typed.get("/chats", {
-    preHandler: [authenticate],
+    preHandler: [
+      authenticate,
+      requireRole(["OWNER", "PERSONAL_TRAINER", "INSTRUCTOR", "STUDENT"]),
+    ],
     schema: {
       description:
         "List AI chats for the authenticated user (paginated)",
@@ -55,6 +62,7 @@ export async function aiRoutes(app: FastifyInstance): Promise<void> {
   typed.post("/chat", {
     preHandler: [
       authenticate,
+      requireRole(["OWNER", "PERSONAL_TRAINER", "INSTRUCTOR", "STUDENT"]),
       createAIChatRateLimitMiddleware({
         userRepository: app.userRepository,
         aiChatMessageRepository: app.aiChatMessageRepository,
@@ -76,7 +84,10 @@ export async function aiRoutes(app: FastifyInstance): Promise<void> {
   });
 
   typed.get("/insights/:userId", {
-    preHandler: [authenticate],
+    preHandler: [
+      authenticate,
+      requireRole(["OWNER", "PERSONAL_TRAINER", "INSTRUCTOR", "STUDENT"]),
+    ],
     schema: {
       description:
         "Get AI-generated progress insights for a user (own userId only)",

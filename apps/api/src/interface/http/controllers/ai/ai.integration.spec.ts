@@ -43,6 +43,37 @@ describe("AI API (integration)", () => {
       expect(response.statusCode).toBe(401);
     });
 
+    it("should return 403 when user is LINKED_STUDENT (RF-022)", async () => {
+      const fixture = createUserFixture({
+        id: validUuid(),
+        role: "LINKED_STUDENT",
+      });
+      await prisma.user.create({
+        data: {
+          id: fixture.id,
+          name: fixture.name,
+          email: fixture.email,
+          emailVerified: fixture.emailVerified,
+          role: fixture.role,
+          timezone: fixture.timezone,
+        },
+      });
+
+      const response = await app.inject({
+        method: "POST",
+        url: "/api/ai/generate-plan",
+        headers: { "X-Test-User-Id": fixture.id },
+        payload: {
+          objective: "Hipertrofia",
+          level: "Iniciante",
+          daysPerWeek: 4,
+        },
+      });
+      expect(response.statusCode).toBe(403);
+      const body = response.json() as { message: string };
+      expect(body.message).toBe("Forbidden");
+    });
+
     it("should return 400 when body is invalid", async () => {
       const fixture = createUserFixture({ id: validUuid(), role: "STUDENT" });
       await prisma.user.create({
@@ -105,6 +136,29 @@ describe("AI API (integration)", () => {
         url: "/api/ai/chats",
       });
       expect(response.statusCode).toBe(401);
+    });
+
+    it("should return 403 when user is LINKED_STUDENT (RF-022)", async () => {
+      const fixture = createUserFixture({
+        id: validUuid(),
+        role: "LINKED_STUDENT",
+      });
+      await prisma.user.create({
+        data: {
+          id: fixture.id,
+          name: fixture.name,
+          email: fixture.email,
+          emailVerified: fixture.emailVerified,
+          role: fixture.role,
+          timezone: fixture.timezone,
+        },
+      });
+      const response = await app.inject({
+        method: "GET",
+        url: "/api/ai/chats",
+        headers: { "X-Test-User-Id": fixture.id },
+      });
+      expect(response.statusCode).toBe(403);
     });
 
     it("should return 200 and empty array when user has no chats", async () => {
