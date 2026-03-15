@@ -16,6 +16,45 @@ async function cleanup(): Promise<void> {
   }
 }
 
+describe("POST /api/workout-plans (integration)", () => {
+  beforeEach(async () => {
+    await app.ready();
+  });
+
+  afterEach(async () => {
+    await cleanup();
+  });
+
+  it("should return 403 when user is LINKED_STUDENT (RF-019)", async () => {
+    const fixture = createUserFixture({
+      id: "user-linked-create",
+      email: "linked-create@test.dev",
+      role: "LINKED_STUDENT",
+    });
+    await prisma.user.create({
+      data: {
+        id: fixture.id,
+        name: fixture.name,
+        email: fixture.email,
+        emailVerified: fixture.emailVerified,
+        role: fixture.role,
+        timezone: fixture.timezone,
+      },
+    });
+
+    const response = await app.inject({
+      method: "POST",
+      url: "/api/workout-plans",
+      headers: { "X-Test-User-Id": fixture.id },
+      payload: { name: "Tentativa de criar plano" },
+    });
+
+    expect(response.statusCode).toBe(403);
+    const body = response.json() as { message: string };
+    expect(body.message).toBe("Forbidden");
+  });
+});
+
 describe("PATCH /api/workout-plans/:id (integration)", () => {
   beforeEach(async () => {
     await app.ready();
@@ -70,6 +109,41 @@ describe("PATCH /api/workout-plans/:id (integration)", () => {
     expect(body.name).toBe("Plano Atualizado");
     expect(body.description).toBe("Nova desc");
     expect(body.id).toBe(plan.id);
+  });
+
+  it("should return 403 when user is LINKED_STUDENT (RF-019)", async () => {
+    const fixture = createUserFixture({
+      id: "user-linked-patch",
+      email: "linked-patch@test.dev",
+      role: "LINKED_STUDENT",
+    });
+    await prisma.user.create({
+      data: {
+        id: fixture.id,
+        name: fixture.name,
+        email: fixture.email,
+        emailVerified: fixture.emailVerified,
+        role: fixture.role,
+        timezone: fixture.timezone,
+      },
+    });
+    const plan = await prisma.workoutPlan.create({
+      data: {
+        name: "Plano do aluno",
+        userId: fixture.id,
+      },
+    });
+
+    const response = await app.inject({
+      method: "PATCH",
+      url: `/api/workout-plans/${plan.id}`,
+      headers: { "X-Test-User-Id": fixture.id },
+      payload: { name: "Tentativa de editar" },
+    });
+
+    expect(response.statusCode).toBe(403);
+    const body = response.json() as { message: string };
+    expect(body.message).toBe("Forbidden");
   });
 
   it("should return 404 when plan does not exist or does not belong to user", async () => {

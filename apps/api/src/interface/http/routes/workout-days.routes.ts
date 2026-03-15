@@ -15,6 +15,7 @@ import { listWorkoutExercisesHandler } from "../controllers/workout/list-workout
 import { reorderWorkoutExercisesHandler } from "../controllers/workout/reorder-workout-exercises.controller.js";
 import { updateWorkoutExerciseHandler } from "../controllers/workout/update-workout-exercise.controller.js";
 import { authenticate } from "../middlewares/authenticate.js";
+import { requireNotLinkedStudent } from "../middlewares/require-not-linked-student.js";
 
 export async function workoutDaysRoutes(app: FastifyInstance): Promise<void> {
   const typed = app.withTypeProvider<ZodTypeProvider>();
@@ -33,7 +34,7 @@ export async function workoutDaysRoutes(app: FastifyInstance): Promise<void> {
   });
 
   typed.post("/:dayId/exercises", {
-    preHandler: [authenticate],
+    preHandler: [authenticate, requireNotLinkedStudent],
     schema: {
       description:
         "Create an exercise in a workout day (day's plan must belong to user)",
@@ -47,7 +48,7 @@ export async function workoutDaysRoutes(app: FastifyInstance): Promise<void> {
   });
 
   typed.patch("/:dayId/exercises/reorder", {
-    preHandler: [authenticate],
+    preHandler: [authenticate, requireNotLinkedStudent],
     schema: {
       description:
         "Reorder exercises (day's plan must belong to user). Pass exercise ids in desired order.",
@@ -61,7 +62,7 @@ export async function workoutDaysRoutes(app: FastifyInstance): Promise<void> {
   });
 
   typed.patch("/:dayId/exercises/:exerciseId", {
-    preHandler: [authenticate],
+    preHandler: [authenticate, requireNotLinkedStudent],
     schema: {
       description: "Update an exercise (day's plan must belong to user)",
       params: z.object({
@@ -77,7 +78,7 @@ export async function workoutDaysRoutes(app: FastifyInstance): Promise<void> {
   });
 
   typed.delete("/:dayId/exercises/:exerciseId", {
-    preHandler: [authenticate],
+    preHandler: [authenticate, requireNotLinkedStudent],
     schema: {
       description: "Delete an exercise (day's plan must belong to user)",
       params: z.object({
