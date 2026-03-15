@@ -1,5 +1,8 @@
 import { faker } from "@faker-js/faker";
 
+import type { Prisma } from "../../generated/prisma/client.js";
+import type { UserRole } from "../../generated/prisma/enums.js";
+
 export type UserFixtureOverrides = Partial<{
   id: string;
   name: string;
@@ -55,22 +58,9 @@ const ROLES_REQUIRING_ACTIVE_PLAN = [
  * set so that requireActivePlan middleware allows access (RF-004).
  * Use this in integration tests when the user will call routes protected by requireActivePlan.
  */
-export function toUserCreateData(fixture: UserFixture): {
-  id: string;
-  name: string;
-  email: string;
-  emailVerified: boolean;
-  role: string;
-  timezone: string;
-  planType: "STUDENT" | "PERSONAL" | "GYM" | null;
-  subscriptionStatus:
-    | "ACTIVE"
-    | "TRIALING"
-    | "PAST_DUE"
-    | "CANCELED"
-    | "UNPAID"
-    | null;
-} {
+export function toUserCreateData(
+  fixture: UserFixture,
+): Prisma.UserUncheckedCreateInput {
   const needsPlan = ROLES_REQUIRING_ACTIVE_PLAN.includes(
     fixture.role as (typeof ROLES_REQUIRING_ACTIVE_PLAN)[number],
   );
@@ -90,7 +80,7 @@ export function toUserCreateData(fixture: UserFixture): {
     name: fixture.name,
     email: fixture.email,
     emailVerified: fixture.emailVerified,
-    role: fixture.role,
+    role: fixture.role as UserRole,
     timezone: fixture.timezone,
     planType,
     subscriptionStatus,
