@@ -20,6 +20,20 @@ export class PrismaGymInstructorRepository implements GymInstructorRepository {
     return link?.gymId ?? null;
   }
 
+  async findActiveByGymIdAndInstructorUserId(
+    gymId: string,
+    instructorUserId: string,
+  ): Promise<GymInstructorResult | null> {
+    const link = await prisma.gymInstructor.findFirst({
+      where: {
+        gymId,
+        instructorId: instructorUserId,
+        status: "ACTIVE",
+      },
+    });
+    return link ? toGymInstructorResult(link) : null;
+  }
+
   async create(input: CreateGymInstructorInput): Promise<GymInstructorResult> {
     const link = await prisma.gymInstructor.create({
       data: {

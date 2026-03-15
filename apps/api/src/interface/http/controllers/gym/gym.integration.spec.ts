@@ -403,4 +403,166 @@ describe("Gym API (integration)", () => {
       expect(response.statusCode).toBe(204);
     });
   });
+
+  describe("POST /api/gym/invites", () => {
+    it("should return 401 when request has no authentication", async () => {
+      const response = await app.inject({
+        method: "POST",
+        url: "/api/gym/invites",
+        payload: {
+          gymId: validUuid(),
+          inviteEmail: "student@test.dev",
+        },
+      });
+      expect(response.statusCode).toBe(401);
+    });
+
+    it("should return 201 and create student invite when OWNER", async () => {
+      const owner = createUserFixture({
+        id: validUuid(),
+        email: "owner-invite-student@gym.test",
+        role: "OWNER",
+      });
+      await prisma.user.create({
+        data: toUserCreateData(owner),
+      });
+      const gym = await prisma.gym.create({
+        data: {
+          name: "Academia Student Invite",
+          ownerId: owner.id,
+          maxStudents: 50,
+        },
+      });
+
+      const response = await app.inject({
+        method: "POST",
+        url: "/api/gym/invites",
+        headers: { "X-Test-User-Id": owner.id },
+        payload: {
+          gymId: gym.id,
+          inviteEmail: "student@academia.test",
+        },
+      });
+
+      expect(response.statusCode).toBe(201);
+      const body = response.json() as Record<string, unknown>;
+      expect(body.gymId).toBe(gym.id);
+      expect(body.inviteEmail).toBe("student@academia.test");
+      expect(body.status).toBe("PENDING");
+    });
+  });
+
+  describe("GET /api/gym/:id/students", () => {
+    it("should return 401 when request has no authentication", async () => {
+      const response = await app.inject({
+        method: "GET",
+        url: `/api/gym/${validUuid()}/students`,
+      });
+      expect(response.statusCode).toBe(401);
+    });
+
+    it("should return 200 and paginated list when OWNER", async () => {
+      const owner = createUserFixture({
+        id: validUuid(),
+        email: "owner-list-students@gym.test",
+        role: "OWNER",
+      });
+      await prisma.user.create({
+        data: toUserCreateData(owner),
+      });
+      const gym = await prisma.gym.create({
+        data: {
+          name: "Academia List Students",
+          ownerId: owner.id,
+        },
+      });
+
+      const response = await app.inject({
+        method: "GET",
+        url: `/api/gym/${gym.id}/students`,
+        headers: { "X-Test-User-Id": owner.id },
+      });
+
+      expect(response.statusCode).toBe(200);
+      const body = response.json() as { items: unknown[]; total: number };
+      expect(body).toHaveProperty("items");
+      expect(body.items).toHaveLength(0);
+      expect(body.total).toBe(0);
+    });
+  });
+
+  describe("DELETE /api/gym/students/:linkId", () => {
+    it("should return 401 when request has no authentication", async () => {
+      const response = await app.inject({
+        method: "DELETE",
+        url: `/api/gym/students/${validUuid()}`,
+      });
+      expect(response.statusCode).toBe(401);
+    });
+
+    it("should return 403 when user is not OWNER", async () => {
+      const owner = createUserFixture({
+        id: validUuid(),
+        email: "owner-revoke@gym.test",
+        role: "OWNER",
+      });
+      const other = createUserFixture({
+        id: validUuid(),
+        email: "other-revoke@gym.test",
+        role: "STUDENT",
+      });
+      await prisma.user.createMany({
+        data: [toUserCreateData(owner), toUserCreateData(other)],
+      });
+      const gym = await prisma.gym.create({
+        data: { name: "Academia Revoke", ownerId: owner.id },
+      });
+      const link = await prisma.gymStudentLink.create({
+        data: {
+          gymId: gym.id,
+          inviteEmail: "s@revoke.test",
+          inviteToken: "token-revoke",
+          inviteExpiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        },
+      });
+
+      const response = await app.inject({
+        method: "DELETE",
+        url: `/api/gym/students/${link.id}`,
+        headers: { "X-Test-User-Id": other.id },
+      });
+
+      expect(response.statusCode).toBe(403);
+    });
+
+    it("should return 204 when OWNER revokes student link", async () => {
+      const owner = createUserFixture({
+        id: validUuid(),
+        email: "owner-revoke-ok@gym.test",
+        role: "OWNER",
+      });
+      await prisma.user.create({
+        data: toUserCreateData(owner),
+      });
+      const gym = await prisma.gym.create({
+        data: { name: "Academia Revoke OK", ownerId: owner.id },
+      });
+      const link = await prisma.gymStudentLink.create({
+        data: {
+          gymId: gym.id,
+          inviteEmail: "s@revoke-ok.test",
+          inviteToken: "token-revoke-ok",
+          inviteExpiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        },
+      });
+
+      const response = await app.inject({
+        method: "DELETE",
+        url: `/api/gym/students/${link.id}`,
+        headers: { "X-Test-User-Id": owner.id },
+      });
+
+      expect(response.statusCode).toBe(204);
+    });
+  });
 });

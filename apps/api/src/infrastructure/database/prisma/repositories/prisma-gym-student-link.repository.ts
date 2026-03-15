@@ -1,11 +1,37 @@
 import type {
+  CreateGymStudentLinkInput,
   GymStudentLinkRepository,
   GymStudentLinkResult,
 } from "../../../../domain/gym/repositories/gym-student-link.repository.js";
 import { prisma } from "../../../../lib/db.js";
-import { toGymStudentLinkResult } from "../mappers/gym-student-link.mapper.js";
+import {
+  toGymStudentLinkListItem,
+  toGymStudentLinkResult,
+} from "../mappers/gym-student-link.mapper.js";
 
 export class PrismaGymStudentLinkRepository implements GymStudentLinkRepository {
+  async create(
+    input: CreateGymStudentLinkInput,
+  ): Promise<GymStudentLinkResult> {
+    const link = await prisma.gymStudentLink.create({
+      data: {
+        gymId: input.gymId,
+        instructorId: input.instructorId ?? undefined,
+        inviteEmail: input.inviteEmail,
+        inviteToken: input.inviteToken,
+        inviteExpiresAt: input.inviteExpiresAt,
+      },
+    });
+    return toGymStudentLinkResult(link);
+  }
+
+  async findById(id: string): Promise<GymStudentLinkResult | null> {
+    const link = await prisma.gymStudentLink.findUnique({
+      where: { id },
+    });
+    return link ? toGymStudentLinkResult(link) : null;
+  }
+
   async hasActiveStudentInGym(
     gymId: string,
     studentId: string,
@@ -24,6 +50,35 @@ export class PrismaGymStudentLinkRepository implements GymStudentLinkRepository 
     return prisma.gymStudentLink.count({
       where: { gymId, status: "ACTIVE" },
     });
+  }
+
+  async findByGymIdPaginated(
+    gymId: string,
+    options: { limit: number; offset: number },
+    instructorId?: string | null,
+  ) {
+    const where = {
+      gymId,
+      ...(instructorId != null && instructorId !== "" && { instructorId }),
+    };
+    const [items, total] = await Promise.all([
+      prisma.gymStudentLink.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        take: options.limit,
+        skip: options.offset,
+        include: {
+          student: {
+            select: { name: true, email: true },
+          },
+        },
+      }),
+      prisma.gymStudentLink.count({ where }),
+    ]);
+    return {
+      items: items.map(toGymStudentLinkListItem),
+      total,
+    };
   }
 
   async findByToken(token: string): Promise<GymStudentLinkResult | null> {

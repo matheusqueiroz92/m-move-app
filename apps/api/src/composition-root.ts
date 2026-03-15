@@ -15,7 +15,10 @@ import { CreateGymUseCase } from "./application/gym/create-gym.use-case.js";
 import { GetGymByIdUseCase } from "./application/gym/get-gym-by-id.use-case.js";
 import { InviteInstructorUseCase } from "./application/gym/invite-instructor.use-case.js";
 import { ListGymMembersUseCase } from "./application/gym/list-gym-members.use-case.js";
+import { ListGymStudentsUseCase } from "./application/gym/list-gym-students.use-case.js";
 import { RemoveInstructorUseCase } from "./application/gym/remove-instructor.use-case.js";
+import { RevokeGymStudentUseCase } from "./application/gym/revoke-gym-student.use-case.js";
+import { SendGymInviteUseCase } from "./application/gym/send-gym-invite.use-case.js";
 import { UpdateGymUseCase } from "./application/gym/update-gym.use-case.js";
 import { AcceptPtInviteUseCase } from "./application/pt-invite/accept-pt-invite.use-case.js";
 import { ListPtInvitesUseCase } from "./application/pt-invite/list-pt-invites.use-case.js";
@@ -181,6 +184,11 @@ const listGymMembers = new ListGymMembersUseCase(
   gymRepository,
   gymInstructorRepository,
 );
+const listGymStudents = new ListGymStudentsUseCase(
+  gymRepository,
+  gymInstructorRepository,
+  gymStudentLinkRepository,
+);
 const inviteInstructor = new InviteInstructorUseCase(
   gymRepository,
   gymInstructorRepository,
@@ -190,6 +198,15 @@ const removeInstructor = new RemoveInstructorUseCase(
   gymInstructorRepository,
   gymStudentLinkRepository,
   workoutPlanRepository,
+);
+const sendGymInvite = new SendGymInviteUseCase(
+  gymRepository,
+  gymInstructorRepository,
+  gymStudentLinkRepository,
+);
+const revokeGymStudent = new RevokeGymStudentUseCase(
+  gymStudentLinkRepository,
+  gymRepository,
 );
 
 const sendPtInvite = new SendPtInviteUseCase(
@@ -266,8 +283,11 @@ export const useCases = {
   getGymById,
   updateGym,
   listGymMembers,
+  listGymStudents,
   inviteInstructor,
   removeInstructor,
+  sendGymInvite,
+  revokeGymStudent,
   sendPtInvite,
   listPtInvites,
   revokePtInvite,

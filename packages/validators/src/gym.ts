@@ -34,12 +34,7 @@ export const inviteInstructorBodySchema = z.object({
 });
 export type InviteInstructorBody = z.infer<typeof inviteInstructorBodySchema>;
 
-const linkStatusSchema = z.enum([
-  "PENDING",
-  "ACTIVE",
-  "REVOKED",
-  "EXPIRED",
-]);
+const linkStatusSchema = z.enum(["PENDING", "ACTIVE", "REVOKED", "EXPIRED"]);
 
 export const gymInstructorResponseSchema = z.object({
   id: z.string(),
@@ -53,15 +48,20 @@ export const gymInstructorResponseSchema = z.object({
   revokedAt: z.string().nullable(),
   createdAt: z.string(),
 });
-export type GymInstructorResponse = z.infer<
-  typeof gymInstructorResponseSchema
->;
+export type GymInstructorResponse = z.infer<typeof gymInstructorResponseSchema>;
 
 export const gymInstructorListResponseSchema = z.array(
   gymInstructorResponseSchema,
 );
 export const gymInstructorPaginatedResponseSchema =
   createPaginatedResponseSchema(gymInstructorResponseSchema);
+
+export const sendGymInviteBodySchema = z.object({
+  gymId: z.string().uuid("Invalid gym id"),
+  inviteEmail: z.string().email("Invalid email"),
+  instructorId: z.string().uuid().optional().nullable(),
+});
+export type SendGymInviteBody = z.infer<typeof sendGymInviteBodySchema>;
 
 export const acceptGymInviteBodySchema = z.object({
   token: z.string().min(1, "Token is required"),
@@ -84,3 +84,16 @@ export const gymStudentLinkResponseSchema = z.object({
 export type GymStudentLinkResponse = z.infer<
   typeof gymStudentLinkResponseSchema
 >;
+
+export const gymStudentLinkListItemSchema = gymStudentLinkResponseSchema.extend(
+  {
+    studentName: z.string().nullable().optional(),
+    studentEmail: z.string().nullable().optional(),
+  },
+);
+export type GymStudentLinkListItemResponse = z.infer<
+  typeof gymStudentLinkListItemSchema
+>;
+
+export const gymStudentLinkListPaginatedResponseSchema =
+  createPaginatedResponseSchema(gymStudentLinkListItemSchema);

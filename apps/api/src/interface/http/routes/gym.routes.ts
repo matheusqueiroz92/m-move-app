@@ -4,9 +4,11 @@ import {
   gymInstructorPaginatedResponseSchema,
   gymInstructorResponseSchema,
   gymResponseSchema,
+  gymStudentLinkListPaginatedResponseSchema,
   gymStudentLinkResponseSchema,
   inviteInstructorBodySchema,
   paginationQuerystringSchema,
+  sendGymInviteBodySchema,
   updateGymBodySchema,
 } from "@m-move-app/validators";
 import type { FastifyInstance } from "fastify";
@@ -18,7 +20,10 @@ import { createGymHandler } from "../controllers/gym/create-gym.controller.js";
 import { getGymByIdHandler } from "../controllers/gym/get-gym-by-id.controller.js";
 import { inviteInstructorHandler } from "../controllers/gym/invite-instructor.controller.js";
 import { listGymMembersHandler } from "../controllers/gym/list-gym-members.controller.js";
+import { listGymStudentsHandler } from "../controllers/gym/list-gym-students.controller.js";
 import { removeInstructorHandler } from "../controllers/gym/remove-instructor.controller.js";
+import { revokeGymStudentHandler } from "../controllers/gym/revoke-gym-student.controller.js";
+import { sendGymInviteHandler } from "../controllers/gym/send-gym-invite.controller.js";
 import { updateGymHandler } from "../controllers/gym/update-gym.controller.js";
 import { authenticate } from "../middlewares/authenticate.js";
 import { requireRole } from "../middlewares/authorize.js";
@@ -36,6 +41,17 @@ export async function gymRoutes(app: FastifyInstance): Promise<void> {
       response: { 200: gymStudentLinkResponseSchema },
     },
     handler: acceptGymInviteHandler,
+  });
+
+  typed.post("/invites", {
+    preHandler: [authenticate, requireActivePlan],
+    schema: {
+      description:
+        "Send student invite to gym (OWNER or INSTRUCTOR of the gym). RN-005, RN-012.",
+      body: sendGymInviteBodySchema,
+      response: { 201: gymStudentLinkResponseSchema },
+    },
+    handler: sendGymInviteHandler,
   });
 
   typed.post("/", {
@@ -62,6 +78,20 @@ export async function gymRoutes(app: FastifyInstance): Promise<void> {
       },
     },
     handler: listGymMembersHandler,
+  });
+
+  typed.get("/:id/students", {
+    preHandler: [authenticate, requireActivePlan],
+    schema: {
+      description:
+        "List gym students (OWNER: all; INSTRUCTOR: only own students). Paginated.",
+      params: z.object({ id: z.string().uuid() }),
+      querystring: paginationQuerystringSchema,
+      response: {
+        200: gymStudentLinkListPaginatedResponseSchema,
+      },
+    },
+    handler: listGymStudentsHandler,
   });
 
   typed.get("/:id", {
@@ -111,5 +141,15 @@ export async function gymRoutes(app: FastifyInstance): Promise<void> {
       response: { 204: z.object({}) },
     },
     handler: removeInstructorHandler,
+  });
+
+  typed.delete("/students/:linkId", {
+    preHandler: [authenticate, requireActivePlan, requireRole(["OWNER"])],
+    schema: {
+      description: "Revoke gym student link (OWNER of the gym only). RN-014.",
+      params: z.object({ linkId: z.string().uuid() }),
+      response: { 204: z.object({}) },
+    },
+    handler: revokeGymStudentHandler,
   });
 }

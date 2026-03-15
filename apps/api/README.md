@@ -33,7 +33,7 @@ apps/api/src/
 ├── application/               # Use cases (regras de negócio)
 │   ├── ai/                    # generate-plan, chat, list-chats, insights
 │   ├── assessment/
-│   ├── gym/                   # CRUD gym, invite instructor, accept gym invite
+│   ├── gym/                   # CRUD gym, invite instructor/student, accept gym invite, list/revoke students
 │   ├── pt-invite/
 │   ├── subscription/
 │   ├── user/
@@ -176,20 +176,20 @@ Os testes de integração de `GET /api/users/me` (200 e 404) dependem das tabela
 
 ## Rotas da API (visão geral)
 
-| Recurso           | Prefixo                              | Descrição                                                                                                |
-| ----------------- | ------------------------------------ | -------------------------------------------------------------------------------------------------------- |
-| **Health**        | `/health`                            | `GET` — health check com checagem de DB (readiness/liveness)                                             |
-| **Auth**          | `/api/auth`                          | `POST /register`, `POST /login`, `POST /logout`, `GET /me`, `POST /refresh`                              |
-| **Users**         | `/api/users`                         | `GET /me` (perfil do usuário autenticado)                                                                |
-| **Workout Plans** | `/api/workout-plans`                 | `GET /`, `POST /`, `GET /:id`, `PATCH /:id`, `DELETE /:id`, `POST /:id/activate`                         |
-| **Workout Days**  | `/api/workout-plans/:planId/days`    | CRUD de dias do plano                                                                                    |
-| **Exercises**     | `/api/workout-days/:dayId/exercises` | CRUD + `PATCH /reorder`                                                                                  |
-| **Sessions**      | `/api/sessions`                      | `POST /start`, `PATCH /:id/complete`, `GET /history`, `GET /streak`                                      |
-| **Assessments**   | `/api/assessments`                   | CRUD + `GET /history/:userId` (autorizado: próprio usuário ou PT do aluno)                               |
-| **Gym**           | `/api/gym`                           | `POST /accept-invite`, CRUD academia (OWNER), `GET /:id/members`, `POST /members`, `DELETE /members/:id` |
-| **AI**            | `/api/ai`                            | `POST /generate-plan`, `GET /chats`, `POST /chat`, `GET /insights/:userId`                               |
-| **PT Invites**    | `/api/pt/invites`                    | `POST /` (enviar), `GET /` (listar), `DELETE /:id` (revogar), `POST /accept`                             |
-| **Subscriptions** | `/api/subscriptions`                 | `POST /checkout`, `POST /portal`, `GET /status`, `POST /webhook` (Stripe)                                |
+| Recurso           | Prefixo                              | Descrição                                                                                                                                                                                                         |
+| ----------------- | ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Health**        | `/health`                            | `GET` — health check com checagem de DB (readiness/liveness)                                                                                                                                                      |
+| **Auth**          | `/api/auth`                          | `POST /register`, `POST /login`, `POST /logout`, `GET /me`, `POST /refresh`                                                                                                                                       |
+| **Users**         | `/api/users`                         | `GET /me` (perfil do usuário autenticado)                                                                                                                                                                         |
+| **Workout Plans** | `/api/workout-plans`                 | `GET /`, `POST /`, `GET /:id`, `PATCH /:id`, `DELETE /:id`, `POST /:id/activate`                                                                                                                                  |
+| **Workout Days**  | `/api/workout-plans/:planId/days`    | CRUD de dias do plano                                                                                                                                                                                             |
+| **Exercises**     | `/api/workout-days/:dayId/exercises` | CRUD + `PATCH /reorder`                                                                                                                                                                                           |
+| **Sessions**      | `/api/sessions`                      | `POST /start`, `PATCH /:id/complete`, `GET /history`, `GET /streak`                                                                                                                                               |
+| **Assessments**   | `/api/assessments`                   | CRUD + `GET /history/:userId` (autorizado: próprio usuário ou PT do aluno)                                                                                                                                        |
+| **Gym**           | `/api/gym`                           | `POST /accept-invite`, CRUD academia (OWNER), `GET /:id/members`, `POST /members`, `DELETE /members/:id`, `POST /invites` (convite aluno), `GET /:id/students`, `DELETE /students/:linkId` (revogar aluno, OWNER) |
+| **AI**            | `/api/ai`                            | `POST /generate-plan`, `GET /chats`, `POST /chat`, `GET /insights/:userId`                                                                                                                                        |
+| **PT Invites**    | `/api/pt/invites`                    | `POST /` (enviar), `GET /` (listar), `DELETE /:id` (revogar), `POST /accept`                                                                                                                                      |
+| **Subscriptions** | `/api/subscriptions`                 | `POST /checkout`, `POST /portal`, `GET /status`, `POST /webhook` (Stripe)                                                                                                                                         |
 
 ### Health check
 

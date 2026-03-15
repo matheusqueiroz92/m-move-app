@@ -8,6 +8,9 @@ import type { WorkoutPlanRepository } from "../../domain/workout/repositories/wo
 import { RemoveInstructorUseCase } from "./remove-instructor.use-case.js";
 
 const mockGymStudentLinkRepo: GymStudentLinkRepository = {
+  create: vi.fn(),
+  findById: vi.fn(),
+  findByGymIdPaginated: vi.fn(),
   findByToken: vi.fn(),
   hasActiveStudentInGym: vi.fn(),
   countActiveByGymId: vi.fn(),
@@ -44,6 +47,7 @@ describe("RemoveInstructorUseCase", () => {
     const instructorRepository: GymInstructorRepository = {
       create: vi.fn(),
       findActiveGymIdByInstructorId: vi.fn(),
+      findActiveByGymIdAndInstructorUserId: vi.fn(),
       findById: vi.fn().mockResolvedValue({
         id: "link-1",
         gymId: "gym-1",
@@ -96,6 +100,7 @@ describe("RemoveInstructorUseCase", () => {
     const instructorRepository: GymInstructorRepository = {
       create: vi.fn(),
       findActiveGymIdByInstructorId: vi.fn(),
+      findActiveByGymIdAndInstructorUserId: vi.fn(),
       findById: vi.fn().mockResolvedValue({
         id: "link-1",
         gymId: "gym-1",
@@ -143,6 +148,7 @@ describe("RemoveInstructorUseCase", () => {
     const instructorRepository: GymInstructorRepository = {
       create: vi.fn(),
       findActiveGymIdByInstructorId: vi.fn(),
+      findActiveByGymIdAndInstructorUserId: vi.fn(),
       findById: vi.fn().mockResolvedValue({
         id: "link-1",
         gymId: "gym-1",
@@ -186,6 +192,7 @@ describe("RemoveInstructorUseCase", () => {
       findById: vi.fn().mockResolvedValue(null),
       create: vi.fn(),
       findActiveGymIdByInstructorId: vi.fn(),
+      findActiveByGymIdAndInstructorUserId: vi.fn(),
       findByGymId: vi.fn(),
       findByGymIdPaginated: vi.fn(),
       countActiveByGymId: vi.fn(),
@@ -215,6 +222,7 @@ describe("RemoveInstructorUseCase", () => {
     };
     const instructorRepository: GymInstructorRepository = {
       findActiveGymIdByInstructorId: vi.fn(),
+      findActiveByGymIdAndInstructorUserId: vi.fn(),
       findById: vi.fn().mockResolvedValue({
         id: "link-1",
         gymId: "gym-1",

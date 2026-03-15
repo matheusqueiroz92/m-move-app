@@ -44,6 +44,9 @@ describe("AcceptGymInviteUseCase", () => {
       acceptedAt: new Date(),
     };
     const repository: GymStudentLinkRepository = {
+      create: vi.fn(),
+      findById: vi.fn(),
+      findByGymIdPaginated: vi.fn(),
       findByToken: vi.fn().mockResolvedValue(link),
       hasActiveStudentInGym: vi.fn(),
       countActiveByGymId: vi.fn().mockResolvedValue(10),
@@ -86,6 +89,9 @@ describe("AcceptGymInviteUseCase", () => {
       createdAt: new Date(),
     };
     const repository: GymStudentLinkRepository = {
+      create: vi.fn(),
+      findById: vi.fn(),
+      findByGymIdPaginated: vi.fn(),
       findByToken: vi.fn().mockResolvedValue(link),
       hasActiveStudentInGym: vi.fn(),
       countActiveByGymId: vi.fn().mockResolvedValue(50),
@@ -109,6 +115,9 @@ describe("AcceptGymInviteUseCase", () => {
 
   it("should throw InviteExpiredError when link not found", async () => {
     const repository: GymStudentLinkRepository = {
+      create: vi.fn(),
+      findById: vi.fn(),
+      findByGymIdPaginated: vi.fn(),
       findByToken: vi.fn().mockResolvedValue(null),
       hasActiveStudentInGym: vi.fn(),
       countActiveByGymId: vi.fn(),
@@ -141,6 +150,9 @@ describe("AcceptGymInviteUseCase", () => {
       createdAt: new Date(),
     };
     const repository: GymStudentLinkRepository = {
+      create: vi.fn(),
+      findById: vi.fn(),
+      findByGymIdPaginated: vi.fn(),
       findByToken: vi.fn().mockResolvedValue(link),
       hasActiveStudentInGym: vi.fn(),
       countActiveByGymId: vi.fn(),
@@ -173,6 +185,9 @@ describe("AcceptGymInviteUseCase", () => {
       createdAt: new Date(),
     };
     const repository: GymStudentLinkRepository = {
+      create: vi.fn(),
+      findById: vi.fn(),
+      findByGymIdPaginated: vi.fn(),
       findByToken: vi.fn().mockResolvedValue(link),
       hasActiveStudentInGym: vi.fn(),
       countActiveByGymId: vi.fn(),

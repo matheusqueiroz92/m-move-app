@@ -27,6 +27,11 @@ export interface GymInstructorRepository {
   create(input: CreateGymInstructorInput): Promise<GymInstructorResult>;
   /** Get gymId for an active instructor link (RF-002f) */
   findActiveGymIdByInstructorId(instructorId: string): Promise<string | null>;
+  /** Get active instructor link by gym and instructor user id (for send invite / list students) */
+  findActiveByGymIdAndInstructorUserId(
+    gymId: string,
+    instructorUserId: string,
+  ): Promise<GymInstructorResult | null>;
   findById(id: string): Promise<GymInstructorResult | null>;
   findByGymId(gymId: string): Promise<GymInstructorResult[]>;
   findByGymIdPaginated(

@@ -5,6 +5,7 @@ const NOT_FOUND_ERROR_NAMES = [
   "AssessmentNotFoundError",
   "ChatNotFoundError",
   "GymNotFoundError",
+  "GymStudentLinkNotFoundError",
   "InstructorLinkNotFoundError",
   "PtInviteNotFoundError",
   "UserNotFoundError",
@@ -56,6 +57,12 @@ export function createErrorHandler(
         .send(
           withRequestId({ message: message || "Validation error" }, requestId),
         );
+    }
+
+    if (name === "GymAccessDeniedError") {
+      return reply
+        .status(403)
+        .send(withRequestId({ message: message || "Forbidden" }, requestId));
     }
 
     if (name && (NOT_FOUND_ERROR_NAMES as readonly string[]).includes(name)) {
