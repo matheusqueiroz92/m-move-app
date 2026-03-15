@@ -1,3 +1,4 @@
+import { CannotDeleteLastDayError } from "../../domain/workout/errors/cannot-delete-last-day.error.js";
 import { DayNotFoundError } from "../../domain/workout/errors/day-not-found.error.js";
 import { PlanNotFoundError } from "../../domain/workout/errors/plan-not-found.error.js";
 import type { WorkoutDayRepository } from "../../domain/workout/repositories/workout-day.repository.js";
@@ -9,6 +10,7 @@ export interface DeleteWorkoutDayInput {
   userId: string;
 }
 
+/** RF-006: Plan must always have at least one WorkoutDay; cannot delete the last day */
 export class DeleteWorkoutDayUseCase {
   constructor(
     private readonly workoutPlanRepository: WorkoutPlanRepository,
@@ -23,6 +25,12 @@ export class DeleteWorkoutDayUseCase {
     if (!plan) {
       throw new PlanNotFoundError(input.planId);
     }
+
+    const days = await this.workoutDayRepository.findByPlanId(input.planId);
+    if (days.length <= 1) {
+      throw new CannotDeleteLastDayError(input.planId);
+    }
+
     const deleted = await this.workoutDayRepository.delete(
       input.dayId,
       input.planId,

@@ -18,8 +18,8 @@ coverage
 # Turbo
 .turbo
 
-# Vercel
-.vercel
+# Cursor
+.cursor/
 
 # Build Outputs
 .next/

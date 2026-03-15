@@ -33,6 +33,12 @@ export class PrismaPtStudentLinkRepository implements PtStudentLinkRepository {
     return link ? toPtStudentLinkResult(link) : null;
   }
 
+  async countActiveByPersonalTrainerId(ptId: string): Promise<number> {
+    return prisma.pTStudentLink.count({
+      where: { personalTrainerId: ptId, status: "ACTIVE" },
+    });
+  }
+
   async findByPersonalTrainerId(ptId: string): Promise<PtStudentLinkResult[]> {
     const links = await prisma.pTStudentLink.findMany({
       where: { personalTrainerId: ptId },

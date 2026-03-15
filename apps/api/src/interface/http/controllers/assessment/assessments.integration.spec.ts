@@ -2,7 +2,10 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import app from "../../../../app.js";
 import { prisma } from "../../../../lib/db.js";
-import { createUserFixture } from "../../../../test/factories/user.factory.js";
+import {
+  createUserFixture,
+  toUserCreateData,
+} from "../../../../test/factories/user.factory.js";
 import {
   truncateTestDatabase,
   truncateUserTable,
@@ -39,14 +42,7 @@ describe("GET /api/assessments (integration)", () => {
       role: "STUDENT",
     });
     await prisma.user.create({
-      data: {
-        id: fixture.id,
-        name: fixture.name,
-        email: fixture.email,
-        emailVerified: fixture.emailVerified,
-        role: fixture.role,
-        timezone: fixture.timezone,
-      },
+      data: toUserCreateData(fixture),
     });
 
     const response = await app.inject({
@@ -69,14 +65,7 @@ describe("GET /api/assessments (integration)", () => {
       role: "STUDENT",
     });
     await prisma.user.create({
-      data: {
-        id: fixture.id,
-        name: fixture.name,
-        email: fixture.email,
-        emailVerified: fixture.emailVerified,
-        role: fixture.role,
-        timezone: fixture.timezone,
-      },
+      data: toUserCreateData(fixture),
     });
     await prisma.physicalAssessment.create({
       data: {
@@ -94,7 +83,12 @@ describe("GET /api/assessments (integration)", () => {
 
     expect(response.statusCode).toBe(200);
     const body = response.json() as {
-      items: Array<{ id: string; userId: string; weightKg: number; heightCm: number }>;
+      items: Array<{
+        id: string;
+        userId: string;
+        weightKg: number;
+        heightCm: number;
+      }>;
       total: number;
     };
     expect(body.items).toHaveLength(1);
@@ -129,14 +123,7 @@ describe("POST /api/assessments (integration)", () => {
       role: "STUDENT",
     });
     await prisma.user.create({
-      data: {
-        id: fixture.id,
-        name: fixture.name,
-        email: fixture.email,
-        emailVerified: fixture.emailVerified,
-        role: fixture.role,
-        timezone: fixture.timezone,
-      },
+      data: toUserCreateData(fixture),
     });
 
     const response = await app.inject({
@@ -189,14 +176,7 @@ describe("GET /api/assessments/:id (integration)", () => {
       role: "STUDENT",
     });
     await prisma.user.create({
-      data: {
-        id: fixture.id,
-        name: fixture.name,
-        email: fixture.email,
-        emailVerified: fixture.emailVerified,
-        role: fixture.role,
-        timezone: fixture.timezone,
-      },
+      data: toUserCreateData(fixture),
     });
     const assessment = await prisma.physicalAssessment.create({
       data: {
@@ -225,14 +205,7 @@ describe("GET /api/assessments/:id (integration)", () => {
       role: "STUDENT",
     });
     await prisma.user.create({
-      data: {
-        id: fixture.id,
-        name: fixture.name,
-        email: fixture.email,
-        emailVerified: fixture.emailVerified,
-        role: fixture.role,
-        timezone: fixture.timezone,
-      },
+      data: toUserCreateData(fixture),
     });
 
     const response = await app.inject({
@@ -256,24 +229,7 @@ describe("GET /api/assessments/:id (integration)", () => {
       role: "STUDENT",
     });
     await prisma.user.createMany({
-      data: [
-        {
-          id: owner.id,
-          name: owner.name,
-          email: owner.email,
-          emailVerified: owner.emailVerified,
-          role: owner.role,
-          timezone: owner.timezone,
-        },
-        {
-          id: other.id,
-          name: other.name,
-          email: other.email,
-          emailVerified: other.emailVerified,
-          role: other.role,
-          timezone: other.timezone,
-        },
-      ],
+      data: [toUserCreateData(owner), toUserCreateData(other)],
     });
     const assessment = await prisma.physicalAssessment.create({
       data: {
@@ -316,14 +272,7 @@ describe("GET /api/assessments/history/:userId (integration)", () => {
       role: "STUDENT",
     });
     await prisma.user.create({
-      data: {
-        id: fixture.id,
-        name: fixture.name,
-        email: fixture.email,
-        emailVerified: fixture.emailVerified,
-        role: fixture.role,
-        timezone: fixture.timezone,
-      },
+      data: toUserCreateData(fixture),
     });
     await prisma.physicalAssessment.create({
       data: {
@@ -340,7 +289,10 @@ describe("GET /api/assessments/history/:userId (integration)", () => {
     });
 
     expect(response.statusCode).toBe(200);
-    const body = response.json() as { items: Array<{ userId: string }>; total: number };
+    const body = response.json() as {
+      items: Array<{ userId: string }>;
+      total: number;
+    };
     expect(body.items).toHaveLength(1);
     expect(body.total).toBe(1);
     expect(body.items[0]?.userId).toBe(fixture.id);
@@ -354,14 +306,7 @@ describe("GET /api/assessments/history/:userId (integration)", () => {
     });
     const otherId = "e4eebc99-9c0b-4ef8-bb6d-6bb9bd380a55";
     await prisma.user.create({
-      data: {
-        id: fixture.id,
-        name: fixture.name,
-        email: fixture.email,
-        emailVerified: fixture.emailVerified,
-        role: fixture.role,
-        timezone: fixture.timezone,
-      },
+      data: toUserCreateData(fixture),
     });
 
     const response = await app.inject({

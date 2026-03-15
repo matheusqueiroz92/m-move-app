@@ -3,7 +3,10 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import app from "../../../../app.js";
 import { prisma } from "../../../../lib/db.js";
-import { createUserFixture } from "../../../../test/factories/user.factory.js";
+import {
+  createUserFixture,
+  toUserCreateData,
+} from "../../../../test/factories/user.factory.js";
 import {
   truncateTestDatabase,
   truncateUserTable,
@@ -46,14 +49,7 @@ describe("PT Invites API (integration)", () => {
         role: "STUDENT",
       });
       await prisma.user.create({
-        data: {
-          id: fixture.id,
-          name: fixture.name,
-          email: fixture.email,
-          emailVerified: fixture.emailVerified,
-          role: fixture.role,
-          timezone: fixture.timezone,
-        },
+        data: toUserCreateData(fixture),
       });
 
       const response = await app.inject({
@@ -73,14 +69,7 @@ describe("PT Invites API (integration)", () => {
         role: "PERSONAL_TRAINER",
       });
       await prisma.user.create({
-        data: {
-          id: fixture.id,
-          name: fixture.name,
-          email: fixture.email,
-          emailVerified: fixture.emailVerified,
-          role: fixture.role,
-          timezone: fixture.timezone,
-        },
+        data: toUserCreateData(fixture),
       });
 
       const response = await app.inject({
@@ -115,14 +104,7 @@ describe("PT Invites API (integration)", () => {
         role: "STUDENT",
       });
       await prisma.user.create({
-        data: {
-          id: fixture.id,
-          name: fixture.name,
-          email: fixture.email,
-          emailVerified: fixture.emailVerified,
-          role: fixture.role,
-          timezone: fixture.timezone,
-        },
+        data: toUserCreateData(fixture),
       });
 
       const response = await app.inject({
@@ -141,14 +123,7 @@ describe("PT Invites API (integration)", () => {
         role: "PERSONAL_TRAINER",
       });
       await prisma.user.create({
-        data: {
-          id: fixture.id,
-          name: fixture.name,
-          email: fixture.email,
-          emailVerified: fixture.emailVerified,
-          role: fixture.role,
-          timezone: fixture.timezone,
-        },
+        data: toUserCreateData(fixture),
       });
 
       const response = await app.inject({
@@ -182,14 +157,7 @@ describe("PT Invites API (integration)", () => {
         role: "STUDENT",
       });
       await prisma.user.create({
-        data: {
-          id: fixture.id,
-          name: fixture.name,
-          email: fixture.email,
-          emailVerified: fixture.emailVerified,
-          role: fixture.role,
-          timezone: fixture.timezone,
-        },
+        data: toUserCreateData(fixture),
       });
 
       const response = await app.inject({
@@ -214,24 +182,7 @@ describe("PT Invites API (integration)", () => {
         role: "STUDENT",
       });
       await prisma.user.createMany({
-        data: [
-          {
-            id: pt.id,
-            name: pt.name,
-            email: pt.email,
-            emailVerified: pt.emailVerified,
-            role: pt.role,
-            timezone: pt.timezone,
-          },
-          {
-            id: student.id,
-            name: student.name,
-            email: student.email,
-            emailVerified: student.emailVerified,
-            role: student.role,
-            timezone: student.timezone,
-          },
-        ],
+        data: [toUserCreateData(pt), toUserCreateData(student)],
       });
       const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
       const link = await prisma.pTStudentLink.create({
@@ -275,14 +226,7 @@ describe("PT Invites API (integration)", () => {
         role: "PERSONAL_TRAINER",
       });
       await prisma.user.create({
-        data: {
-          id: fixture.id,
-          name: fixture.name,
-          email: fixture.email,
-          emailVerified: fixture.emailVerified,
-          role: fixture.role,
-          timezone: fixture.timezone,
-        },
+        data: toUserCreateData(fixture),
       });
       const inviteId = validUuid();
 
@@ -302,14 +246,7 @@ describe("PT Invites API (integration)", () => {
         role: "PERSONAL_TRAINER",
       });
       await prisma.user.create({
-        data: {
-          id: fixture.id,
-          name: fixture.name,
-          email: fixture.email,
-          emailVerified: fixture.emailVerified,
-          role: fixture.role,
-          timezone: fixture.timezone,
-        },
+        data: toUserCreateData(fixture),
       });
       const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
       const link = await prisma.pTStudentLink.create({

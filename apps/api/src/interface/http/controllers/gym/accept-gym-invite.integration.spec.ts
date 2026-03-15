@@ -2,7 +2,10 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import app from "../../../../app.js";
 import { prisma } from "../../../../lib/db.js";
-import { createUserFixture } from "../../../../test/factories/user.factory.js";
+import {
+  createUserFixture,
+  toUserCreateData,
+} from "../../../../test/factories/user.factory.js";
 import {
   truncateTestDatabase,
   truncateUserTable,
@@ -46,24 +49,7 @@ describe("POST /api/gym/accept-invite (integration)", () => {
       role: "STUDENT",
     });
     await prisma.user.createMany({
-      data: [
-        {
-          id: owner.id,
-          name: owner.name,
-          email: owner.email,
-          emailVerified: owner.emailVerified,
-          role: owner.role,
-          timezone: owner.timezone,
-        },
-        {
-          id: student.id,
-          name: student.name,
-          email: student.email,
-          emailVerified: student.emailVerified,
-          role: student.role,
-          timezone: student.timezone,
-        },
-      ],
+      data: [toUserCreateData(owner), toUserCreateData(student)],
     });
     const gym = await prisma.gym.create({
       data: {
@@ -108,14 +94,7 @@ describe("POST /api/gym/accept-invite (integration)", () => {
       role: "STUDENT",
     });
     await prisma.user.create({
-      data: {
-        id: student.id,
-        name: student.name,
-        email: student.email,
-        emailVerified: student.emailVerified,
-        role: student.role,
-        timezone: student.timezone,
-      },
+      data: toUserCreateData(student),
     });
 
     const response = await app.inject({

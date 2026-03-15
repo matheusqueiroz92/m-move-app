@@ -62,14 +62,12 @@ describe("GenerateWorkoutPlanWithAIUseCase", () => {
       deactivateAllByUserId: vi.fn(),
       updateIsActive: vi.fn(),
       activatePlanForUser: vi.fn(),
+      reassignCreatedBy: vi.fn(),
       update: vi.fn(),
       delete: vi.fn(),
     };
 
-    const useCase = new GenerateWorkoutPlanWithAIUseCase(
-      aiProvider,
-      planRepo,
-    );
+    const useCase = new GenerateWorkoutPlanWithAIUseCase(aiProvider, planRepo);
 
     const result = await useCase.execute({
       userId: "user-1",

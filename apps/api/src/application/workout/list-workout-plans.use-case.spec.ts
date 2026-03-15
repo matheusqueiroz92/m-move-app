@@ -7,7 +7,9 @@ import type {
 } from "../../domain/workout/repositories/workout-plan.repository.js";
 import { ListWorkoutPlansUseCase } from "./list-workout-plans.use-case.js";
 
-const workoutPlanRepositoryMock = (overrides: Partial<WorkoutPlanRepository> = {}): WorkoutPlanRepository => ({
+const workoutPlanRepositoryMock = (
+  overrides: Partial<WorkoutPlanRepository> = {},
+): WorkoutPlanRepository => ({
   create: vi.fn(),
   createWithDaysAndExercises: vi.fn(),
   findByUserId: vi.fn(),
@@ -17,12 +19,15 @@ const workoutPlanRepositoryMock = (overrides: Partial<WorkoutPlanRepository> = {
   deactivateAllByUserId: vi.fn(),
   updateIsActive: vi.fn(),
   activatePlanForUser: vi.fn(),
+  reassignCreatedBy: vi.fn(),
   update: vi.fn(),
   delete: vi.fn(),
   ...overrides,
 });
 
-const userRepositoryMock = (overrides: Partial<UserRepository> = {}): UserRepository => ({
+const userRepositoryMock = (
+  overrides: Partial<UserRepository> = {},
+): UserRepository => ({
   findById: vi.fn(),
   findByIdWithPlanAndTimezone: vi.fn(),
   findByIdWithSubscription: vi.fn(),
@@ -130,7 +135,9 @@ describe("ListWorkoutPlansUseCase", () => {
         }),
       }),
       userRepositoryMock({
-        findById: vi.fn().mockResolvedValue({ id: "user-empty", role: "STUDENT" }),
+        findById: vi
+          .fn()
+          .mockResolvedValue({ id: "user-empty", role: "STUDENT" }),
       }),
     );
 

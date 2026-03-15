@@ -2,8 +2,12 @@ import { faker } from "@faker-js/faker";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import app from "../../../../app.js";
+import { UserCreateInput } from "../../../../generated/prisma/models.js";
 import { prisma } from "../../../../lib/db.js";
-import { createUserFixture } from "../../../../test/factories/user.factory.js";
+import {
+  createUserFixture,
+  toUserCreateData,
+} from "../../../../test/factories/user.factory.js";
 import {
   truncateTestDatabase,
   truncateUserTable,
@@ -77,14 +81,7 @@ describe("AI API (integration)", () => {
     it("should return 400 when body is invalid", async () => {
       const fixture = createUserFixture({ id: validUuid(), role: "STUDENT" });
       await prisma.user.create({
-        data: {
-          id: fixture.id,
-          name: fixture.name,
-          email: fixture.email,
-          emailVerified: fixture.emailVerified,
-          role: fixture.role,
-          timezone: fixture.timezone,
-        },
+        data: toUserCreateData(fixture) as UserCreateInput,
       });
 
       const response = await app.inject({
@@ -103,14 +100,7 @@ describe("AI API (integration)", () => {
     it("should return 503 when OPENAI_API_KEY is not configured", async () => {
       const fixture = createUserFixture({ id: validUuid(), role: "STUDENT" });
       await prisma.user.create({
-        data: {
-          id: fixture.id,
-          name: fixture.name,
-          email: fixture.email,
-          emailVerified: fixture.emailVerified,
-          role: fixture.role,
-          timezone: fixture.timezone,
-        },
+        data: toUserCreateData(fixture) as UserCreateInput,
       });
 
       const response = await app.inject({
@@ -164,14 +154,7 @@ describe("AI API (integration)", () => {
     it("should return 200 and empty array when user has no chats", async () => {
       const fixture = createUserFixture({ id: validUuid(), role: "STUDENT" });
       await prisma.user.create({
-        data: {
-          id: fixture.id,
-          name: fixture.name,
-          email: fixture.email,
-          emailVerified: fixture.emailVerified,
-          role: fixture.role,
-          timezone: fixture.timezone,
-        },
+        data: toUserCreateData(fixture) as UserCreateInput,
       });
       const response = await app.inject({
         method: "GET",
@@ -198,14 +181,7 @@ describe("AI API (integration)", () => {
     it("should return 403 when userId is not the authenticated user", async () => {
       const fixture = createUserFixture({ id: validUuid(), role: "STUDENT" });
       await prisma.user.create({
-        data: {
-          id: fixture.id,
-          name: fixture.name,
-          email: fixture.email,
-          emailVerified: fixture.emailVerified,
-          role: fixture.role,
-          timezone: fixture.timezone,
-        },
+        data: toUserCreateData(fixture) as UserCreateInput,
       });
       const otherUserId = validUuid();
       const response = await app.inject({

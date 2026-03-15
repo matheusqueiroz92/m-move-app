@@ -96,6 +96,7 @@ const updateWorkoutPlan = new UpdateWorkoutPlanUseCase(workoutPlanRepository);
 const deleteWorkoutPlan = new DeleteWorkoutPlanUseCase(workoutPlanRepository);
 const activateWorkoutPlan = new ActivateWorkoutPlanUseCase(
   workoutPlanRepository,
+  workoutDayRepository,
 );
 
 const createWorkoutDay = new CreateWorkoutDayUseCase(
@@ -169,7 +170,10 @@ const createPhysicalAssessment = new CreatePhysicalAssessmentUseCase(
   physicalAssessmentRepository,
 );
 
-const acceptGymInvite = new AcceptGymInviteUseCase(gymStudentLinkRepository);
+const acceptGymInvite = new AcceptGymInviteUseCase(
+  gymStudentLinkRepository,
+  gymRepository,
+);
 const createGym = new CreateGymUseCase(gymRepository);
 const getGymById = new GetGymByIdUseCase(gymRepository);
 const updateGym = new UpdateGymUseCase(gymRepository);
@@ -184,9 +188,14 @@ const inviteInstructor = new InviteInstructorUseCase(
 const removeInstructor = new RemoveInstructorUseCase(
   gymRepository,
   gymInstructorRepository,
+  gymStudentLinkRepository,
+  workoutPlanRepository,
 );
 
-const sendPtInvite = new SendPtInviteUseCase(ptStudentLinkRepository);
+const sendPtInvite = new SendPtInviteUseCase(
+  ptStudentLinkRepository,
+  userRepository,
+);
 const listPtInvites = new ListPtInvitesUseCase(ptStudentLinkRepository);
 const revokePtInvite = new RevokePtInviteUseCase(ptStudentLinkRepository);
 const acceptPtInvite = new AcceptPtInviteUseCase(ptStudentLinkRepository);

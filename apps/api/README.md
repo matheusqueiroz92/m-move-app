@@ -84,20 +84,21 @@ A API sobe por padrão em **http://localhost:3001**. A documentação Swagger/Sc
 
 ## Scripts
 
-| Comando                 | Descrição                                                |
-| ----------------------- | -------------------------------------------------------- |
-| `pnpm dev`              | Sobe a API em modo watch (`tsx watch`)                   |
-| `pnpm lint`             | ESLint                                                   |
-| `pnpm check-types`      | `tsc --noEmit`                                           |
-| `pnpm test`             | Vitest em watch (apenas testes unitários)                |
-| `pnpm test:run`         | Vitest uma execução (ideal para CI)                      |
-| `pnpm test:unit`        | Apenas testes unitários (exclui `*.integration.spec.ts`) |
-| `pnpm test:integration` | Apenas testes de integração (requer `TEST_DATABASE_URL`) |
-| `pnpm test:coverage`    | Testes unitários + integração com relatório de cobertura  |
-| `pnpm prisma:migrate:dev`   | Cria e aplica migrations em desenvolvimento            |
-| `pnpm prisma:migrate:deploy`| Aplica migrations pendentes (produção/CI)              |
-| `pnpm db:test:migrate`      | Aplica migrations no banco de teste (usa `.env.test`)  |
-| `pnpm db:test:push`         | Sincroniza schema no banco de teste sem migrations     |
+| Comando                      | Descrição                                                |
+| ---------------------------- | -------------------------------------------------------- |
+| `pnpm dev`                   | Sobe a API em modo watch (`tsx watch`)                   |
+| `pnpm lint`                  | ESLint                                                   |
+| `pnpm check-types`           | `tsc --noEmit`                                           |
+| `pnpm test`                  | Vitest em watch (apenas testes unitários)                |
+| `pnpm test:run`              | Vitest uma execução (ideal para CI)                      |
+| `pnpm test:unit`             | Apenas testes unitários (exclui `*.integration.spec.ts`) |
+| `pnpm test:integration`      | Apenas testes de integração (requer `TEST_DATABASE_URL`) |
+| `pnpm test:coverage`         | Testes unitários + integração com relatório de cobertura |
+| `pnpm test:coverage:unit`    | Cobertura apenas dos testes unitários (usado no CI)      |
+| `pnpm prisma:migrate:dev`    | Cria e aplica migrations em desenvolvimento              |
+| `pnpm prisma:migrate:deploy` | Aplica migrations pendentes (produção/CI)                |
+| `pnpm db:test:migrate`       | Aplica migrations no banco de teste (usa `.env.test`)    |
+| `pnpm db:test:push`          | Sincroniza schema no banco de teste sem migrations       |
 
 ## Variáveis de ambiente
 
@@ -175,24 +176,25 @@ Os testes de integração de `GET /api/users/me` (200 e 404) dependem das tabela
 
 ## Rotas da API (visão geral)
 
-| Recurso           | Prefixo                           | Descrição                                                                   |
-| ----------------- | --------------------------------- | --------------------------------------------------------------------------- |
-| **Health**        | `/health`                         | `GET` — health check com checagem de DB (readiness/liveness)                |
-| **Auth**          | `/api/auth`                       | `POST /register`, `POST /login`, `POST /logout`, `GET /me`, `POST /refresh` |
-| **Users**         | `/api/users`                      | `GET /me` (perfil do usuário autenticado)                                   |
-| **Workout Plans** | `/api/workout-plans`              | `GET /`, `POST /`, `GET /:id`, `PATCH /:id`, `DELETE /:id`, `POST /:id/activate` |
-| **Workout Days**  | `/api/workout-plans/:planId/days` | CRUD de dias do plano                                                       |
-| **Exercises**     | `/api/workout-days/:dayId/exercises` | CRUD + `PATCH /reorder`                                                  |
-| **Sessions**      | `/api/sessions`                   | `POST /start`, `PATCH /:id/complete`, `GET /history`, `GET /streak`         |
-| **Assessments**   | `/api/assessments`                | CRUD + `GET /history/:userId` (autorizado: próprio usuário ou PT do aluno)  |
-| **Gym**           | `/api/gym`                        | `POST /accept-invite`, CRUD academia (OWNER), `GET /:id/members`, `POST /members`, `DELETE /members/:id` |
-| **AI**            | `/api/ai`                         | `POST /generate-plan`, `GET /chats`, `POST /chat`, `GET /insights/:userId`  |
-| **PT Invites**    | `/api/pt/invites`                 | `POST /` (enviar), `GET /` (listar), `DELETE /:id` (revogar), `POST /accept` |
-| **Subscriptions** | `/api/subscriptions`              | `POST /checkout`, `POST /portal`, `GET /status`, `POST /webhook` (Stripe)   |
+| Recurso           | Prefixo                              | Descrição                                                                                                |
+| ----------------- | ------------------------------------ | -------------------------------------------------------------------------------------------------------- |
+| **Health**        | `/health`                            | `GET` — health check com checagem de DB (readiness/liveness)                                             |
+| **Auth**          | `/api/auth`                          | `POST /register`, `POST /login`, `POST /logout`, `GET /me`, `POST /refresh`                              |
+| **Users**         | `/api/users`                         | `GET /me` (perfil do usuário autenticado)                                                                |
+| **Workout Plans** | `/api/workout-plans`                 | `GET /`, `POST /`, `GET /:id`, `PATCH /:id`, `DELETE /:id`, `POST /:id/activate`                         |
+| **Workout Days**  | `/api/workout-plans/:planId/days`    | CRUD de dias do plano                                                                                    |
+| **Exercises**     | `/api/workout-days/:dayId/exercises` | CRUD + `PATCH /reorder`                                                                                  |
+| **Sessions**      | `/api/sessions`                      | `POST /start`, `PATCH /:id/complete`, `GET /history`, `GET /streak`                                      |
+| **Assessments**   | `/api/assessments`                   | CRUD + `GET /history/:userId` (autorizado: próprio usuário ou PT do aluno)                               |
+| **Gym**           | `/api/gym`                           | `POST /accept-invite`, CRUD academia (OWNER), `GET /:id/members`, `POST /members`, `DELETE /members/:id` |
+| **AI**            | `/api/ai`                            | `POST /generate-plan`, `GET /chats`, `POST /chat`, `GET /insights/:userId`                               |
+| **PT Invites**    | `/api/pt/invites`                    | `POST /` (enviar), `GET /` (listar), `DELETE /:id` (revogar), `POST /accept`                             |
+| **Subscriptions** | `/api/subscriptions`                 | `POST /checkout`, `POST /portal`, `GET /status`, `POST /webhook` (Stripe)                                |
 
 ### Health check
 
 `GET /health` retorna:
+
 - **200** `{ status: "ok", database: "connected" }` — DB saudável
 - **503** `{ status: "unavailable", database: "disconnected", message? }` — DB indisponível
 
@@ -215,13 +217,14 @@ A documentação detalhada (schemas, exemplos) está em **/docs** (Swagger/Scala
 
 ### Fluxo de migrations (desenvolvimento vs produção)
 
-| Ambiente | Comando | Uso |
-|----------|---------|-----|
-| **Desenvolvimento** | `pnpm prisma:migrate:dev` | Cria e aplica novas migrations (com nome descritivo: `--name nome_da_mudanca`) |
-| **Produção / CI** | `pnpm prisma:migrate:deploy` | Aplica apenas migrations pendentes; não cria novas |
-| **Setup rápido** | `pnpm prisma:push` | Sincroniza schema sem migrations (apenas prototipação; evitar em produção) |
+| Ambiente            | Comando                      | Uso                                                                            |
+| ------------------- | ---------------------------- | ------------------------------------------------------------------------------ |
+| **Desenvolvimento** | `pnpm prisma:migrate:dev`    | Cria e aplica novas migrations (com nome descritivo: `--name nome_da_mudanca`) |
+| **Produção / CI**   | `pnpm prisma:migrate:deploy` | Aplica apenas migrations pendentes; não cria novas                             |
+| **Setup rápido**    | `pnpm prisma:push`           | Sincroniza schema sem migrations (apenas prototipação; evitar em produção)     |
 
 **Recomendação para produção:** Usar sempre `prisma:migrate:deploy` no pipeline de deploy (antes de subir a aplicação). Se ainda não houver pasta `prisma/migrations`, crie a primeira migration com `pnpm prisma:migrate:dev --name init` no banco de desenvolvimento e versionar os arquivos gerados.
+
 - Preferir **soft delete** em entidades principais
 - Índices em campos usados em `WHERE` com frequência
 - Operações múltiplas via `prisma.$transaction`
@@ -273,6 +276,44 @@ pnpm test:coverage
 - **@m-move-app/types** — `IUser`, `IWorkoutPlan`, DTOs, `PaginatedResponse<T>`, etc.
 - **@m-move-app/validators** — schemas Zod (workout, assessment, user, gym, pt-invite, subscription, ai)
 - **@m-move-app/utils** — `calculateStreak`, `calculateBMI`, `formatDuration`, `getWeekDayFromDate`
+
+## Regras de negócio implementadas (resumo)
+
+- **RF-006**: Plano deve ter pelo menos 1 WorkoutDay — validado ao ativar plano e ao deletar dia (não permite deletar o último dia).
+- **RF-008**: WorkoutDay deve ter pelo menos 1 Exercise — não permite deletar o último exercício do dia.
+- **RF-011**: Ordem de exercício ao criar — calculada no backend (0 se vazio, último + 1).
+- **RF-016**: Cálculo de streak usa o timezone do usuário (do perfil quando não informado na query).
+- **RN-012**: Limite de alunos — GYM: aceitar convite só se `countActive < maxStudents`; PT (plano PERSONAL): enviar convite só se abaixo do limite do plano (10).
+- **RN-016 / RN-17**: Ao remover um INSTRUCTOR, os alunos vinculados a ele passam a ter `instructorId = null` (referência ao OWNER) e os WorkoutPlans criados por ele passam a ter `createdBy = ownerId`.
+
+## CI/CD (Husky + GitHub Actions)
+
+### Por que o pre-push roda só testes unitários?
+
+O **pre-push** executa `pnpm run test`, que no pacote `api` usa o `vitest.config.ts` padrão. Esse config **exclui** `**/*.integration.spec.ts`, então apenas os testes unitários rodam. Motivos:
+
+1. **Testes de integração dependem de PostgreSQL** (`TEST_DATABASE_URL`). Nem todo ambiente local tem banco de teste configurado.
+2. **Feedback rápido**: pre-push fica mais rápido; os testes de integração rodam no **GitHub Actions** (com Postgres em container).
+
+Para rodar os testes de integração localmente antes do push: `pnpm --filter api test:integration` (exige `.env.test` com `TEST_DATABASE_URL`).
+
+### Husky (local)
+
+- **pre-commit**: executa `lint-staged` (Prettier nos arquivos staged).
+- **pre-push**: executa `pnpm run check-types`, `pnpm run lint` e `pnpm run test` (apenas testes unitários na API).
+
+Instalação: `pnpm install` na raiz já configura o Husky via script `prepare`.
+
+### GitHub Actions (`.github/workflows/ci.yml`)
+
+- **Trigger**: push e pull_request nas branches `main` e `master`.
+- **Jobs**:
+  - **lint-and-typecheck**: `pnpm run lint`, `pnpm run check-types`.
+  - **test-api**: `pnpm --filter api test:unit`.
+  - **coverage-api**: `pnpm --filter api test:coverage:unit` — cobertura dos testes unitários (thresholds em `vitest.coverage.config.ts`).
+  - **test-api-integration**: testes de integração com **PostgreSQL 16** em service container; aplica migrations e roda `pnpm --filter api test:integration`. Não é necessário configurar secrets.
+
+Assim, no CI rodam tanto os testes unitários quanto os de integração.
 
 ## Regras de desenvolvimento
 

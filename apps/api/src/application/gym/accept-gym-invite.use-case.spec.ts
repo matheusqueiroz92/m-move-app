@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
+import { StudentLimitReachedError } from "../../domain/gym/errors/student-limit-reached.error.js";
+import type { GymRepository } from "../../domain/gym/repositories/gym.repository.js";
 import type {
   GymStudentLinkRepository,
   GymStudentLinkResult,
@@ -8,8 +10,20 @@ import { InviteAlreadyUsedError } from "../../domain/pt-invite/errors/invite-alr
 import { InviteExpiredError } from "../../domain/pt-invite/errors/invite-expired.error.js";
 import { AcceptGymInviteUseCase } from "./accept-gym-invite.use-case.js";
 
+const mockGymRepository: GymRepository = {
+  create: vi.fn(),
+  findById: vi.fn().mockResolvedValue({
+    id: "gym-1",
+    ownerId: "owner-1",
+    maxStudents: 50,
+    maxInstructors: 10,
+  }),
+  findByOwnerId: vi.fn(),
+  update: vi.fn(),
+};
+
 describe("AcceptGymInviteUseCase", () => {
-  it("should accept gym invite when token is valid and pending", async () => {
+  it("should accept gym invite when token is valid and pending and gym under limit (RN-012)", async () => {
     const link: GymStudentLinkResult = {
       id: "link-1",
       gymId: "gym-1",
@@ -32,9 +46,14 @@ describe("AcceptGymInviteUseCase", () => {
     const repository: GymStudentLinkRepository = {
       findByToken: vi.fn().mockResolvedValue(link),
       hasActiveStudentInGym: vi.fn(),
+      countActiveByGymId: vi.fn().mockResolvedValue(10),
+      setInstructorIdNullForInstructorLinkId: vi.fn(),
       updateStatus: vi.fn().mockResolvedValue(updated),
     };
-    const useCase = new AcceptGymInviteUseCase(repository);
+    const useCase = new AcceptGymInviteUseCase(
+      repository,
+      mockGymRepository as GymRepository,
+    );
 
     const result = await useCase.execute({
       token: "token-123",
@@ -52,13 +71,54 @@ describe("AcceptGymInviteUseCase", () => {
     );
   });
 
+  it("should throw StudentLimitReachedError when gym has reached maxStudents (RN-012)", async () => {
+    const link: GymStudentLinkResult = {
+      id: "link-1",
+      gymId: "gym-1",
+      instructorId: null,
+      studentId: null,
+      inviteEmail: "s@t.dev",
+      inviteToken: "token",
+      inviteExpiresAt: new Date(Date.now() + 86400000),
+      status: "PENDING",
+      acceptedAt: null,
+      revokedAt: null,
+      createdAt: new Date(),
+    };
+    const repository: GymStudentLinkRepository = {
+      findByToken: vi.fn().mockResolvedValue(link),
+      hasActiveStudentInGym: vi.fn(),
+      countActiveByGymId: vi.fn().mockResolvedValue(50),
+      setInstructorIdNullForInstructorLinkId: vi.fn(),
+      updateStatus: vi.fn(),
+    };
+    const gymRepo: GymRepository = {
+      ...mockGymRepository,
+      findById: vi.fn().mockResolvedValue({
+        id: "gym-1",
+        maxStudents: 50,
+      }),
+    } as unknown as GymRepository;
+    const useCase = new AcceptGymInviteUseCase(repository, gymRepo);
+
+    await expect(
+      useCase.execute({ token: "token", studentId: "user-1" }),
+    ).rejects.toThrow(StudentLimitReachedError);
+    expect(repository.updateStatus).not.toHaveBeenCalled();
+  });
+
   it("should throw InviteExpiredError when link not found", async () => {
     const repository: GymStudentLinkRepository = {
       findByToken: vi.fn().mockResolvedValue(null),
       hasActiveStudentInGym: vi.fn(),
+      countActiveByGymId: vi.fn(),
+      setInstructorIdNullForInstructorLinkId: vi.fn(),
       updateStatus: vi.fn(),
     };
-    const useCase = new AcceptGymInviteUseCase(repository);
+    const useCase = new AcceptGymInviteUseCase(
+      repository,
+      mockGymRepository as GymRepository,
+    );
 
     await expect(
       useCase.execute({ token: "invalid", studentId: "user-1" }),
@@ -83,9 +143,14 @@ describe("AcceptGymInviteUseCase", () => {
     const repository: GymStudentLinkRepository = {
       findByToken: vi.fn().mockResolvedValue(link),
       hasActiveStudentInGym: vi.fn(),
+      countActiveByGymId: vi.fn(),
+      setInstructorIdNullForInstructorLinkId: vi.fn(),
       updateStatus: vi.fn(),
     };
-    const useCase = new AcceptGymInviteUseCase(repository);
+    const useCase = new AcceptGymInviteUseCase(
+      repository,
+      mockGymRepository as GymRepository,
+    );
 
     await expect(
       useCase.execute({ token: "token", studentId: "user-1" }),
@@ -110,9 +175,14 @@ describe("AcceptGymInviteUseCase", () => {
     const repository: GymStudentLinkRepository = {
       findByToken: vi.fn().mockResolvedValue(link),
       hasActiveStudentInGym: vi.fn(),
+      countActiveByGymId: vi.fn(),
+      setInstructorIdNullForInstructorLinkId: vi.fn(),
       updateStatus: vi.fn(),
     };
-    const useCase = new AcceptGymInviteUseCase(repository);
+    const useCase = new AcceptGymInviteUseCase(
+      repository,
+      mockGymRepository as GymRepository,
+    );
 
     await expect(
       useCase.execute({ token: "token", studentId: "user-1" }),

@@ -1,6 +1,5 @@
-import { z } from "zod";
-
 import { WEEK_DAYS } from "@m-move-app/constants";
+import { z } from "zod";
 
 import { createPaginatedResponseSchema } from "./pagination.js";
 
@@ -31,8 +30,9 @@ export const workoutPlanResponseSchema = z.object({
 export type WorkoutPlanResponse = z.infer<typeof workoutPlanResponseSchema>;
 
 export const workoutPlanListResponseSchema = z.array(workoutPlanResponseSchema);
-export const workoutPlanPaginatedResponseSchema =
-  createPaginatedResponseSchema(workoutPlanResponseSchema);
+export const workoutPlanPaginatedResponseSchema = createPaginatedResponseSchema(
+  workoutPlanResponseSchema,
+);
 
 export const createWorkoutDayBodySchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -69,7 +69,8 @@ export type UpdateWorkoutDayBody = z.infer<typeof updateWorkoutDayBodySchema>;
 
 export const createWorkoutExerciseBodySchema = z.object({
   name: z.string().min(1, "Name is required"),
-  order: z.number().int().min(0),
+  /** RF-011: Optional; backend auto-assigns order (0 or last+1) */
+  order: z.number().int().min(0).optional(),
   description: z.string().optional().nullable(),
   sets: z.number().int().min(1),
   reps: z.number().int().min(1),

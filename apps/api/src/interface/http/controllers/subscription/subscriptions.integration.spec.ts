@@ -3,7 +3,10 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import app from "../../../../app.js";
 import { prisma } from "../../../../lib/db.js";
-import { createUserFixture } from "../../../../test/factories/user.factory.js";
+import {
+  createUserFixture,
+  toUserCreateData,
+} from "../../../../test/factories/user.factory.js";
 import {
   truncateTestDatabase,
   truncateUserTable,
@@ -45,14 +48,7 @@ describe("Subscriptions API (integration)", () => {
         role: "STUDENT",
       });
       await prisma.user.create({
-        data: {
-          id: fixture.id,
-          name: fixture.name,
-          email: fixture.email,
-          emailVerified: fixture.emailVerified,
-          role: fixture.role,
-          timezone: fixture.timezone,
-        },
+        data: toUserCreateData(fixture),
       });
 
       const response = await app.inject({

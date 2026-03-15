@@ -10,7 +10,8 @@ export interface CreateWorkoutExerciseUseCaseInput {
   dayId: string;
   userId: string;
   name: string;
-  order: number;
+  /** RF-011: Ignored; order is computed as 0 when no exercises, else max(existing order) + 1 */
+  order?: number;
   description?: string | null;
   sets: number;
   reps: number;
@@ -19,6 +20,7 @@ export interface CreateWorkoutExerciseUseCaseInput {
   notes?: string | null;
 }
 
+/** RF-011: Order is auto-assigned: 0 when day has no exercises, else last order + 1 */
 export class CreateWorkoutExerciseUseCase {
   constructor(
     private readonly workoutPlanRepository: WorkoutPlanRepository,
@@ -30,10 +32,19 @@ export class CreateWorkoutExerciseUseCase {
     input: CreateWorkoutExerciseUseCaseInput,
   ): Promise<WorkoutExerciseResult> {
     await this.verifyDayOwnership(input.dayId, input.userId);
+
+    const existing = await this.workoutExerciseRepository.findByDayId(
+      input.dayId,
+    );
+    const order =
+      existing.length === 0
+        ? 0
+        : Math.max(...existing.map((e) => e.order), -1) + 1;
+
     return this.workoutExerciseRepository.create({
       workoutDayId: input.dayId,
       name: input.name,
-      order: input.order,
+      order,
       description: input.description,
       sets: input.sets,
       reps: input.reps,

@@ -3,7 +3,10 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import app from "../../../../app.js";
 import { prisma } from "../../../../lib/db.js";
-import { createUserFixture } from "../../../../test/factories/user.factory.js";
+import {
+  createUserFixture,
+  toUserCreateData,
+} from "../../../../test/factories/user.factory.js";
 import {
   truncateTestDatabase,
   truncateUserTable,
@@ -46,14 +49,7 @@ describe("Gym API (integration)", () => {
         role: "STUDENT",
       });
       await prisma.user.create({
-        data: {
-          id: fixture.id,
-          name: fixture.name,
-          email: fixture.email,
-          emailVerified: fixture.emailVerified,
-          role: fixture.role,
-          timezone: fixture.timezone,
-        },
+        data: toUserCreateData(fixture),
       });
 
       const response = await app.inject({
@@ -73,14 +69,7 @@ describe("Gym API (integration)", () => {
         role: "OWNER",
       });
       await prisma.user.create({
-        data: {
-          id: fixture.id,
-          name: fixture.name,
-          email: fixture.email,
-          emailVerified: fixture.emailVerified,
-          role: fixture.role,
-          timezone: fixture.timezone,
-        },
+        data: toUserCreateData(fixture),
       });
 
       const response = await app.inject({
@@ -121,14 +110,7 @@ describe("Gym API (integration)", () => {
         role: "STUDENT",
       });
       await prisma.user.create({
-        data: {
-          id: fixture.id,
-          name: fixture.name,
-          email: fixture.email,
-          emailVerified: fixture.emailVerified,
-          role: fixture.role,
-          timezone: fixture.timezone,
-        },
+        data: toUserCreateData(fixture),
       });
       const gymId = validUuid();
 
@@ -148,14 +130,7 @@ describe("Gym API (integration)", () => {
         role: "OWNER",
       });
       await prisma.user.create({
-        data: {
-          id: owner.id,
-          name: owner.name,
-          email: owner.email,
-          emailVerified: owner.emailVerified,
-          role: owner.role,
-          timezone: owner.timezone,
-        },
+        data: toUserCreateData(owner),
       });
       const gym = await prisma.gym.create({
         data: {
@@ -192,24 +167,7 @@ describe("Gym API (integration)", () => {
         role: "STUDENT",
       });
       await prisma.user.createMany({
-        data: [
-          {
-            id: owner.id,
-            name: owner.name,
-            email: owner.email,
-            emailVerified: owner.emailVerified,
-            role: owner.role,
-            timezone: owner.timezone,
-          },
-          {
-            id: other.id,
-            name: other.name,
-            email: other.email,
-            emailVerified: other.emailVerified,
-            role: other.role,
-            timezone: other.timezone,
-          },
-        ],
+        data: [toUserCreateData(owner), toUserCreateData(other)],
       });
       const gym = await prisma.gym.create({
         data: {
@@ -235,14 +193,7 @@ describe("Gym API (integration)", () => {
         role: "OWNER",
       });
       await prisma.user.create({
-        data: {
-          id: owner.id,
-          name: owner.name,
-          email: owner.email,
-          emailVerified: owner.emailVerified,
-          role: owner.role,
-          timezone: owner.timezone,
-        },
+        data: toUserCreateData(owner),
       });
       const gym = await prisma.gym.create({
         data: {
@@ -283,14 +234,7 @@ describe("Gym API (integration)", () => {
         role: "STUDENT",
       });
       await prisma.user.create({
-        data: {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          emailVerified: user.emailVerified,
-          role: user.role,
-          timezone: user.timezone,
-        },
+        data: toUserCreateData(user),
       });
       const gymId = validUuid();
 
@@ -310,14 +254,7 @@ describe("Gym API (integration)", () => {
         role: "OWNER",
       });
       await prisma.user.create({
-        data: {
-          id: owner.id,
-          name: owner.name,
-          email: owner.email,
-          emailVerified: owner.emailVerified,
-          role: owner.role,
-          timezone: owner.timezone,
-        },
+        data: toUserCreateData(owner),
       });
       const gym = await prisma.gym.create({
         data: {
@@ -357,14 +294,7 @@ describe("Gym API (integration)", () => {
         role: "OWNER",
       });
       await prisma.user.create({
-        data: {
-          id: owner.id,
-          name: owner.name,
-          email: owner.email,
-          emailVerified: owner.emailVerified,
-          role: owner.role,
-          timezone: owner.timezone,
-        },
+        data: toUserCreateData(owner),
       });
       const gymId = validUuid();
 
@@ -385,14 +315,7 @@ describe("Gym API (integration)", () => {
         role: "OWNER",
       });
       await prisma.user.create({
-        data: {
-          id: owner.id,
-          name: owner.name,
-          email: owner.email,
-          emailVerified: owner.emailVerified,
-          role: owner.role,
-          timezone: owner.timezone,
-        },
+        data: toUserCreateData(owner),
       });
       const gym = await prisma.gym.create({
         data: {
@@ -434,14 +357,7 @@ describe("Gym API (integration)", () => {
         role: "OWNER",
       });
       await prisma.user.create({
-        data: {
-          id: owner.id,
-          name: owner.name,
-          email: owner.email,
-          emailVerified: owner.emailVerified,
-          role: owner.role,
-          timezone: owner.timezone,
-        },
+        data: toUserCreateData(owner),
       });
       const linkId = validUuid();
 
@@ -461,14 +377,7 @@ describe("Gym API (integration)", () => {
         role: "OWNER",
       });
       await prisma.user.create({
-        data: {
-          id: owner.id,
-          name: owner.name,
-          email: owner.email,
-          emailVerified: owner.emailVerified,
-          role: owner.role,
-          timezone: owner.timezone,
-        },
+        data: toUserCreateData(owner),
       });
       const gym = await prisma.gym.create({
         data: {

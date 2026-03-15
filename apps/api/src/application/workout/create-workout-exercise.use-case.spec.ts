@@ -10,7 +10,7 @@ import type { WorkoutPlanRepository } from "../../domain/workout/repositories/wo
 import { CreateWorkoutExerciseUseCase } from "./create-workout-exercise.use-case.js";
 
 describe("CreateWorkoutExerciseUseCase", () => {
-  it("should create exercise when day belongs to user plan", async () => {
+  it("should create exercise with order 0 when day has no exercises (RF-011)", async () => {
     const created: WorkoutExerciseResult = {
       id: "ex-1",
       name: "Supino",
@@ -41,7 +41,7 @@ describe("CreateWorkoutExerciseUseCase", () => {
     };
     const exerciseRepository: WorkoutExerciseRepository = {
       create: vi.fn().mockResolvedValue(created),
-      findByDayId: vi.fn(),
+      findByDayId: vi.fn().mockResolvedValue([]),
       findByIdAndDayId: vi.fn(),
       update: vi.fn(),
       delete: vi.fn(),
@@ -57,7 +57,6 @@ describe("CreateWorkoutExerciseUseCase", () => {
       dayId: "day-1",
       userId: "user-1",
       name: "Supino",
-      order: 0,
       sets: 3,
       reps: 10,
       restTimeInSeconds: 60,
@@ -72,6 +71,96 @@ describe("CreateWorkoutExerciseUseCase", () => {
         sets: 3,
         reps: 10,
         restTimeInSeconds: 60,
+      }),
+    );
+  });
+
+  it("should create exercise with order last+1 when day has existing exercises (RF-011)", async () => {
+    const created: WorkoutExerciseResult = {
+      id: "ex-2",
+      name: "Remada",
+      order: 2,
+      workoutDayId: "day-1",
+      description: null,
+      sets: 3,
+      reps: 12,
+      weightKg: null,
+      restTimeInSeconds: 45,
+      notes: null,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    const planRepository: WorkoutPlanRepository = {
+      findByIdAndUserId: vi.fn().mockResolvedValue({ id: "plan-1" }),
+    } as unknown as WorkoutPlanRepository;
+    const dayRepository: WorkoutDayRepository = {
+      findById: vi.fn().mockResolvedValue({
+        id: "day-1",
+        workoutPlanId: "plan-1",
+      }),
+      create: vi.fn(),
+      findByPlanId: vi.fn(),
+      findByIdAndPlanId: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+    };
+    const exerciseRepository: WorkoutExerciseRepository = {
+      create: vi.fn().mockResolvedValue(created),
+      findByDayId: vi.fn().mockResolvedValue([
+        {
+          id: "ex-0",
+          order: 0,
+          name: "",
+          workoutDayId: "",
+          description: null,
+          sets: 0,
+          reps: 0,
+          weightKg: null,
+          restTimeInSeconds: 0,
+          notes: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: "ex-1",
+          order: 1,
+          name: "",
+          workoutDayId: "",
+          description: null,
+          sets: 0,
+          reps: 0,
+          weightKg: null,
+          restTimeInSeconds: 0,
+          notes: null,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ]),
+      findByIdAndDayId: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
+      reorder: vi.fn(),
+    };
+    const useCase = new CreateWorkoutExerciseUseCase(
+      planRepository,
+      dayRepository,
+      exerciseRepository,
+    );
+
+    await useCase.execute({
+      dayId: "day-1",
+      userId: "user-1",
+      name: "Remada",
+      order: 99,
+      sets: 3,
+      reps: 12,
+      restTimeInSeconds: 45,
+    });
+
+    expect(exerciseRepository.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: "Remada",
+        order: 2,
       }),
     );
   });
@@ -110,7 +199,6 @@ describe("CreateWorkoutExerciseUseCase", () => {
         dayId: "day-1",
         userId: "user-1",
         name: "Supino",
-        order: 0,
         sets: 3,
         reps: 10,
         restTimeInSeconds: 60,

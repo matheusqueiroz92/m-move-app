@@ -29,6 +29,8 @@ export interface PtStudentLinkRepository {
   create(input: CreatePtStudentLinkInput): Promise<PtStudentLinkResult>;
   findById(id: string): Promise<PtStudentLinkResult | null>;
   findByToken(token: string): Promise<PtStudentLinkResult | null>;
+  /** RN-012: Count active links for PT limit check */
+  countActiveByPersonalTrainerId(ptId: string): Promise<number>;
   findByPersonalTrainerId(ptId: string): Promise<PtStudentLinkResult[]>;
   findByPersonalTrainerIdPaginated(
     ptId: string,

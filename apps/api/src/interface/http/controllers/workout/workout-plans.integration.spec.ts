@@ -2,7 +2,10 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import app from "../../../../app.js";
 import { prisma } from "../../../../lib/db.js";
-import { createUserFixture } from "../../../../test/factories/user.factory.js";
+import {
+  createUserFixture,
+  toUserCreateData,
+} from "../../../../test/factories/user.factory.js";
 import {
   truncateTestDatabase,
   truncateUserTable,
@@ -80,14 +83,7 @@ describe("PATCH /api/workout-plans/:id (integration)", () => {
       role: "STUDENT",
     });
     await prisma.user.create({
-      data: {
-        id: fixture.id,
-        name: fixture.name,
-        email: fixture.email,
-        emailVerified: fixture.emailVerified,
-        role: fixture.role,
-        timezone: fixture.timezone,
-      },
+      data: toUserCreateData(fixture),
     });
     const plan = await prisma.workoutPlan.create({
       data: {
@@ -105,7 +101,11 @@ describe("PATCH /api/workout-plans/:id (integration)", () => {
     });
 
     expect(response.statusCode).toBe(200);
-    const body = response.json() as { id: string; name: string; description: string | null };
+    const body = response.json() as {
+      id: string;
+      name: string;
+      description: string | null;
+    };
     expect(body.name).toBe("Plano Atualizado");
     expect(body.description).toBe("Nova desc");
     expect(body.id).toBe(plan.id);
@@ -153,14 +153,7 @@ describe("PATCH /api/workout-plans/:id (integration)", () => {
       role: "STUDENT",
     });
     await prisma.user.create({
-      data: {
-        id: fixture.id,
-        name: fixture.name,
-        email: fixture.email,
-        emailVerified: fixture.emailVerified,
-        role: fixture.role,
-        timezone: fixture.timezone,
-      },
+      data: toUserCreateData(fixture),
     });
 
     const response = await app.inject({
@@ -198,14 +191,7 @@ describe("DELETE /api/workout-plans/:id (integration)", () => {
       role: "STUDENT",
     });
     await prisma.user.create({
-      data: {
-        id: fixture.id,
-        name: fixture.name,
-        email: fixture.email,
-        emailVerified: fixture.emailVerified,
-        role: fixture.role,
-        timezone: fixture.timezone,
-      },
+      data: toUserCreateData(fixture),
     });
     const plan = await prisma.workoutPlan.create({
       data: {
@@ -235,14 +221,7 @@ describe("DELETE /api/workout-plans/:id (integration)", () => {
       role: "STUDENT",
     });
     await prisma.user.create({
-      data: {
-        id: fixture.id,
-        name: fixture.name,
-        email: fixture.email,
-        emailVerified: fixture.emailVerified,
-        role: fixture.role,
-        timezone: fixture.timezone,
-      },
+      data: toUserCreateData(fixture),
     });
 
     const response = await app.inject({

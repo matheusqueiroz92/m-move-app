@@ -5,7 +5,7 @@ export async function createWorkoutExerciseHandler(
     Params: { dayId: string };
     Body: {
       name: string;
-      order: number;
+      order?: number;
       description?: string | null;
       sets: number;
       reps: number;

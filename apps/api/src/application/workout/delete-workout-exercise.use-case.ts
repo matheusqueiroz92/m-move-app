@@ -1,3 +1,4 @@
+import { CannotDeleteLastExerciseError } from "../../domain/workout/errors/cannot-delete-last-exercise.error.js";
 import { DayNotFoundError } from "../../domain/workout/errors/day-not-found.error.js";
 import { ExerciseNotFoundError } from "../../domain/workout/errors/exercise-not-found.error.js";
 import type { WorkoutDayRepository } from "../../domain/workout/repositories/workout-day.repository.js";
@@ -10,6 +11,7 @@ export interface DeleteWorkoutExerciseInput {
   userId: string;
 }
 
+/** RF-008: WorkoutDay must have at least one Exercise; cannot delete the last one */
 export class DeleteWorkoutExerciseUseCase {
   constructor(
     private readonly workoutPlanRepository: WorkoutPlanRepository,
@@ -19,6 +21,14 @@ export class DeleteWorkoutExerciseUseCase {
 
   async execute(input: DeleteWorkoutExerciseInput): Promise<void> {
     await this.verifyDayOwnership(input.dayId, input.userId);
+
+    const exercises = await this.workoutExerciseRepository.findByDayId(
+      input.dayId,
+    );
+    if (exercises.length <= 1) {
+      throw new CannotDeleteLastExerciseError(input.dayId);
+    }
+
     const deleted = await this.workoutExerciseRepository.delete(
       input.exerciseId,
       input.dayId,

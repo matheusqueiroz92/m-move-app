@@ -16,6 +16,7 @@
     "test:unit": "vitest run --exclude '**/*.integration.spec.ts'",
     "test:integration": "vitest run --config vitest.integration.config.ts",
     "test:coverage": "vitest run --coverage --config vitest.coverage.config.ts",
+    "test:coverage:unit": "vitest run --coverage --config vitest.coverage.config.ts --exclude '**/*.integration.spec.ts'",
     "db:test:migrate": "node scripts/migrate-test-db.mjs",
     "db:test:push": "node scripts/push-test-db.mjs"
   },

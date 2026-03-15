@@ -2,7 +2,10 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import app from "../../../../app.js";
 import { prisma } from "../../../../lib/db.js";
-import { createUserFixture } from "../../../../test/factories/user.factory.js";
+import {
+  createUserFixture,
+  toUserCreateData,
+} from "../../../../test/factories/user.factory.js";
 import {
   truncateTestDatabase,
   truncateUserTable,
@@ -40,14 +43,7 @@ describe("GET /api/workout-plans/:planId/days (integration)", () => {
       role: "STUDENT",
     });
     await prisma.user.create({
-      data: {
-        id: fixture.id,
-        name: fixture.name,
-        email: fixture.email,
-        emailVerified: fixture.emailVerified,
-        role: fixture.role,
-        timezone: fixture.timezone,
-      },
+      data: toUserCreateData(fixture),
     });
     const plan = await prisma.workoutPlan.create({
       data: {
@@ -90,14 +86,7 @@ describe("GET /api/workout-plans/:planId/days (integration)", () => {
       role: "STUDENT",
     });
     await prisma.user.create({
-      data: {
-        id: fixture.id,
-        name: fixture.name,
-        email: fixture.email,
-        emailVerified: fixture.emailVerified,
-        role: fixture.role,
-        timezone: fixture.timezone,
-      },
+      data: toUserCreateData(fixture),
     });
 
     const response = await app.inject({
@@ -135,14 +124,7 @@ describe("POST /api/workout-plans/:planId/days (integration)", () => {
       role: "STUDENT",
     });
     await prisma.user.create({
-      data: {
-        id: fixture.id,
-        name: fixture.name,
-        email: fixture.email,
-        emailVerified: fixture.emailVerified,
-        role: fixture.role,
-        timezone: fixture.timezone,
-      },
+      data: toUserCreateData(fixture),
     });
     const plan = await prisma.workoutPlan.create({
       data: {
@@ -192,24 +174,7 @@ describe("POST /api/workout-plans/:planId/days (integration)", () => {
       role: "STUDENT",
     });
     await prisma.user.createMany({
-      data: [
-        {
-          id: owner.id,
-          name: owner.name,
-          email: owner.email,
-          emailVerified: owner.emailVerified,
-          role: owner.role,
-          timezone: owner.timezone,
-        },
-        {
-          id: other.id,
-          name: other.name,
-          email: other.email,
-          emailVerified: other.emailVerified,
-          role: other.role,
-          timezone: other.timezone,
-        },
-      ],
+      data: [toUserCreateData(owner), toUserCreateData(other)],
     });
     const plan = await prisma.workoutPlan.create({
       data: { name: "Plano Owner", userId: owner.id, createdBy: owner.id },
@@ -241,14 +206,7 @@ describe("PATCH /api/workout-plans/:planId/days/:dayId (integration)", () => {
       role: "STUDENT",
     });
     await prisma.user.create({
-      data: {
-        id: fixture.id,
-        name: fixture.name,
-        email: fixture.email,
-        emailVerified: fixture.emailVerified,
-        role: fixture.role,
-        timezone: fixture.timezone,
-      },
+      data: toUserCreateData(fixture),
     });
     const plan = await prisma.workoutPlan.create({
       data: { name: "Plano", userId: fixture.id, createdBy: fixture.id },
@@ -282,14 +240,7 @@ describe("PATCH /api/workout-plans/:planId/days/:dayId (integration)", () => {
       role: "STUDENT",
     });
     await prisma.user.create({
-      data: {
-        id: fixture.id,
-        name: fixture.name,
-        email: fixture.email,
-        emailVerified: fixture.emailVerified,
-        role: fixture.role,
-        timezone: fixture.timezone,
-      },
+      data: toUserCreateData(fixture),
     });
     const plan = await prisma.workoutPlan.create({
       data: { name: "Plano", userId: fixture.id, createdBy: fixture.id },
@@ -321,36 +272,37 @@ describe("DELETE /api/workout-plans/:planId/days/:dayId (integration)", () => {
       role: "STUDENT",
     });
     await prisma.user.create({
-      data: {
-        id: fixture.id,
-        name: fixture.name,
-        email: fixture.email,
-        emailVerified: fixture.emailVerified,
-        role: fixture.role,
-        timezone: fixture.timezone,
-      },
+      data: toUserCreateData(fixture),
     });
     const plan = await prisma.workoutPlan.create({
       data: { name: "Plano", userId: fixture.id, createdBy: fixture.id },
     });
-    const day = await prisma.workoutDay.create({
+    const dayToRemove = await prisma.workoutDay.create({
       data: {
-        name: "Dia",
+        name: "Dia A",
         workoutPlanId: plan.id,
         weekDay: "MONDAY",
+        isRest: false,
+      },
+    });
+    await prisma.workoutDay.create({
+      data: {
+        name: "Dia B",
+        workoutPlanId: plan.id,
+        weekDay: "WEDNESDAY",
         isRest: false,
       },
     });
 
     const response = await app.inject({
       method: "DELETE",
-      url: `/api/workout-plans/${plan.id}/days/${day.id}`,
+      url: `/api/workout-plans/${plan.id}/days/${dayToRemove.id}`,
       headers: { "X-Test-User-Id": fixture.id },
     });
 
     expect(response.statusCode).toBe(204);
     const stillExists = await prisma.workoutDay.findUnique({
-      where: { id: day.id },
+      where: { id: dayToRemove.id },
     });
     expect(stillExists).toBeNull();
   });
@@ -362,22 +314,32 @@ describe("DELETE /api/workout-plans/:planId/days/:dayId (integration)", () => {
       role: "STUDENT",
     });
     await prisma.user.create({
-      data: {
-        id: fixture.id,
-        name: fixture.name,
-        email: fixture.email,
-        emailVerified: fixture.emailVerified,
-        role: fixture.role,
-        timezone: fixture.timezone,
-      },
+      data: toUserCreateData(fixture),
     });
     const plan = await prisma.workoutPlan.create({
       data: { name: "Plano", userId: fixture.id, createdBy: fixture.id },
     });
+    await prisma.workoutDay.create({
+      data: {
+        name: "Dia A",
+        workoutPlanId: plan.id,
+        weekDay: "MONDAY",
+        isRest: false,
+      },
+    });
+    await prisma.workoutDay.create({
+      data: {
+        name: "Dia B",
+        workoutPlanId: plan.id,
+        weekDay: "WEDNESDAY",
+        isRest: false,
+      },
+    });
+    const nonExistentDayId = "00000000-0000-0000-0000-000000000000";
 
     const response = await app.inject({
       method: "DELETE",
-      url: `/api/workout-plans/${plan.id}/days/00000000-0000-0000-0000-000000000000`,
+      url: `/api/workout-plans/${plan.id}/days/${nonExistentDayId}`,
       headers: { "X-Test-User-Id": fixture.id },
     });
 

@@ -30,6 +30,7 @@ describe("ListPtInvitesUseCase", () => {
       create: vi.fn(),
       findById: vi.fn(),
       findByToken: vi.fn(),
+      countActiveByPersonalTrainerId: vi.fn(),
       findByPersonalTrainerId: vi.fn(),
       findByPersonalTrainerIdPaginated,
       updateStatus: vi.fn(),
@@ -54,6 +55,7 @@ describe("ListPtInvitesUseCase", () => {
       create: vi.fn(),
       findById: vi.fn(),
       findByToken: vi.fn(),
+      countActiveByPersonalTrainerId: vi.fn(),
       findByPersonalTrainerId: vi.fn(),
       findByPersonalTrainerIdPaginated: vi.fn().mockResolvedValue({
         items: [],

@@ -1,3 +1,5 @@
+import { StudentLimitReachedError } from "../../domain/gym/errors/student-limit-reached.error.js";
+import type { GymRepository } from "../../domain/gym/repositories/gym.repository.js";
 import type {
   GymStudentLinkRepository,
   GymStudentLinkResult,
@@ -10,8 +12,12 @@ export interface AcceptGymInviteInput {
   studentId: string;
 }
 
+/** RN-012: Reject accept when gym has reached maxStudents */
 export class AcceptGymInviteUseCase {
-  constructor(private readonly repository: GymStudentLinkRepository) {}
+  constructor(
+    private readonly repository: GymStudentLinkRepository,
+    private readonly gymRepository: GymRepository,
+  ) {}
 
   async execute(input: AcceptGymInviteInput): Promise<GymStudentLinkResult> {
     const link = await this.repository.findByToken(input.token);
@@ -23,6 +29,14 @@ export class AcceptGymInviteUseCase {
     }
     if (link.status !== "PENDING") {
       throw new InviteAlreadyUsedError(input.token);
+    }
+
+    const gym = await this.gymRepository.findById(link.gymId);
+    if (gym) {
+      const activeCount = await this.repository.countActiveByGymId(link.gymId);
+      if (activeCount >= gym.maxStudents) {
+        throw new StudentLimitReachedError(link.gymId, gym.maxStudents);
+      }
     }
 
     const updated = await this.repository.updateStatus(

@@ -35,7 +35,8 @@ export class PrismaWorkoutPlanRepository implements WorkoutPlanRepository {
             name: d.name,
             isRest: d.isRest,
             weekDay: d.weekDay as WeekDay,
-            estimatedDurationInSeconds: d.estimatedDurationInSeconds ?? undefined,
+            estimatedDurationInSeconds:
+              d.estimatedDurationInSeconds ?? undefined,
             exercises: {
               create: d.exercises.map((e) => ({
                 name: e.name,
@@ -157,6 +158,16 @@ export class PrismaWorkoutPlanRepository implements WorkoutPlanRepository {
     return toWorkoutPlanResult(updated);
   }
 
+  async reassignCreatedBy(
+    previousCreatorUserId: string,
+    newCreatorUserId: string,
+  ): Promise<void> {
+    await prisma.workoutPlan.updateMany({
+      where: { createdBy: previousCreatorUserId },
+      data: { createdBy: newCreatorUserId },
+    });
+  }
+
   async update(
     planId: string,
     userId: string,
@@ -170,7 +181,9 @@ export class PrismaWorkoutPlanRepository implements WorkoutPlanRepository {
       where: { id: planId },
       data: {
         ...(data.name !== undefined && { name: data.name }),
-        ...(data.description !== undefined && { description: data.description }),
+        ...(data.description !== undefined && {
+          description: data.description,
+        }),
       },
     });
     return toWorkoutPlanResult(updated);

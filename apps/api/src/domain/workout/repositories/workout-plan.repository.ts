@@ -62,11 +62,26 @@ export interface WorkoutPlanRepository {
     userId: string,
     options: { limit: number; offset: number },
   ): Promise<PaginatedResult<WorkoutPlanResult>>;
-  findByIdAndUserId(planId: string, userId: string): Promise<WorkoutPlanResult | null>;
+  findByIdAndUserId(
+    planId: string,
+    userId: string,
+  ): Promise<WorkoutPlanResult | null>;
   deactivateAllByUserId(userId: string): Promise<void>;
-  updateIsActive(planId: string, userId: string, isActive: boolean): Promise<WorkoutPlanResult | null>;
+  updateIsActive(
+    planId: string,
+    userId: string,
+    isActive: boolean,
+  ): Promise<WorkoutPlanResult | null>;
   /** Desativa todos os planos do usuário e ativa o planId em uma transação atômica. */
-  activatePlanForUser(planId: string, userId: string): Promise<WorkoutPlanResult | null>;
+  activatePlanForUser(
+    planId: string,
+    userId: string,
+  ): Promise<WorkoutPlanResult | null>;
+  /** RN-17: Reassign all plans created by previousCreator to newCreator (e.g. owner when instructor removed) */
+  reassignCreatedBy(
+    previousCreatorUserId: string,
+    newCreatorUserId: string,
+  ): Promise<void>;
   update(
     planId: string,
     userId: string,

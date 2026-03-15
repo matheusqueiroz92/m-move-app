@@ -51,12 +51,11 @@ export function createErrorHandler(
     const message = err?.message ?? "";
 
     if (err.code === "FST_ERR_VALIDATION") {
-      return reply.status(400).send(
-        withRequestId(
-          { message: message || "Validation error" },
-          requestId,
-        ),
-      );
+      return reply
+        .status(400)
+        .send(
+          withRequestId({ message: message || "Validation error" }, requestId),
+        );
     }
 
     if (name && (NOT_FOUND_ERROR_NAMES as readonly string[]).includes(name)) {
@@ -74,13 +73,16 @@ export function createErrorHandler(
       name === "InviteExpiredError" ||
       name === "InviteAlreadyUsedError" ||
       name === "SessionNotStartedError" ||
-      /expired|already used|revoked|not started/i.test(message)
+      name === "PlanMustHaveAtLeastOneDayError" ||
+      name === "CannotDeleteLastDayError" ||
+      name === "CannotDeleteLastExerciseError" ||
+      /expired|already used|revoked|not started|at least one day|last day|last exercise/i.test(
+        message,
+      )
     ) {
       return reply
         .status(400)
-        .send(
-          withRequestId({ message: message || "Bad request" }, requestId),
-        );
+        .send(withRequestId({ message: message || "Bad request" }, requestId));
     }
     if (
       message === "Invalid signature" ||
@@ -88,13 +90,13 @@ export function createErrorHandler(
     ) {
       return reply
         .status(400)
-        .send(
-          withRequestId({ message: message || "Bad request" }, requestId),
-        );
+        .send(withRequestId({ message: message || "Bad request" }, requestId));
     }
 
     if (
       name === "InstructorLimitReachedError" ||
+      name === "StudentLimitReachedError" ||
+      name === "PtStudentLimitReachedError" ||
       /limit reached/i.test(message)
     ) {
       return reply
@@ -103,23 +105,25 @@ export function createErrorHandler(
     }
 
     if (message.includes("OPENAI_API_KEY") || message.includes("STRIPE_")) {
-      return reply.status(503).send(
-        withRequestId(
-          { message: message || "Service unavailable" },
-          requestId,
-        ),
-      );
+      return reply
+        .status(503)
+        .send(
+          withRequestId(
+            { message: message || "Service unavailable" },
+            requestId,
+          ),
+        );
     }
 
     if (name === "AppError" && typeof err.statusCode === "number") {
-      return reply.status(err.statusCode).send(
-        withRequestId({ message: message }, requestId),
-      );
+      return reply
+        .status(err.statusCode)
+        .send(withRequestId({ message: message }, requestId));
     }
 
     log(error, request);
-    return reply.status(500).send(
-      withRequestId({ message: "Internal server error" }, requestId),
-    );
+    return reply
+      .status(500)
+      .send(withRequestId({ message: "Internal server error" }, requestId));
   };
 }

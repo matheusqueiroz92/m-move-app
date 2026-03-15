@@ -9,10 +9,7 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   test: {
     environment: "node",
-    include: [
-      "src/**/*.spec.ts",
-      "src/**/*.integration.spec.ts",
-    ],
+    include: ["src/**/*.spec.ts", "src/**/*.integration.spec.ts"],
     exclude: ["node_modules", "dist", "**/generated/**"],
     setupFiles: ["./src/test/setup.ts"],
     passWithNoTests: true,
@@ -34,6 +31,12 @@ export default defineConfig({
         "**/generated/**",
         "**/test/**",
       ],
+      thresholds: {
+        lines: 40,
+        functions: 40,
+        branches: 25,
+        statements: 40,
+      },
     },
   },
 } satisfies UserConfig);

@@ -30,6 +30,7 @@ describe("GetWorkoutPlanByIdUseCase", () => {
       deactivateAllByUserId: vi.fn(),
       updateIsActive: vi.fn(),
       activatePlanForUser: vi.fn(),
+      reassignCreatedBy: vi.fn(),
       update: vi.fn(),
       delete: vi.fn(),
     };
@@ -55,6 +56,7 @@ describe("GetWorkoutPlanByIdUseCase", () => {
       deactivateAllByUserId: vi.fn(),
       updateIsActive: vi.fn(),
       activatePlanForUser: vi.fn(),
+      reassignCreatedBy: vi.fn(),
       update: vi.fn(),
       delete: vi.fn(),
     };
