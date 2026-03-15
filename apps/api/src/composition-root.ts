@@ -220,7 +220,13 @@ const sendChatMessage = new SendChatMessageUseCase(
 );
 const getUserInsights = new GetUserInsightsUseCase(openAIPlanProvider);
 
-export { aiChatMessageRepository, userRepository };
+export {
+  aiChatMessageRepository,
+  gymInstructorRepository,
+  gymRepository,
+  gymStudentLinkRepository,
+  userRepository,
+};
 
 export const useCases = {
   createWorkoutPlan,

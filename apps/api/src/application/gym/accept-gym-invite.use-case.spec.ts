@@ -31,6 +31,7 @@ describe("AcceptGymInviteUseCase", () => {
     };
     const repository: GymStudentLinkRepository = {
       findByToken: vi.fn().mockResolvedValue(link),
+      hasActiveStudentInGym: vi.fn(),
       updateStatus: vi.fn().mockResolvedValue(updated),
     };
     const useCase = new AcceptGymInviteUseCase(repository);
@@ -54,6 +55,7 @@ describe("AcceptGymInviteUseCase", () => {
   it("should throw InviteExpiredError when link not found", async () => {
     const repository: GymStudentLinkRepository = {
       findByToken: vi.fn().mockResolvedValue(null),
+      hasActiveStudentInGym: vi.fn(),
       updateStatus: vi.fn(),
     };
     const useCase = new AcceptGymInviteUseCase(repository);
@@ -80,6 +82,7 @@ describe("AcceptGymInviteUseCase", () => {
     };
     const repository: GymStudentLinkRepository = {
       findByToken: vi.fn().mockResolvedValue(link),
+      hasActiveStudentInGym: vi.fn(),
       updateStatus: vi.fn(),
     };
     const useCase = new AcceptGymInviteUseCase(repository);
@@ -106,6 +109,7 @@ describe("AcceptGymInviteUseCase", () => {
     };
     const repository: GymStudentLinkRepository = {
       findByToken: vi.fn().mockResolvedValue(link),
+      hasActiveStudentInGym: vi.fn(),
       updateStatus: vi.fn(),
     };
     const useCase = new AcceptGymInviteUseCase(repository);

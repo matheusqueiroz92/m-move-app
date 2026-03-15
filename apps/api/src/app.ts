@@ -17,6 +17,9 @@ import { z } from "zod";
 
 import {
   aiChatMessageRepository,
+  gymInstructorRepository,
+  gymRepository,
+  gymStudentLinkRepository,
   useCases,
   userRepository,
 } from "./composition-root.js";
@@ -159,6 +162,9 @@ app.withTypeProvider<ZodTypeProvider>().route({
 app.decorate("useCases", useCases);
 app.decorate("userRepository", userRepository);
 app.decorate("aiChatMessageRepository", aiChatMessageRepository);
+app.decorate("gymRepository", gymRepository);
+app.decorate("gymInstructorRepository", gymInstructorRepository);
+app.decorate("gymStudentLinkRepository", gymStudentLinkRepository);
 
 app.addHook("onClose", async () => {
   await prisma.$disconnect();

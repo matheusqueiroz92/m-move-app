@@ -32,6 +32,7 @@ describe("InviteInstructorUseCase", () => {
     };
     const instructorRepository: GymInstructorRepository = {
       create: vi.fn().mockResolvedValue(created),
+      findActiveGymIdByInstructorId: vi.fn(),
       findById: vi.fn(),
       findByGymId: vi.fn(),
       findByGymIdPaginated: vi.fn(),
@@ -69,6 +70,7 @@ describe("InviteInstructorUseCase", () => {
     };
     const instructorRepository: GymInstructorRepository = {
       create: vi.fn(),
+      findActiveGymIdByInstructorId: vi.fn(),
       findById: vi.fn(),
       findByGymId: vi.fn(),
       findByGymIdPaginated: vi.fn(),
@@ -104,6 +106,7 @@ describe("InviteInstructorUseCase", () => {
     };
     const instructorRepository: GymInstructorRepository = {
       create: vi.fn(),
+      findActiveGymIdByInstructorId: vi.fn(),
       findById: vi.fn(),
       findByGymId: vi.fn(),
       findByGymIdPaginated: vi.fn(),

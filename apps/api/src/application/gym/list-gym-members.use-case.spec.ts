@@ -36,6 +36,7 @@ describe("ListGymMembersUseCase", () => {
     });
     const instructorRepository: GymInstructorRepository = {
       create: vi.fn(),
+      findActiveGymIdByInstructorId: vi.fn(),
       findById: vi.fn(),
       findByGymId: vi.fn(),
       findByGymIdPaginated,
@@ -70,6 +71,7 @@ describe("ListGymMembersUseCase", () => {
     };
     const instructorRepository: GymInstructorRepository = {
       create: vi.fn(),
+      findActiveGymIdByInstructorId: vi.fn(),
       findById: vi.fn(),
       findByGymId: vi.fn(),
       findByGymIdPaginated: vi.fn(),
@@ -103,6 +105,7 @@ describe("ListGymMembersUseCase", () => {
     };
     const instructorRepository: GymInstructorRepository = {
       create: vi.fn(),
+      findActiveGymIdByInstructorId: vi.fn(),
       findById: vi.fn(),
       findByGymId: vi.fn(),
       findByGymIdPaginated: vi.fn(),

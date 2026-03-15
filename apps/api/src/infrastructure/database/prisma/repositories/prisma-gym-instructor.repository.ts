@@ -7,6 +7,19 @@ import { prisma } from "../../../../lib/db.js";
 import { toGymInstructorResult } from "../mappers/gym-instructor.mapper.js";
 
 export class PrismaGymInstructorRepository implements GymInstructorRepository {
+  async findActiveGymIdByInstructorId(
+    instructorId: string,
+  ): Promise<string | null> {
+    const link = await prisma.gymInstructor.findFirst({
+      where: {
+        instructorId,
+        status: "ACTIVE",
+      },
+      select: { gymId: true },
+    });
+    return link?.gymId ?? null;
+  }
+
   async create(input: CreateGymInstructorInput): Promise<GymInstructorResult> {
     const link = await prisma.gymInstructor.create({
       data: {

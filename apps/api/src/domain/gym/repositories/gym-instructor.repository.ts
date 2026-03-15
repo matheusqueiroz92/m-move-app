@@ -25,6 +25,8 @@ export interface PaginatedResult<T> {
 
 export interface GymInstructorRepository {
   create(input: CreateGymInstructorInput): Promise<GymInstructorResult>;
+  /** Get gymId for an active instructor link (RF-002f) */
+  findActiveGymIdByInstructorId(instructorId: string): Promise<string | null>;
   findById(id: string): Promise<GymInstructorResult | null>;
   findByGymId(gymId: string): Promise<GymInstructorResult[]>;
   findByGymIdPaginated(

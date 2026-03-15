@@ -8,6 +8,20 @@ import { toGymStudentLinkResult } from "../mappers/gym-student-link.mapper.js";
 export class PrismaGymStudentLinkRepository
   implements GymStudentLinkRepository
 {
+  async hasActiveStudentInGym(
+    gymId: string,
+    studentId: string,
+  ): Promise<boolean> {
+    const count = await prisma.gymStudentLink.count({
+      where: {
+        gymId,
+        studentId,
+        status: "ACTIVE",
+      },
+    });
+    return count > 0;
+  }
+
   async findByToken(token: string): Promise<GymStudentLinkResult | null> {
     const link = await prisma.gymStudentLink.findUnique({
       where: { inviteToken: token },
