@@ -1,3 +1,4 @@
+import type { UserRepository } from "../../domain/user/repositories/user.repository.js";
 import type {
   WorkoutPlanRepository,
   WorkoutPlanResult,
@@ -17,14 +18,25 @@ export interface ListWorkoutPlansResult {
 }
 
 export class ListWorkoutPlansUseCase {
-  constructor(private readonly workoutPlanRepository: WorkoutPlanRepository) {}
+  constructor(
+    private readonly workoutPlanRepository: WorkoutPlanRepository,
+    private readonly userRepository: UserRepository,
+  ) {}
 
   async execute(input: ListWorkoutPlansInput): Promise<ListWorkoutPlansResult> {
-    const { items, total } =
-      await this.workoutPlanRepository.findByUserIdPaginated(input.userId, {
-        limit: input.limit,
-        offset: input.offset,
-      });
+    const user = await this.userRepository.findById(input.userId);
+    const isLinkedStudent = user?.role === "LINKED_STUDENT";
+
+    const { items, total } = isLinkedStudent
+      ? await this.workoutPlanRepository.findAssignedPlansByUserIdPaginated(
+          input.userId,
+          { limit: input.limit, offset: input.offset },
+        )
+      : await this.workoutPlanRepository.findByUserIdPaginated(input.userId, {
+          limit: input.limit,
+          offset: input.offset,
+        });
+
     return {
       items,
       total,

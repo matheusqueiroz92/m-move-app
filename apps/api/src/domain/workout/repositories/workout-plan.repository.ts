@@ -57,6 +57,11 @@ export interface WorkoutPlanRepository {
     userId: string,
     options: { limit: number; offset: number },
   ): Promise<PaginatedResult<WorkoutPlanResult>>;
+  /** Plans assigned to user (createdBy is not null). Used for LINKED_STUDENT (RF-018). */
+  findAssignedPlansByUserIdPaginated(
+    userId: string,
+    options: { limit: number; offset: number },
+  ): Promise<PaginatedResult<WorkoutPlanResult>>;
   findByIdAndUserId(planId: string, userId: string): Promise<WorkoutPlanResult | null>;
   deactivateAllByUserId(userId: string): Promise<void>;
   updateIsActive(planId: string, userId: string, isActive: boolean): Promise<WorkoutPlanResult | null>;

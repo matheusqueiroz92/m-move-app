@@ -87,7 +87,10 @@ const openAIPlanProvider = new OpenAIPlanProviderImpl();
 
 // Use cases
 const createWorkoutPlan = new CreateWorkoutPlanUseCase(workoutPlanRepository);
-const listWorkoutPlans = new ListWorkoutPlansUseCase(workoutPlanRepository);
+const listWorkoutPlans = new ListWorkoutPlansUseCase(
+  workoutPlanRepository,
+  userRepository,
+);
 const getWorkoutPlanById = new GetWorkoutPlanByIdUseCase(workoutPlanRepository);
 const updateWorkoutPlan = new UpdateWorkoutPlanUseCase(workoutPlanRepository);
 const deleteWorkoutPlan = new DeleteWorkoutPlanUseCase(workoutPlanRepository);

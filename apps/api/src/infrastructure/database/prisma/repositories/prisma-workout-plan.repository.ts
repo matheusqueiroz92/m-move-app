@@ -81,6 +81,27 @@ export class PrismaWorkoutPlanRepository implements WorkoutPlanRepository {
     };
   }
 
+  async findAssignedPlansByUserIdPaginated(
+    userId: string,
+    options: { limit: number; offset: number },
+  ) {
+    const [items, total] = await Promise.all([
+      prisma.workoutPlan.findMany({
+        where: { userId, createdBy: { not: null } },
+        orderBy: { createdAt: "desc" },
+        take: options.limit,
+        skip: options.offset,
+      }),
+      prisma.workoutPlan.count({
+        where: { userId, createdBy: { not: null } },
+      }),
+    ]);
+    return {
+      items: items.map(toWorkoutPlanResult),
+      total,
+    };
+  }
+
   async findByIdAndUserId(
     planId: string,
     userId: string,
