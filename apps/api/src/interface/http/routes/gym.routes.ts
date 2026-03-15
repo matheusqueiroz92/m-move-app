@@ -22,6 +22,7 @@ import { removeInstructorHandler } from "../controllers/gym/remove-instructor.co
 import { updateGymHandler } from "../controllers/gym/update-gym.controller.js";
 import { authenticate } from "../middlewares/authenticate.js";
 import { requireRole } from "../middlewares/authorize.js";
+import { requireActivePlan } from "../middlewares/require-active-plan.js";
 
 export async function gymRoutes(app: FastifyInstance): Promise<void> {
   const typed = app.withTypeProvider<ZodTypeProvider>();
@@ -38,7 +39,7 @@ export async function gymRoutes(app: FastifyInstance): Promise<void> {
   });
 
   typed.post("/", {
-    preHandler: [authenticate, requireRole(["OWNER"])],
+    preHandler: [authenticate, requireActivePlan, requireRole(["OWNER"])],
     schema: {
       description: "Create a gym (OWNER only)",
       body: createGymBodySchema,
@@ -50,7 +51,7 @@ export async function gymRoutes(app: FastifyInstance): Promise<void> {
   });
 
   typed.get("/:id/members", {
-    preHandler: [authenticate],
+    preHandler: [authenticate, requireActivePlan],
     schema: {
       description:
         "List gym members (instructor links). OWNER of the gym only. (paginated)",
@@ -64,7 +65,7 @@ export async function gymRoutes(app: FastifyInstance): Promise<void> {
   });
 
   typed.get("/:id", {
-    preHandler: [authenticate],
+    preHandler: [authenticate, requireActivePlan],
     schema: {
       description: "Get a gym by id",
       params: z.object({ id: z.string().uuid() }),
@@ -76,7 +77,7 @@ export async function gymRoutes(app: FastifyInstance): Promise<void> {
   });
 
   typed.patch("/:id", {
-    preHandler: [authenticate, requireRole(["OWNER"])],
+    preHandler: [authenticate, requireActivePlan, requireRole(["OWNER"])],
     schema: {
       description: "Update a gym (OWNER only)",
       params: z.object({ id: z.string().uuid() }),
@@ -89,7 +90,7 @@ export async function gymRoutes(app: FastifyInstance): Promise<void> {
   });
 
   typed.post("/members", {
-    preHandler: [authenticate, requireRole(["OWNER"])],
+    preHandler: [authenticate, requireActivePlan, requireRole(["OWNER"])],
     schema: {
       description: "Invite an instructor to a gym (OWNER only)",
       body: inviteInstructorBodySchema.extend({
@@ -103,7 +104,7 @@ export async function gymRoutes(app: FastifyInstance): Promise<void> {
   });
 
   typed.delete("/members/:id", {
-    preHandler: [authenticate, requireRole(["OWNER"])],
+    preHandler: [authenticate, requireActivePlan, requireRole(["OWNER"])],
     schema: {
       description: "Remove an instructor link (OWNER only)",
       params: z.object({ id: z.string().uuid() }),

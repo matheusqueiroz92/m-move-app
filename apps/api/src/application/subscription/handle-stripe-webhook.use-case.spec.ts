@@ -29,6 +29,7 @@ describe("HandleStripeWebhookUseCase", () => {
     const userRepository: UserRepository = {
       findById: vi.fn(),
       findByIdWithPlanAndTimezone: vi.fn(),
+      findByIdWithSubscription: vi.fn(),
       getStripeCustomerId: vi.fn(),
       updateSubscriptionFields: vi.fn(),
     };
@@ -113,6 +114,7 @@ describe("HandleStripeWebhookUseCase", () => {
     const userRepository: UserRepository = {
       findById: vi.fn(),
       findByIdWithPlanAndTimezone: vi.fn(),
+      findByIdWithSubscription: vi.fn(),
       getStripeCustomerId: vi.fn(),
       updateSubscriptionFields: vi.fn(),
     };

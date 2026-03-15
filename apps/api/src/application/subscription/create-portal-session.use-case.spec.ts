@@ -9,6 +9,7 @@ describe("CreatePortalSessionUseCase", () => {
     const userRepository: UserRepository = {
       findById: vi.fn(),
       findByIdWithPlanAndTimezone: vi.fn(),
+      findByIdWithSubscription: vi.fn(),
       getStripeCustomerId: vi.fn().mockResolvedValue("cus_123"),
       updateSubscriptionFields: vi.fn(),
     };
@@ -42,6 +43,7 @@ describe("CreatePortalSessionUseCase", () => {
     const userRepository: UserRepository = {
       findById: vi.fn(),
       findByIdWithPlanAndTimezone: vi.fn(),
+      findByIdWithSubscription: vi.fn(),
       getStripeCustomerId: vi.fn().mockResolvedValue(null),
       updateSubscriptionFields: vi.fn(),
     };

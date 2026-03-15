@@ -25,6 +25,7 @@ const workoutPlanRepositoryMock = (overrides: Partial<WorkoutPlanRepository> = {
 const userRepositoryMock = (overrides: Partial<UserRepository> = {}): UserRepository => ({
   findById: vi.fn(),
   findByIdWithPlanAndTimezone: vi.fn(),
+  findByIdWithSubscription: vi.fn(),
   getStripeCustomerId: vi.fn(),
   updateSubscriptionFields: vi.fn(),
   ...overrides,

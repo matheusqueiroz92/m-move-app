@@ -203,6 +203,7 @@ Os testes de integração de `GET /api/users/me` (200 e 404) dependem das tabela
 - **Helmet**: headers de segurança (X-Frame-Options, X-Content-Type-Options, etc.)
 - **Rate limit**: 100 requisições/minuto global; rate limit específico para AI Chat por plano
 - **RBAC**: rotas protegidas por `requireRole`; `LINKED_STUDENT` não pode criar/editar/deletar planos (middleware `requireNotLinkedStudent` nas rotas de workout) e lista apenas planos atribuídos; rotas de IA bloqueiam `LINKED_STUDENT`
+- **RF-004 (plano ativo)**: middleware `requireActivePlan` nas rotas que exigem assinatura ativa (workout, sessions, assessments, AI, gym, pt-invites). Permite acesso com `subscriptionStatus` ACTIVE ou TRIALING, ou para papéis LINKED_STUDENT/INSTRUCTOR (acesso via plano do PT/academia). Rotas de checkout, portal, status e accept-invite não exigem plano ativo.
 - **Erros**: todas as respostas de erro incluem `requestId` para rastreamento
 
 A documentação detalhada (schemas, exemplos) está em **/docs** (Swagger/Scalar) com a API rodando.

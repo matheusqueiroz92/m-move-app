@@ -15,12 +15,13 @@ import { revokePtInviteHandler } from "../controllers/pt-invite/revoke-pt-invite
 import { sendPtInviteHandler } from "../controllers/pt-invite/send-pt-invite.controller.js";
 import { authenticate } from "../middlewares/authenticate.js";
 import { requireRole } from "../middlewares/authorize.js";
+import { requireActivePlan } from "../middlewares/require-active-plan.js";
 
 export async function ptInvitesRoutes(app: FastifyInstance): Promise<void> {
   const typed = app.withTypeProvider<ZodTypeProvider>();
 
   typed.post("/", {
-    preHandler: [authenticate, requireRole(["PERSONAL_TRAINER"])],
+    preHandler: [authenticate, requireActivePlan, requireRole(["PERSONAL_TRAINER"])],
     schema: {
       description: "Send invite to student (PERSONAL_TRAINER only)",
       body: sendPtInviteBodySchema,
@@ -30,7 +31,7 @@ export async function ptInvitesRoutes(app: FastifyInstance): Promise<void> {
   });
 
   typed.get("/", {
-    preHandler: [authenticate, requireRole(["PERSONAL_TRAINER"])],
+    preHandler: [authenticate, requireActivePlan, requireRole(["PERSONAL_TRAINER"])],
     schema: {
       description: "List PT invites (PERSONAL_TRAINER only) (paginated)",
       querystring: paginationQuerystringSchema,
@@ -50,7 +51,7 @@ export async function ptInvitesRoutes(app: FastifyInstance): Promise<void> {
   });
 
   typed.delete("/:id", {
-    preHandler: [authenticate, requireRole(["PERSONAL_TRAINER"])],
+    preHandler: [authenticate, requireActivePlan, requireRole(["PERSONAL_TRAINER"])],
     schema: {
       description: "Revoke invite (PERSONAL_TRAINER only, own invites)",
       params: z.object({ id: z.string().uuid() }),

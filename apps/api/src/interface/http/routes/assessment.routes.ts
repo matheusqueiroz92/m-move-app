@@ -13,12 +13,13 @@ import { getHistoryPhysicalAssessmentsHandler } from "../controllers/assessment/
 import { getPhysicalAssessmentByIdHandler } from "../controllers/assessment/get-physical-assessment-by-id.controller.js";
 import { listPhysicalAssessmentsHandler } from "../controllers/assessment/list-physical-assessments.controller.js";
 import { authenticate } from "../middlewares/authenticate.js";
+import { requireActivePlan } from "../middlewares/require-active-plan.js";
 
 export async function assessmentRoutes(app: FastifyInstance): Promise<void> {
   const typed = app.withTypeProvider<ZodTypeProvider>();
 
   typed.get("/", {
-    preHandler: [authenticate],
+    preHandler: [authenticate, requireActivePlan],
     schema: {
       description:
         "List physical assessments of the authenticated user (paginated)",
@@ -31,7 +32,7 @@ export async function assessmentRoutes(app: FastifyInstance): Promise<void> {
   });
 
   typed.post("/", {
-    preHandler: [authenticate],
+    preHandler: [authenticate, requireActivePlan],
     schema: {
       description: "Create a physical assessment (for self or, if PT, for a student)",
       body: createPhysicalAssessmentBodySchema,
@@ -43,7 +44,7 @@ export async function assessmentRoutes(app: FastifyInstance): Promise<void> {
   });
 
   typed.get("/:id", {
-    preHandler: [authenticate],
+    preHandler: [authenticate, requireActivePlan],
     schema: {
       description: "Get a physical assessment by id (must be owner or assessor)",
       params: z.object({ id: z.string().uuid() }),
@@ -61,7 +62,7 @@ export async function assessmentHistoryRoutes(
   const typed = app.withTypeProvider<ZodTypeProvider>();
 
   typed.get("/:userId", {
-    preHandler: [authenticate],
+    preHandler: [authenticate, requireActivePlan],
     schema: {
       description:
         "List physical assessments history for a user (own userId only) (paginated)",

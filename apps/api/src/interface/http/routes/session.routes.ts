@@ -13,12 +13,13 @@ import { getSessionHistoryHandler } from "../controllers/session/get-history.con
 import { getStreakHandler } from "../controllers/session/get-streak.controller.js";
 import { startSessionHandler } from "../controllers/session/start-session.controller.js";
 import { authenticate } from "../middlewares/authenticate.js";
+import { requireActivePlan } from "../middlewares/require-active-plan.js";
 
 export async function sessionRoutes(app: FastifyInstance): Promise<void> {
   const typed = app.withTypeProvider<ZodTypeProvider>();
 
   typed.get("/history", {
-    preHandler: [authenticate],
+    preHandler: [authenticate, requireActivePlan],
     schema: {
       description: "List workout session history for authenticated user",
       querystring: z.object({
@@ -33,7 +34,7 @@ export async function sessionRoutes(app: FastifyInstance): Promise<void> {
   });
 
   typed.get("/streak", {
-    preHandler: [authenticate],
+    preHandler: [authenticate, requireActivePlan],
     schema: {
       description:
         "Get current streak (consecutive days with completed sessions)",
@@ -48,7 +49,7 @@ export async function sessionRoutes(app: FastifyInstance): Promise<void> {
   });
 
   typed.post("/start", {
-    preHandler: [authenticate],
+    preHandler: [authenticate, requireActivePlan],
     schema: {
       description:
         "Start a workout session for a day (day must belong to user's plan)",
@@ -61,7 +62,7 @@ export async function sessionRoutes(app: FastifyInstance): Promise<void> {
   });
 
   typed.patch("/:id/complete", {
-    preHandler: [authenticate],
+    preHandler: [authenticate, requireActivePlan],
     schema: {
       description: "Complete a workout session (only own session)",
       params: z.object({ id: z.string().min(1) }),

@@ -10,6 +10,12 @@ export interface UserRepositoryFindByIdWithPlanResult {
   timezone: string | null;
 }
 
+export interface UserRepositoryFindByIdWithSubscriptionResult {
+  role: string;
+  planType: "STUDENT" | "PERSONAL" | "GYM" | null;
+  subscriptionStatus: "ACTIVE" | "TRIALING" | "PAST_DUE" | "CANCELED" | "UNPAID" | null;
+}
+
 export interface UpdateUserSubscriptionInput {
   stripeCustomerId?: string | null;
   stripeSubscriptionId?: string | null;
@@ -21,6 +27,9 @@ import type { TransactionClient } from "../../database/transaction-client.js";
 
 export interface UserRepository {
   findById(userId: string): Promise<UserRepositoryFindByIdResult | null>;
+  findByIdWithSubscription(
+    userId: string,
+  ): Promise<UserRepositoryFindByIdWithSubscriptionResult | null>;
   findByIdWithPlanAndTimezone(
     userId: string,
   ): Promise<UserRepositoryFindByIdWithPlanResult | null>;

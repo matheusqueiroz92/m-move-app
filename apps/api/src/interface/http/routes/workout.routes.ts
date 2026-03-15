@@ -16,21 +16,22 @@ import { z } from "zod";
 import { activateWorkoutPlanHandler } from "../controllers/workout/activate-workout-plan.controller.js";
 import { createWorkoutDayHandler } from "../controllers/workout/create-workout-day.controller.js";
 import { createWorkoutPlanHandler } from "../controllers/workout/create-workout-plan.controller.js";
-import { deleteWorkoutPlanHandler } from "../controllers/workout/delete-workout-plan.controller.js";
 import { deleteWorkoutDayHandler } from "../controllers/workout/delete-workout-day.controller.js";
+import { deleteWorkoutPlanHandler } from "../controllers/workout/delete-workout-plan.controller.js";
 import { getWorkoutPlanByIdHandler } from "../controllers/workout/get-workout-plan-by-id.controller.js";
 import { listWorkoutDaysHandler } from "../controllers/workout/list-workout-days.controller.js";
 import { listWorkoutPlansHandler } from "../controllers/workout/list-workout-plans.controller.js";
 import { updateWorkoutDayHandler } from "../controllers/workout/update-workout-day.controller.js";
 import { updateWorkoutPlanHandler } from "../controllers/workout/update-workout-plan.controller.js";
 import { authenticate } from "../middlewares/authenticate.js";
+import { requireActivePlan } from "../middlewares/require-active-plan.js";
 import { requireNotLinkedStudent } from "../middlewares/require-not-linked-student.js";
 
 export async function workoutRoutes(app: FastifyInstance): Promise<void> {
   const typed = app.withTypeProvider<ZodTypeProvider>();
 
   typed.get("/", {
-    preHandler: [authenticate],
+    preHandler: [authenticate, requireActivePlan],
     schema: {
       description: "List all workout plans for the authenticated user (paginated)",
       querystring: paginationQuerystringSchema,
@@ -42,7 +43,7 @@ export async function workoutRoutes(app: FastifyInstance): Promise<void> {
   });
 
   typed.get("/:planId/days", {
-    preHandler: [authenticate],
+    preHandler: [authenticate, requireActivePlan],
     schema: {
       description: "List all days of a workout plan (plan must belong to user)",
       params: z.object({ planId: z.string().min(1) }),
@@ -54,7 +55,7 @@ export async function workoutRoutes(app: FastifyInstance): Promise<void> {
   });
 
   typed.post("/:planId/days", {
-    preHandler: [authenticate, requireNotLinkedStudent],
+    preHandler: [authenticate, requireActivePlan, requireNotLinkedStudent],
     schema: {
       description: "Create a day in a workout plan (plan must belong to user)",
       params: z.object({ planId: z.string().min(1) }),
@@ -67,7 +68,7 @@ export async function workoutRoutes(app: FastifyInstance): Promise<void> {
   });
 
   typed.patch("/:planId/days/:dayId", {
-    preHandler: [authenticate, requireNotLinkedStudent],
+    preHandler: [authenticate, requireActivePlan, requireNotLinkedStudent],
     schema: {
       description: "Update a workout day (plan must belong to user)",
       params: z.object({ planId: z.string().min(1), dayId: z.string().min(1) }),
@@ -80,7 +81,7 @@ export async function workoutRoutes(app: FastifyInstance): Promise<void> {
   });
 
   typed.delete("/:planId/days/:dayId", {
-    preHandler: [authenticate, requireNotLinkedStudent],
+    preHandler: [authenticate, requireActivePlan, requireNotLinkedStudent],
     schema: {
       description: "Delete a workout day (plan must belong to user)",
       params: z.object({ planId: z.string().min(1), dayId: z.string().min(1) }),
@@ -90,7 +91,7 @@ export async function workoutRoutes(app: FastifyInstance): Promise<void> {
   });
 
   typed.get("/:id", {
-    preHandler: [authenticate],
+    preHandler: [authenticate, requireActivePlan],
     schema: {
       description:
         "Get a workout plan by id (must belong to authenticated user)",
@@ -103,7 +104,7 @@ export async function workoutRoutes(app: FastifyInstance): Promise<void> {
   });
 
   typed.post("/", {
-    preHandler: [authenticate, requireNotLinkedStudent],
+    preHandler: [authenticate, requireActivePlan, requireNotLinkedStudent],
     schema: {
       description: "Create a new workout plan for the authenticated user",
       body: createWorkoutPlanBodySchema,
@@ -115,7 +116,7 @@ export async function workoutRoutes(app: FastifyInstance): Promise<void> {
   });
 
   typed.patch("/:id", {
-    preHandler: [authenticate, requireNotLinkedStudent],
+    preHandler: [authenticate, requireActivePlan, requireNotLinkedStudent],
     schema: {
       description: "Update a workout plan (plan must belong to user)",
       params: z.object({ id: z.string().min(1) }),
@@ -128,7 +129,7 @@ export async function workoutRoutes(app: FastifyInstance): Promise<void> {
   });
 
   typed.delete("/:id", {
-    preHandler: [authenticate, requireNotLinkedStudent],
+    preHandler: [authenticate, requireActivePlan, requireNotLinkedStudent],
     schema: {
       description: "Delete a workout plan (plan must belong to user)",
       params: z.object({ id: z.string().min(1) }),
@@ -138,7 +139,7 @@ export async function workoutRoutes(app: FastifyInstance): Promise<void> {
   });
 
   typed.post("/:id/activate", {
-    preHandler: [authenticate, requireNotLinkedStudent],
+    preHandler: [authenticate, requireActivePlan, requireNotLinkedStudent],
     schema: {
       description:
         "Activate a workout plan (deactivates other plans of the user)",

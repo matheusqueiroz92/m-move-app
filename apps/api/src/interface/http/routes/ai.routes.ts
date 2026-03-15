@@ -18,6 +18,7 @@ import { sendChatMessageHandler } from "../controllers/ai/send-chat-message.cont
 import { createAIChatRateLimitMiddleware } from "../middlewares/ai-chat-rate-limit.js";
 import { authenticate } from "../middlewares/authenticate.js";
 import { requireRole } from "../middlewares/authorize.js";
+import { requireActivePlan } from "../middlewares/require-active-plan.js";
 
 const messageResponseSchema = z.object({ message: z.string() });
 
@@ -27,6 +28,7 @@ export async function aiRoutes(app: FastifyInstance): Promise<void> {
   typed.post("/generate-plan", {
     preHandler: [
       authenticate,
+      requireActivePlan,
       requireRole(["OWNER", "PERSONAL_TRAINER", "INSTRUCTOR", "STUDENT"]),
     ],
     schema: {
@@ -45,6 +47,7 @@ export async function aiRoutes(app: FastifyInstance): Promise<void> {
   typed.get("/chats", {
     preHandler: [
       authenticate,
+      requireActivePlan,
       requireRole(["OWNER", "PERSONAL_TRAINER", "INSTRUCTOR", "STUDENT"]),
     ],
     schema: {
@@ -62,6 +65,7 @@ export async function aiRoutes(app: FastifyInstance): Promise<void> {
   typed.post("/chat", {
     preHandler: [
       authenticate,
+      requireActivePlan,
       requireRole(["OWNER", "PERSONAL_TRAINER", "INSTRUCTOR", "STUDENT"]),
       createAIChatRateLimitMiddleware({
         userRepository: app.userRepository,
@@ -86,6 +90,7 @@ export async function aiRoutes(app: FastifyInstance): Promise<void> {
   typed.get("/insights/:userId", {
     preHandler: [
       authenticate,
+      requireActivePlan,
       requireRole(["OWNER", "PERSONAL_TRAINER", "INSTRUCTOR", "STUDENT"]),
     ],
     schema: {
