@@ -16,6 +16,9 @@
     "dev": {
       "cache": false,
       "persistent": true
+    },
+    "test:run": {
+      "inputs": ["$TURBO_DEFAULT$", ".env*", ".env.test"]
     }
   }
 }
