@@ -1,8 +1,8 @@
 import { GymAccessDeniedError } from "../../domain/gym/errors/gym-access-denied.error.js";
 import { GymNotFoundError } from "../../domain/gym/errors/gym-not-found.error.js";
 import { StudentLimitReachedError } from "../../domain/gym/errors/student-limit-reached.error.js";
-import type { GymInstructorRepository } from "../../domain/gym/repositories/gym-instructor.repository.js";
 import type { GymRepository } from "../../domain/gym/repositories/gym.repository.js";
+import type { GymInstructorRepository } from "../../domain/gym/repositories/gym-instructor.repository.js";
 import type {
   GymStudentLinkRepository,
   GymStudentLinkResult,

@@ -1,7 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
 import { GymAccessDeniedError } from "../../domain/gym/errors/gym-access-denied.error.js";
-import { GymNotFoundError } from "../../domain/gym/errors/gym-not-found.error.js";
 import { GymStudentLinkNotFoundError } from "../../domain/gym/errors/gym-student-link-not-found.error.js";
 import type { GymRepository } from "../../domain/gym/repositories/gym.repository.js";
 import type { GymStudentLinkRepository } from "../../domain/gym/repositories/gym-student-link.repository.js";
