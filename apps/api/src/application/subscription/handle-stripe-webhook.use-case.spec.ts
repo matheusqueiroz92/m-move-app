@@ -131,7 +131,11 @@ describe("HandleStripeWebhookUseCase", () => {
       subscriptionRepository,
       userRepository,
       { run: vi.fn().mockResolvedValue(undefined) },
-      { invalidate },
+      {
+        get: vi.fn(),
+        set: vi.fn(),
+        invalidate,
+      },
     );
 
     await useCase.execute({
