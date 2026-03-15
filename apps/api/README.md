@@ -8,7 +8,7 @@ Backend da plataforma **M. Move**, construído com **Fastify**, **Prisma** e **P
 - **Framework**: Fastify 5
 - **ORM**: Prisma
 - **Banco**: PostgreSQL
-- **Auth**: Better Auth (Email, Google)
+- **Auth**: Better Auth (Email, Google, GitHub). Sessões expiram em 30 dias de inatividade.
 - **Pagamentos**: Stripe (checkout, portal, webhooks)
 - **IA**: OpenAI (GPT-4o) — geração de planos, chat, insights
 - **Validação**: Zod (body, query, env)
@@ -44,7 +44,7 @@ apps/api/src/
 │   └── providers/             # Stripe, OpenAI
 ├── interface/http/            # Camada de entrada HTTP
 │   ├── controllers/
-│   ├── middlewares/           # authenticate, requireRole, ai-chat-rate-limit
+│   ├── middlewares/           # authenticate, requireRole, requireNotLinkedStudent, ai-chat-rate-limit
 │   ├── plugins/               # api-routes
 │   ├── routes/
 │   └── error-handler.ts       # Tratamento centralizado (requestId em respostas)
@@ -122,6 +122,10 @@ GOOGLE_CLIENT_ID=your-client-id-here
 GOOGLE_CLIENT_SECRET=your-client-secret-here
 GOOGLE_GENERATIVE_AI_API_KEY=your-api-key-here
 
+# GitHub (OAuth opcional; se não definir, provider não é registrado)
+GITHUB_CLIENT_ID=
+GITHUB_CLIENT_SECRET=
+
 # Stripe
 STRIPE_SECRET_KEY=
 STRIPE_WEBHOOK_SECRET=
@@ -198,6 +202,7 @@ Os testes de integração de `GET /api/users/me` (200 e 404) dependem das tabela
 
 - **Helmet**: headers de segurança (X-Frame-Options, X-Content-Type-Options, etc.)
 - **Rate limit**: 100 requisições/minuto global; rate limit específico para AI Chat por plano
+- **RBAC**: rotas protegidas por `requireRole`; `LINKED_STUDENT` não pode criar/editar/deletar planos (middleware `requireNotLinkedStudent` nas rotas de workout) e lista apenas planos atribuídos; rotas de IA bloqueiam `LINKED_STUDENT`
 - **Erros**: todas as respostas de erro incluem `requestId` para rastreamento
 
 A documentação detalhada (schemas, exemplos) está em **/docs** (Swagger/Scalar) com a API rodando.
