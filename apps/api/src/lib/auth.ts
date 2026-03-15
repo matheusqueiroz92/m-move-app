@@ -5,9 +5,15 @@ import { bearer, openAPI } from "better-auth/plugins";
 import { prisma } from "./db.js";
 import { env } from "./env.js";
 
+const THIRTY_DAYS_SECONDS = 60 * 60 * 24 * 30;
+
 export const auth = betterAuth({
   baseURL: env.API_BASE_URL,
   trustedOrigins: [env.WEB_APP_BASE_URL || "http://localhost:3001"],
+  session: {
+    expiresIn: THIRTY_DAYS_SECONDS,
+    updateAge: 60 * 60 * 24, // 1 day - refresh session on use
+  },
   emailAndPassword: {
     enabled: true,
   },
