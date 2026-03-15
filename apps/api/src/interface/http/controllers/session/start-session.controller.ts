@@ -14,7 +14,7 @@ export async function startSessionHandler(
   });
   return reply.status(201).send({
     ...session,
-    startedAt: session.startedAt.toISOString(),
+    startedAt: session.startedAt?.toISOString() ?? null,
     completedAt: session.completedAt?.toISOString() ?? null,
     createdAt: session.createdAt.toISOString(),
     updatedAt: session.updatedAt.toISOString(),

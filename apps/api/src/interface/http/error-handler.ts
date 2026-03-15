@@ -73,7 +73,8 @@ export function createErrorHandler(
     if (
       name === "InviteExpiredError" ||
       name === "InviteAlreadyUsedError" ||
-      /expired|already used|revoked/i.test(message)
+      name === "SessionNotStartedError" ||
+      /expired|already used|revoked|not started/i.test(message)
     ) {
       return reply
         .status(400)

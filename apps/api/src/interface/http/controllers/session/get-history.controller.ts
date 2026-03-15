@@ -18,7 +18,7 @@ export async function getSessionHistoryHandler(
 
   const body = sessions.map((s) => ({
     ...s,
-    startedAt: s.startedAt.toISOString(),
+    startedAt: s.startedAt?.toISOString() ?? null,
     completedAt: s.completedAt?.toISOString() ?? null,
     createdAt: s.createdAt.toISOString(),
     updatedAt: s.updatedAt.toISOString(),

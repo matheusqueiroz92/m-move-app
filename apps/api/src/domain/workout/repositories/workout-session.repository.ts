@@ -2,7 +2,7 @@ export interface WorkoutSessionResult {
   id: string;
   userId: string;
   workoutDayId: string;
-  startedAt: Date;
+  startedAt: Date | null;
   completedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;

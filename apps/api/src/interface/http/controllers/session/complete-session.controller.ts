@@ -12,7 +12,7 @@ export async function completeSessionHandler(
   });
   return reply.status(200).send({
     ...session,
-    startedAt: session.startedAt.toISOString(),
+    startedAt: session.startedAt?.toISOString() ?? null,
     completedAt: session.completedAt?.toISOString() ?? null,
     createdAt: session.createdAt.toISOString(),
     updatedAt: session.updatedAt.toISOString(),
