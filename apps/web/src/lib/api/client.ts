@@ -1,8 +1,9 @@
 import axios from "axios";
 
+// In browser use same origin so Next.js rewrites /api to the backend (cookies work).
 const baseURL =
   typeof window !== "undefined"
-    ? (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001")
+    ? ""
     : (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001");
 
 export const apiClient = axios.create({
