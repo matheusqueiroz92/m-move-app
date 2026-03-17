@@ -2,28 +2,29 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/lib/hooks/use-auth";
 
-export default function RegisterPage() {
-  const [name, setName] = useState("");
+export function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { signUpWithEmail, signInWithSocial } = useAuth();
+  const { signInWithEmail, signInWithSocial } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirect = searchParams.get("redirect") ?? "/dashboard";
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setIsSubmitting(true);
-    const result = await signUpWithEmail(email, password, name);
+    const result = await signInWithEmail(email, password);
     setIsSubmitting(false);
     if (result.ok) {
-      router.push("/dashboard");
+      router.push(redirect);
     } else {
-      setError(result.error ?? "Falha ao cadastrar.");
+      setError(result.error ?? "Falha ao entrar.");
     }
   }
 
@@ -32,7 +33,7 @@ export default function RegisterPage() {
       <div className="w-full max-w-sm space-y-6">
         <h1 className="text-2xl font-bold text-primary text-center">M. Move</h1>
         <h2 className="text-xl font-semibold text-text-primary text-center">
-          Cadastro
+          Entrar
         </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
@@ -40,23 +41,6 @@ export default function RegisterPage() {
               {error}
             </p>
           )}
-          <div>
-            <label
-              htmlFor="name"
-              className="block text-sm font-medium text-text-secondary mb-1"
-            >
-              Nome
-            </label>
-            <input
-              id="name"
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              autoComplete="name"
-              className="w-full rounded-md border border-border bg-surface px-3 py-2 text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
           <div>
             <label
               htmlFor="email"
@@ -87,8 +71,7 @@ export default function RegisterPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              minLength={8}
-              autoComplete="new-password"
+              autoComplete="current-password"
               className="w-full rounded-md border border-border bg-surface px-3 py-2 text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
             />
           </div>
@@ -97,7 +80,7 @@ export default function RegisterPage() {
             disabled={isSubmitting}
             className="w-full rounded-md bg-primary py-2 px-4 font-medium text-background hover:bg-primary-dark disabled:opacity-50"
           >
-            {isSubmitting ? "Cadastrando..." : "Cadastrar"}
+            {isSubmitting ? "Entrando..." : "Entrar"}
           </button>
         </form>
         <div className="space-y-2">
@@ -110,9 +93,16 @@ export default function RegisterPage() {
           </button>
         </div>
         <p className="text-center text-sm text-text-secondary">
-          Já tem conta?{" "}
-          <Link href="/login" className="text-primary hover:underline">
-            Entrar
+          Não tem conta?{" "}
+          <Link href="/register" className="text-primary hover:underline">
+            Cadastre-se
+          </Link>
+          {" · "}
+          <Link
+            href="/forgot-password"
+            className="text-primary hover:underline"
+          >
+            Esqueci minha senha
           </Link>
         </p>
       </div>

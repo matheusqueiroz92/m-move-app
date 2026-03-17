@@ -1,116 +1,18 @@
-"use client";
-
-import { useState } from "react";
-import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useAuth } from "@/lib/hooks/use-auth";
+import { Suspense } from "react";
+import { LoginForm } from "./LoginForm";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { signInWithEmail, signInWithSocial } = useAuth();
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const redirect = searchParams.get("redirect") ?? "/dashboard";
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null);
-    setIsSubmitting(true);
-    const result = await signInWithEmail(email, password);
-    setIsSubmitting(false);
-    if (result.ok) {
-      router.push(redirect);
-    } else {
-      setError(result.error ?? "Falha ao entrar.");
-    }
-  }
-
   return (
-    <div className="min-h-screen bg-[var(--color-background)] flex flex-col items-center justify-center p-4">
-      <div className="w-full max-w-sm space-y-6">
-        <h1 className="text-2xl font-bold text-[var(--color-primary)] text-center">
-          M. Move
-        </h1>
-        <h2 className="text-xl font-semibold text-[var(--color-text-primary)] text-center">
-          Entrar
-        </h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {error && (
-            <p className="text-sm text-[var(--color-danger)]" role="alert">
-              {error}
-            </p>
-          )}
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1"
-            >
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              autoComplete="email"
-              className="w-full rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-            />
-          </div>
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1"
-            >
-              Senha
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              autoComplete="current-password"
-              className="w-full rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] px-3 py-2 text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
-            />
-          </div>
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full rounded-md bg-[var(--color-primary)] py-2 px-4 font-medium text-[var(--color-background)] hover:bg-[var(--color-primary-dark)] disabled:opacity-50"
-          >
-            {isSubmitting ? "Entrando..." : "Entrar"}
-          </button>
-        </form>
-        <div className="space-y-2">
-          <button
-            type="button"
-            onClick={() => signInWithSocial("google")}
-            className="w-full rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] py-2 px-4 text-[var(--color-text-primary)] hover:bg-[var(--color-border)]"
-          >
-            Continuar com Google
-          </button>
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center h-screen">
+          <div className="w-10 h-10 border-t-transparent border-b-transparent border-r-transparent border-l-transparent border-2 border-primary rounded-full animate-spin"></div>
         </div>
-        <p className="text-center text-sm text-[var(--color-text-secondary)]">
-          Não tem conta?{" "}
-          <Link
-            href="/register"
-            className="text-[var(--color-primary)] hover:underline"
-          >
-            Cadastre-se
-          </Link>
-          {" · "}
-          <Link
-            href="/forgot-password"
-            className="text-[var(--color-primary)] hover:underline"
-          >
-            Esqueci minha senha
-          </Link>
-        </p>
-      </div>
-    </div>
+      }
+    >
+      <Suspense fallback={<div>Loading...</div>}>
+        <LoginForm />
+      </Suspense>
+    </Suspense>
   );
 }

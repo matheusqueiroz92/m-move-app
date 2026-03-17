@@ -13,6 +13,7 @@ import {
   GraduationCap,
   MessageSquare,
   Settings,
+  CreditCard,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useAuth } from "@/lib/hooks/use-auth";
@@ -61,6 +62,7 @@ const navItems: {
     hideForRoles: ["LINKED_STUDENT"],
   },
   { href: "/settings", label: "Configurações", icon: Settings },
+  { href: "/billing", label: "Pagamento", icon: CreditCard },
 ];
 
 function canSeeItem(item: (typeof navItems)[0], userRole: string): boolean {

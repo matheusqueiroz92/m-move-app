@@ -76,15 +76,25 @@ pnpm dev
 
 A aplicação sobe em **http://localhost:3000**.
 
+## Variáveis de ambiente
+
+| Variável              | Descrição                                     |
+| --------------------- | --------------------------------------------- |
+| `NEXT_PUBLIC_API_URL` | URL base da API (ex: `http://localhost:3001`) |
+
+Em desenvolvimento, o Next faz **rewrite** de `/api/*` para a API; no browser as requisições são same-origin (cookies de auth funcionam).
+
 ## Scripts
 
-| Comando            | Descrição                                    |
-| ------------------ | -------------------------------------------- |
-| `pnpm dev`         | Next.js em modo desenvolvimento (porta 3000) |
-| `pnpm build`       | Build de produção                            |
-| `pnpm start`       | Servidor de produção                         |
-| `pnpm lint`        | ESLint                                       |
-| `pnpm check-types` | Verificação de tipos (next typegen + tsc)    |
+| Comando              | Descrição                                    |
+| -------------------- | -------------------------------------------- |
+| `pnpm dev`           | Next.js em modo desenvolvimento (porta 3000) |
+| `pnpm build`         | Build de produção                            |
+| `pnpm start`         | Servidor de produção                         |
+| `pnpm lint`          | ESLint                                       |
+| `pnpm check-types`   | Verificação de tipos (next typegen + tsc)    |
+| `pnpm test`          | Vitest (watch)                               |
+| `pnpm test:coverage` | Vitest com cobertura                         |
 
 ## Design system (cores)
 
