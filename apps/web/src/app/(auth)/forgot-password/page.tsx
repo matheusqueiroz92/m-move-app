@@ -1,97 +1,125 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
-import { Loader2 } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Spinner } from "@/components/ui/Spinner";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import {
+  forgotPasswordFormSchema,
+  type ForgotPasswordFormValues,
+} from "@/lib/schemas/auth";
+import { useForgotPassword } from "@/lib/hooks/use-forgot-password";
 
 export default function ForgotPasswordPage() {
-  const [email, setEmail] = useState("");
-  const [sent, setSent] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const {
+    mutateAsync: submitForgotPassword,
+    isPending,
+    isSuccess,
+    data,
+    isError,
+    error,
+  } = useForgotPassword();
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError(null);
-    setIsSubmitting(true);
-    try {
-      const res = await fetch("/api/auth/forget-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ email }),
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        setError(data.message ?? "Falha ao enviar. Tente novamente.");
-        return;
-      }
-      setSent(true);
-    } catch {
-      setError("Erro de conexão. Tente novamente.");
-    } finally {
-      setIsSubmitting(false);
-    }
+  const form = useForm<ForgotPasswordFormValues>({
+    resolver: zodResolver(forgotPasswordFormSchema),
+    defaultValues: { email: "" },
+  });
+
+  async function onSubmit(values: ForgotPasswordFormValues) {
+    await submitForgotPassword(values.email);
   }
+
+  const sent = isSuccess && data?.ok;
+  const errorMessage =
+    isError && error
+      ? error instanceof Error
+        ? error.message
+        : "Erro de conexão. Tente novamente."
+      : isSuccess && data && !data.ok
+        ? data.message
+        : null;
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
-      <div className="w-full max-w-sm space-y-6">
-        <h1 className="text-2xl font-bold text-primary text-center">M. Move</h1>
-        <h2 className="text-xl font-semibold text-text-primary text-center">
-          Recuperar senha
-        </h2>
-        {sent ? (
-          <p className="text-center text-text-secondary">
-            Se existir uma conta com esse email, você receberá um link para
-            redefinir a senha.
-          </p>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {error && (
-              <p className="text-sm text-danger" role="alert">
-                {error}
-              </p>
-            )}
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-text-secondary mb-1"
+      <Card className="w-full max-w-sm border-border">
+        <CardHeader className="space-y-1 text-center">
+          <CardTitle className="text-2xl text-primary">M. Move</CardTitle>
+          <CardDescription className="text-foreground">
+            Recuperar senha
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {sent ? (
+            <p className="text-center text-sm text-muted-foreground">
+              Se existir uma conta com esse email, você receberá um link para
+              redefinir a senha.
+            </p>
+          ) : (
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-4"
               >
-                Email
-              </label>
-              <input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                autoComplete="email"
-                className="w-full rounded-md border border-border bg-surface px-3 py-2 text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full rounded-md bg-primary py-2 px-4 font-medium text-background hover:bg-primary-dark disabled:opacity-50"
-            >
-              {isSubmitting ? (
-                <div className="flex items-center gap-2">
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Enviando...</span>
-                </div>
-              ) : (
-                "Enviar link"
-              )}
-            </button>
-          </form>
-        )}
-        <p className="text-center text-sm text-text-secondary">
-          <Link href="/login" className="text-primary hover:underline">
-            Voltar ao login
-          </Link>
-        </p>
-      </div>
+                {errorMessage && (
+                  <p className="text-sm text-destructive" role="alert">
+                    {errorMessage}
+                  </p>
+                )}
+                <FormField
+                  control={form.control}
+                  name="email"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="email"
+                          placeholder="seu@email.com"
+                          autoComplete="email"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button type="submit" className="w-full" disabled={isPending}>
+                  {isPending ? (
+                    <span className="inline-flex items-center gap-2">
+                      <Spinner size="sm" />
+                      Enviando...
+                    </span>
+                  ) : (
+                    "Enviar link"
+                  )}
+                </Button>
+              </form>
+            </Form>
+          )}
+          <p className="text-center text-sm text-muted-foreground">
+            <Link href="/login" className="text-primary hover:underline">
+              Voltar ao login
+            </Link>
+          </p>
+        </CardContent>
+      </Card>
     </div>
   );
 }

@@ -31,37 +31,37 @@ export default function BillingPage() {
     <div className="p-4 md:p-6 max-w-2xl">
       <Link
         href="/settings"
-        className="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-primary)]"
+        className="text-sm text-text-secondary hover:text-primary"
       >
         ← Configurações
       </Link>
-      <h1 className="mt-4 text-2xl font-bold text-[var(--color-text-primary)]">
+      <h1 className="mt-4 text-2xl font-bold text-text-primary">
         Assinatura e pagamento
       </h1>
 
       {isLoading ? (
-        <div className="mt-6 h-24 animate-pulse rounded-lg bg-[var(--color-surface)]" />
+        <div className="mt-6 h-24 animate-pulse rounded-lg bg-surface" />
       ) : subscription ? (
-        <div className="mt-6 rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-6 space-y-4">
-          <p className="text-[var(--color-text-primary)]">
-            <span className="text-[var(--color-text-secondary)]">Plano:</span>{" "}
+        <div className="mt-6 rounded-lg border border-border bg-surface p-6 space-y-4">
+          <p className="text-text-primary">
+            <span className="text-text-secondary">Plano:</span>{" "}
             {subscription.planType}
           </p>
-          <p className="text-[var(--color-text-primary)]">
-            <span className="text-[var(--color-text-secondary)]">Status:</span>{" "}
+          <p className="text-text-primary">
+            <span className="text-text-secondary">Status:</span>{" "}
             {subscription.status}
           </p>
           <button
             type="button"
             onClick={handleManageSubscription}
             disabled={loading}
-            className="rounded-md bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-background)] hover:bg-[var(--color-primary-dark)] disabled:opacity-50"
+            className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-background hover:bg-primary-dark disabled:opacity-50"
           >
             {loading ? "Redirecionando..." : "Gerenciar no Stripe"}
           </button>
         </div>
       ) : (
-        <p className="mt-6 text-[var(--color-text-secondary)]">
+        <p className="mt-6 text-text-secondary">
           Nenhuma assinatura ativa. Faça upgrade na landing ou após o cadastro.
         </p>
       )}

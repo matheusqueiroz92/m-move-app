@@ -77,12 +77,9 @@ export function Sidebar() {
   const role = user?.role ?? "STUDENT";
 
   return (
-    <aside className="w-64 shrink-0 border-r border-[var(--color-border)] bg-[var(--color-surface)] flex flex-col">
-      <div className="p-4 border-b border-[var(--color-border)]">
-        <Link
-          href="/dashboard"
-          className="text-lg font-bold text-[var(--color-primary)]"
-        >
+    <aside className="w-64 shrink-0 border-r border-border bg-surface flex flex-col">
+      <div className="p-4 border-b border-border">
+        <Link href="/dashboard" className="text-lg font-bold text-primary">
           M. Move
         </Link>
       </div>
@@ -102,8 +99,8 @@ export function Sidebar() {
                     className={cn(
                       "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
                       isActive
-                        ? "bg-[var(--color-primary)]/20 text-[var(--color-primary)]"
-                        : "text-[var(--color-text-secondary)] hover:bg-[var(--color-border)] hover:text-[var(--color-text-primary)]",
+                        ? "bg-primary/20 text-primary"
+                        : "text-text-secondary hover:bg-border hover:text-text-primary",
                     )}
                   >
                     <Icon className="h-5 w-5 shrink-0" />

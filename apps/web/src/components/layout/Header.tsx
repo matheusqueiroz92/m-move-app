@@ -32,15 +32,15 @@ export function Header() {
           .join(" / ");
 
   return (
-    <header className="h-14 border-b border-[var(--color-border)] bg-[var(--color-surface)] flex items-center justify-between px-4 shrink-0">
-      <h1 className="text-lg font-semibold text-[var(--color-text-primary)] truncate">
+    <header className="h-14 border-b border-border bg-surface flex items-center justify-between px-4 shrink-0">
+      <h1 className="text-lg font-semibold text-text-primary truncate">
         {title}
       </h1>
       <div className="relative" ref={ref}>
         <button
           type="button"
           onClick={() => setOpen((o) => !o)}
-          className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-[var(--color-text-primary)] hover:bg-[var(--color-border)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+          className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-text-primary hover:bg-border focus:outline-none focus:ring-2 focus:ring-primary"
           aria-expanded={open}
           aria-haspopup="true"
         >
@@ -51,12 +51,12 @@ export function Header() {
         </button>
         {open && (
           <div
-            className="absolute right-0 top-full mt-1 w-48 rounded-md border border-[var(--color-border)] bg-[var(--color-surface)] py-1 shadow-lg z-50"
+            className="absolute right-0 top-full mt-1 w-48 rounded-md border border-border bg-surface py-1 shadow-lg z-50"
             role="menu"
           >
             <Link
               href="/settings"
-              className="flex items-center gap-2 px-3 py-2 text-sm text-[var(--color-text-primary)] hover:bg-[var(--color-border)]"
+              className="flex items-center gap-2 px-3 py-2 text-sm text-text-primary hover:bg-border"
               role="menuitem"
               onClick={() => setOpen(false)}
             >
@@ -65,7 +65,7 @@ export function Header() {
             </Link>
             <button
               type="button"
-              className="flex w-full items-center gap-2 px-3 py-2 text-sm text-[var(--color-text-primary)] hover:bg-[var(--color-border)]"
+              className="flex w-full items-center gap-2 px-3 py-2 text-sm text-text-primary hover:bg-border"
               role="menuitem"
               onClick={() => {
                 setOpen(false);

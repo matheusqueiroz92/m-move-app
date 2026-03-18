@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Flame, Dumbbell } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useStreak } from "@/lib/hooks/use-streak";
 import { useWorkoutPlans } from "@/lib/hooks/use-workout-plans";
 
@@ -18,55 +19,51 @@ export default function DashboardPage() {
 
   return (
     <div className="p-4 md:p-6 space-y-6">
-      <h1 className="text-2xl font-bold text-[var(--color-text-primary)]">
-        Dashboard
-      </h1>
+      <h1 className="text-2xl font-bold text-text-primary">Dashboard</h1>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
-          <div className="flex items-center gap-2 text-[var(--color-text-secondary)]">
-            <Flame className="h-5 w-5 text-[var(--color-warning)]" />
+        <div className="rounded-lg border border-border bg-surface p-4">
+          <div className="flex items-center gap-2 text-text-secondary">
+            <Flame className="h-5 w-5 text-warning" />
             <span className="text-sm font-medium">Streak</span>
           </div>
           {streakLoading ? (
-            <div className="mt-2 h-8 w-12 animate-pulse rounded bg-[var(--color-border)]" />
+            <Skeleton className="mt-2 h-8 w-12" />
           ) : (
-            <p className="mt-2 text-2xl font-bold text-[var(--color-text-primary)]">
+            <p className="mt-2 text-2xl font-bold text-text-primary">
               {streak} {streak === 1 ? "dia" : "dias"}
             </p>
           )}
         </div>
 
-        <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-4">
-          <div className="flex items-center gap-2 text-[var(--color-text-secondary)]">
-            <Dumbbell className="h-5 w-5 text-[var(--color-primary)]" />
+        <div className="rounded-lg border border-border bg-surface p-4">
+          <div className="flex items-center gap-2 text-text-secondary">
+            <Dumbbell className="h-5 w-5 text-primary" />
             <span className="text-sm font-medium">Plano ativo</span>
           </div>
           {plansLoading ? (
-            <div className="mt-2 h-8 w-32 animate-pulse rounded bg-[var(--color-border)]" />
+            <Skeleton className="mt-2 h-8 w-32" />
           ) : activePlan ? (
             <Link
               href={`/workout-plans/${activePlan.id}`}
-              className="mt-2 block truncate text-lg font-semibold text-[var(--color-primary)] hover:underline"
+              className="mt-2 block truncate text-lg font-semibold text-primary hover:underline"
             >
               {activePlan.name}
             </Link>
           ) : (
-            <p className="mt-2 text-[var(--color-text-secondary)]">
-              Nenhum plano ativo
-            </p>
+            <p className="mt-2 text-text-secondary">Nenhum plano ativo</p>
           )}
         </div>
       </div>
 
       <section>
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-[var(--color-text-primary)]">
+          <h2 className="text-lg font-semibold text-text-primary">
             Meus Treinos
           </h2>
           <Link
             href="/workout-plans"
-            className="text-sm font-medium text-[var(--color-primary)] hover:underline"
+            className="text-sm font-medium text-primary hover:underline"
           >
             Ver todos
           </Link>
@@ -74,18 +71,15 @@ export default function DashboardPage() {
         {plansLoading ? (
           <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="h-24 animate-pulse rounded-lg bg-[var(--color-surface)]"
-              />
+              <Skeleton key={i} className="h-24 rounded-lg" />
             ))}
           </div>
         ) : plans.length === 0 ? (
-          <p className="mt-4 text-[var(--color-text-secondary)]">
+          <p className="mt-4 text-text-secondary">
             Nenhum plano ainda.{" "}
             <Link
               href="/workout-plans"
-              className="text-[var(--color-primary)] hover:underline"
+              className="text-primary hover:underline"
             >
               Criar plano
             </Link>
@@ -96,12 +90,10 @@ export default function DashboardPage() {
               <Link
                 key={plan.id}
                 href={`/workout-plans/${plan.id}`}
-                className="block rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-4 hover:border-[var(--color-primary)]/50"
+                className="block rounded-lg border border-border bg-surface p-4 hover:border-primary/50"
               >
-                <p className="font-semibold text-[var(--color-text-primary)]">
-                  {plan.name}
-                </p>
-                <p className="text-xs text-[var(--color-text-secondary)]">
+                <p className="font-semibold text-text-primary">{plan.name}</p>
+                <p className="text-xs text-text-secondary">
                   {plan.isActive ? "Ativo" : "Inativo"}
                 </p>
               </Link>

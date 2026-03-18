@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import { Plus } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   useWorkoutPlans,
   useCreateWorkoutPlan,
   useActivateWorkoutPlan,
 } from "@/lib/hooks/use-workout-plans";
+import { Button } from "@/components/ui/button";
 import { WorkoutPlanCard } from "@/components/workout/WorkoutPlanCard";
 export default function WorkoutPlansPage() {
   const [createOpen, setCreateOpen] = useState(false);
@@ -28,17 +30,11 @@ export default function WorkoutPlansPage() {
   return (
     <div className="p-4 md:p-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-2xl font-bold text-[var(--color-text-primary)]">
-          Meus Treinos
-        </h1>
-        <button
-          type="button"
-          onClick={() => setCreateOpen(true)}
-          className="inline-flex items-center gap-2 rounded-md bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-background)] hover:bg-[var(--color-primary-dark)]"
-        >
+        <h1 className="text-2xl font-bold text-text-primary">Meus Treinos</h1>
+        <Button onClick={() => setCreateOpen(true)}>
           <Plus className="h-4 w-4" />
           Novo plano
-        </button>
+        </Button>
       </div>
 
       {createOpen && (
@@ -48,10 +44,10 @@ export default function WorkoutPlansPage() {
           aria-modal="true"
           aria-labelledby="create-plan-title"
         >
-          <div className="w-full max-w-md rounded-lg border border-[var(--color-border)] bg-[var(--color-surface)] p-6">
+          <div className="w-full max-w-md rounded-lg border border-border bg-surface p-6">
             <h2
               id="create-plan-title"
-              className="text-lg font-semibold text-[var(--color-text-primary)]"
+              className="text-lg font-semibold text-text-primary"
             >
               Novo plano de treino
             </h2>
@@ -59,7 +55,7 @@ export default function WorkoutPlansPage() {
               <div>
                 <label
                   htmlFor="plan-name"
-                  className="block text-sm font-medium text-[var(--color-text-secondary)]"
+                  className="block text-sm font-medium text-text-secondary"
                 >
                   Nome
                 </label>
@@ -69,21 +65,21 @@ export default function WorkoutPlansPage() {
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
                   required
-                  className="mt-1 w-full rounded-md border border-[var(--color-border)] bg-[var(--color-background)] px-3 py-2 text-[var(--color-text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]"
+                  className="mt-1 w-full rounded-md border border-border bg-background px-3 py-2 text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
                 />
               </div>
               <div className="flex justify-end gap-2">
                 <button
                   type="button"
                   onClick={() => setCreateOpen(false)}
-                  className="rounded-md border border-[var(--color-border)] px-4 py-2 text-sm text-[var(--color-text-primary)] hover:bg-[var(--color-border)]"
+                  className="rounded-md border border-border px-4 py-2 text-sm text-text-primary hover:bg-border"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={createPlan.isPending}
-                  className="rounded-md bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-[var(--color-background)] hover:bg-[var(--color-primary-dark)] disabled:opacity-50"
+                  className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-background hover:bg-primary-dark disabled:opacity-50"
                 >
                   {createPlan.isPending ? "Criando..." : "Criar"}
                 </button>
@@ -94,21 +90,18 @@ export default function WorkoutPlansPage() {
       )}
 
       {error && (
-        <p className="mt-4 text-[var(--color-danger)]">
+        <p className="mt-4 text-danger">
           Erro ao carregar planos. Tente novamente.
         </p>
       )}
       {isLoading ? (
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="h-28 animate-pulse rounded-lg bg-[var(--color-surface)]"
-            />
+            <Skeleton key={i} className="h-28 rounded-lg" />
           ))}
         </div>
       ) : plans.length === 0 ? (
-        <p className="mt-6 text-[var(--color-text-secondary)]">
+        <p className="mt-6 text-text-secondary">
           Nenhum plano ainda. Clique em &quot;Novo plano&quot; para criar.
         </p>
       ) : (

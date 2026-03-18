@@ -1,68 +1,44 @@
 "use client";
 
 import { useSearchParams, useRouter } from "next/navigation";
-import { Suspense, useState, useEffect } from "react";
+import { useEffect } from "react";
 import Link from "next/link";
-import { apiClient } from "@/lib/api/client";
+import { PageSuspense } from "@/components/layout/PageSuspense";
+import { Spinner } from "@/components/ui/Spinner";
+import { useAcceptInvite } from "@/lib/hooks/use-accept-invite";
 
 function AcceptInviteContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const token = searchParams.get("token");
-  const [status, setStatus] = useState<
-    "idle" | "loading" | "success" | "error"
-  >("idle");
-  const [message, setMessage] = useState<string>("");
+  const {
+    mutate: acceptInvite,
+    isPending,
+    isSuccess,
+    isError,
+    data,
+    error,
+  } = useAcceptInvite();
 
   useEffect(() => {
-    if (!token) {
-      setStatus("error");
-      setMessage("Token de convite não informado.");
-      return;
-    }
+    if (!token) return;
+    acceptInvite(token);
+  }, [token, acceptInvite]);
 
-    let cancelled = false;
-    setStatus("loading");
+  useEffect(() => {
+    if (!isSuccess || !data?.ok) return;
+    const t = setTimeout(() => router.push("/dashboard"), 2000);
+    return () => clearTimeout(t);
+  }, [isSuccess, data, router]);
 
-    async function accept() {
-      try {
-        const ptRes = await apiClient
-          .post("/api/pt/invites/accept", { token })
-          .catch(() => null);
-        if (cancelled) return;
-        if (ptRes?.status === 200) {
-          setStatus("success");
-          setMessage("Convite aceito! Redirecionando...");
-          setTimeout(() => router.push("/dashboard"), 2000);
-          return;
-        }
-
-        const gymRes = await apiClient
-          .post("/api/gym/accept-invite", { token })
-          .catch(() => null);
-        if (cancelled) return;
-        if (gymRes?.status === 200) {
-          setStatus("success");
-          setMessage("Convite da academia aceito! Redirecionando...");
-          setTimeout(() => router.push("/dashboard"), 2000);
-          return;
-        }
-
-        setStatus("error");
-        setMessage("Convite inválido ou expirado.");
-      } catch {
-        if (!cancelled) {
-          setStatus("error");
-          setMessage("Erro ao aceitar convite. Tente novamente.");
-        }
-      }
-    }
-
-    accept();
-    return () => {
-      cancelled = true;
-    };
-  }, [token, router]);
+  const hasError = !token ? true : isError || (isSuccess && data && !data.ok);
+  const errorMessage = !token
+    ? "Token de convite não informado."
+    : data && !data.ok
+      ? data.error
+      : error instanceof Error
+        ? error.message
+        : "Erro ao aceitar convite. Tente novamente.";
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
@@ -70,23 +46,30 @@ function AcceptInviteContent() {
         <h1 className="text-xl font-bold text-primary">
           M. Move — Aceitar convite
         </h1>
-        {status === "loading" && (
-          <p className="mt-4 text-text-secondary">Processando convite...</p>
+        {isPending && (
+          <div className="mt-4 flex justify-center">
+            <Spinner size="lg" label="Processando convite..." />
+          </div>
         )}
-        {status === "success" && <p className="mt-4 text-success">{message}</p>}
-        {status === "error" && (
+        {isSuccess && data?.ok && (
+          <p className="mt-4 text-success">
+            {data.source === "pt"
+              ? "Convite aceito! Redirecionando..."
+              : "Convite da academia aceito! Redirecionando..."}
+          </p>
+        )}
+        {hasError && !isPending && (
           <>
-            <p className="mt-4 text-danger">{message}</p>
-            <Link
-              href="/login"
-              className="mt-4 inline-block text-primary hover:underline"
-            >
-              Ir para login
-            </Link>
+            <p className="mt-4 text-danger">{errorMessage}</p>
+            {token && (
+              <Link
+                href="/login"
+                className="mt-4 inline-block text-primary hover:underline"
+              >
+                Ir para login
+              </Link>
+            )}
           </>
-        )}
-        {status === "idle" && token && (
-          <p className="mt-4 text-text-secondary">Aguarde...</p>
         )}
       </div>
     </div>
@@ -95,14 +78,8 @@ function AcceptInviteContent() {
 
 export default function AcceptInvitePage() {
   return (
-    <Suspense
-      fallback={
-        <div className="flex items-center justify-center h-screen">
-          <div className="w-10 h-10 border-t-transparent border-b-transparent border-r-transparent border-l-transparent border-2 border-primary rounded-full animate-spin"></div>
-        </div>
-      }
-    >
+    <PageSuspense fallbackLabel="Carregando...">
       <AcceptInviteContent />
-    </Suspense>
+    </PageSuspense>
   );
 }

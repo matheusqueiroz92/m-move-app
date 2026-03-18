@@ -12,25 +12,55 @@
   --color-danger: #ef4444;
   --color-text-primary: #fafafa;
   --color-text-secondary: #a1a1aa;
-  /* ShadCN semantic tokens (mapped to design system) */
-  --background: #0a0a0b;
-  --foreground: #fafafa;
-  --primary: #a3e635;
-  --primary-foreground: #0a0a0b;
-  --muted: #141416;
-  --muted-foreground: #a1a1aa;
-  --accent: #141416;
-  --accent-foreground: #fafafa;
-  --destructive: #ef4444;
-  --border: #27272a;
-  --input: #27272a;
-  --ring: #a3e635;
+
+  /*
+   * ShadCN + Tailwind v4 usam `--color-*` para classes utilitárias
+   * como `bg-card`, `text-foreground`, `border-border`, etc.
+   *
+   * Aqui nós mapeamos os tokens ShadCN para o design system do M. Move,
+   * sem “trocar a paleta” — só garantindo que as classes do ShadCN
+   * resolvam para as cores corretas.
+   */
+  --color-foreground: var(--color-text-primary);
+  --color-muted-foreground: var(--color-text-secondary);
+
+  --color-card: var(--color-surface);
+  --color-card-foreground: var(--color-text-primary);
+  --color-popover: var(--color-surface);
+  --color-popover-foreground: var(--color-text-primary);
+
+  --color-primary-foreground: var(--color-background);
+  --color-secondary: var(--color-border);
+  --color-secondary-foreground: var(--color-text-primary);
+
+  --color-muted: var(--color-surface);
+  --color-accent: var(--color-surface);
+  --color-accent-foreground: var(--color-text-primary);
+
+  --color-destructive: var(--color-danger);
+  --color-destructive-foreground: var(--color-text-primary);
+
+  --color-input: var(--color-border);
+  --color-ring: var(--color-primary);
+
+  /* Radius usado pelos componentes ShadCN */
   --radius: 0.5rem;
 }
 
 :root {
+  /* Compat: alguns componentes usam vars sem `--color-*` */
   --background: var(--color-background);
   --foreground: var(--color-text-primary);
+  --card: var(--color-surface);
+  --card-foreground: var(--color-text-primary);
+  --muted: var(--color-surface);
+  --muted-foreground: var(--color-text-secondary);
+  --accent: var(--color-surface);
+  --accent-foreground: var(--color-text-primary);
+  --border: var(--color-border);
+  --input: var(--color-border);
+  --ring: var(--color-primary);
+  --destructive: var(--color-danger);
 }
 
 html {
@@ -43,12 +73,13 @@ body {
   overflow-x: hidden;
   color: var(--foreground);
   background: var(--background);
+  margin: 0;
 }
 
-* {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
-  padding: 0;
-  margin: 0;
 }
 
 a {

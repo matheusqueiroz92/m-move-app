@@ -1,3 +1,5 @@
+/* eslint-env node */
+/* global process */
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   async rewrites() {

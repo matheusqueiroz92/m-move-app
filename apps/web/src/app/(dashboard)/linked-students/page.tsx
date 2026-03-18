@@ -1,10 +1,10 @@
 export default function LinkedStudentsPage() {
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold text-[var(--color-text-primary)]">
+      <h1 className="text-2xl font-bold text-text-primary">
         Alunos Vinculados
       </h1>
-      <p className="mt-2 text-[var(--color-text-secondary)]">
+      <p className="mt-2 text-text-secondary">
         Convites e alunos vinculados (em breve).
       </p>
     </div>

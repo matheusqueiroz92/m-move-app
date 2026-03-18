@@ -3,23 +3,50 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "@/lib/hooks/use-auth";
+import {
+  registerFormSchema,
+  type RegisterFormValues,
+} from "@/lib/schemas/auth";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 
 export default function RegisterPage() {
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const { signUpWithEmail, signInWithSocial } = useAuth();
   const router = useRouter();
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  const form = useForm<RegisterFormValues>({
+    resolver: zodResolver(registerFormSchema),
+    defaultValues: { name: "", email: "", password: "" },
+  });
+
+  const isSubmitting = form.formState.isSubmitting;
+
+  async function onSubmit(values: RegisterFormValues) {
     setError(null);
-    setIsSubmitting(true);
-    const result = await signUpWithEmail(email, password, name);
-    setIsSubmitting(false);
+    const result = await signUpWithEmail(
+      values.email,
+      values.password,
+      values.name,
+    );
     if (result.ok) {
       router.push("/dashboard");
     } else {
@@ -29,93 +56,95 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
-      <div className="w-full max-w-sm space-y-6">
-        <h1 className="text-2xl font-bold text-primary text-center">M. Move</h1>
-        <h2 className="text-xl font-semibold text-text-primary text-center">
-          Cadastro
-        </h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {error && (
-            <p className="text-sm text-danger" role="alert">
-              {error}
-            </p>
-          )}
-          <div>
-            <label
-              htmlFor="name"
-              className="block text-sm font-medium text-text-secondary mb-1"
-            >
-              Nome
-            </label>
-            <input
-              id="name"
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              autoComplete="name"
-              className="w-full rounded-md border border-border bg-surface px-3 py-2 text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-text-secondary mb-1"
-            >
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              autoComplete="email"
-              className="w-full rounded-md border border-border bg-surface px-3 py-2 text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-text-secondary mb-1"
-            >
-              Senha
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={8}
-              autoComplete="new-password"
-              className="w-full rounded-md border border-border bg-surface px-3 py-2 text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full rounded-md bg-primary py-2 px-4 font-medium text-background hover:bg-primary-dark disabled:opacity-50"
-          >
-            {isSubmitting ? "Cadastrando..." : "Cadastrar"}
-          </button>
-        </form>
-        <div className="space-y-2">
-          <button
+      <Card className="w-full max-w-sm border-border">
+        <CardHeader className="space-y-1 text-center">
+          <CardTitle className="text-2xl text-primary">M. Move</CardTitle>
+          <CardDescription className="text-foreground">
+            Cadastro
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              {error && (
+                <p className="text-sm text-destructive" role="alert">
+                  {error}
+                </p>
+              )}
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Nome</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="Seu nome"
+                        autoComplete="name"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="email"
+                        placeholder="seu@email.com"
+                        autoComplete="email"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Senha</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="password"
+                        placeholder="Mínimo 8 caracteres"
+                        autoComplete="new-password"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
+                {isSubmitting ? "Cadastrando..." : "Cadastrar"}
+              </Button>
+            </form>
+          </Form>
+          <Button
             type="button"
+            variant="outline"
+            className="w-full"
             onClick={() => signInWithSocial("google")}
-            className="w-full rounded-md border border-border bg-surface py-2 px-4 text-text-primary hover:bg-border"
           >
             Continuar com Google
-          </button>
-        </div>
-        <p className="text-center text-sm text-text-secondary">
-          Já tem conta?{" "}
-          <Link href="/login" className="text-primary hover:underline">
-            Entrar
-          </Link>
-        </p>
-      </div>
+          </Button>
+          <p className="text-center text-sm text-muted-foreground">
+            Já tem conta?{" "}
+            <Link href="/login" className="text-primary hover:underline">
+              Entrar
+            </Link>
+          </p>
+        </CardContent>
+      </Card>
     </div>
   );
 }
