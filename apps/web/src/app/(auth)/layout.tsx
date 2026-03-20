@@ -29,13 +29,13 @@ export default function AuthLayout({
         <main className="flex flex-1 overflow-auto">{children}</main>
 
         <p className="mt-6 text-center text-xs text-muted-foreground">
-          <Link href="#">
+          <Link href="/terms">
             <span className="text-muted-foreground hover:text-foreground">
               Termos de uso
             </span>
           </Link>
           <span className="mx-2 text-muted-foreground">·</span>
-          <Link href="#">
+          <Link href="/privacy">
             <span className="text-muted-foreground hover:text-foreground">
               Política de privacidade
             </span>
