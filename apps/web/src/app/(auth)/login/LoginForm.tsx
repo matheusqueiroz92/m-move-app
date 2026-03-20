@@ -116,16 +116,9 @@ export function LoginForm() {
                 name="password"
                 render={({ field }) => (
                   <FormItem className="space-y-2">
-                    <div className="flex items-center justify-between gap-2">
-                      <FormLabel className="text-sm font-medium text-foreground">
-                        Senha
-                      </FormLabel>
-                      <Link href="/forgot-password">
-                        <span className="text-xs font-medium text-primary hover:underline">
-                          Esqueceu a senha?
-                        </span>
-                      </Link>
-                    </div>
+                    <FormLabel className="text-sm font-medium text-foreground">
+                      Senha
+                    </FormLabel>
                     <FormControl>
                       <div className="relative">
                         <Lock
@@ -159,10 +152,15 @@ export function LoginForm() {
                   </FormItem>
                 )}
               />
+              <Link href="/forgot-password">
+                <span className="text-xs font-medium text-primary hover:underline">
+                  Esqueceu a senha?
+                </span>
+              </Link>
               <Button
                 type="submit"
                 size="lg"
-                className="w-full text-base font-semibold cursor-pointer hover:scale-102 transition-all duration-300 shadow-primary"
+                className="w-full text-base font-semibold cursor-pointer hover:scale-102 transition-all duration-300 shadow-primary mt-4"
                 disabled={isSubmitting}
               >
                 {isSubmitting ? (
@@ -220,20 +218,6 @@ export function LoginForm() {
           </p>
         </CardContent>
       </Card>
-
-      <p className="mt-6 text-center text-xs text-muted-foreground">
-        <Link href="#">
-          <span className="text-muted-foreground hover:text-foreground">
-            Termos de uso
-          </span>
-        </Link>
-        <span className="mx-2 text-muted-foreground">·</span>
-        <Link href="#">
-          <span className="text-muted-foreground hover:text-foreground">
-            Política de privacidade
-          </span>
-        </Link>
-      </p>
     </div>
   );
 }

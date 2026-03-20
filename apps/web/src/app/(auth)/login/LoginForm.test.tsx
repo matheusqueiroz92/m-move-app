@@ -25,7 +25,9 @@ describe("LoginForm", () => {
 
   it("shows email and password fields and submit button", () => {
     render(<LoginForm />);
-    expect(screen.getByPlaceholderText("voce@exemplo.com")).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText("email@exemplo.com"),
+    ).toBeInTheDocument();
     expect(screen.getByPlaceholderText("••••••••")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /entrar/i })).toBeInTheDocument();
   });
@@ -36,7 +38,7 @@ describe("LoginForm", () => {
         new Promise((resolve) => setTimeout(() => resolve({ ok: true }), 50)),
     );
     render(<LoginForm />);
-    const email = screen.getByPlaceholderText("voce@exemplo.com");
+    const email = screen.getByPlaceholderText("email@exemplo.com");
     const password = screen.getByPlaceholderText("••••••••");
     const submit = screen.getByRole("button", { name: /entrar/i });
 
@@ -53,7 +55,7 @@ describe("LoginForm", () => {
   it("redirects on successful login", async () => {
     mockSignInWithEmail.mockResolvedValue({ ok: true });
     render(<LoginForm />);
-    fireEvent.change(screen.getByPlaceholderText("voce@exemplo.com"), {
+    fireEvent.change(screen.getByPlaceholderText("email@exemplo.com"), {
       target: { value: "a@b.com" },
     });
     fireEvent.change(screen.getByPlaceholderText("••••••••"), {
@@ -70,7 +72,7 @@ describe("LoginForm", () => {
       error: "Credenciais inválidas",
     });
     render(<LoginForm />);
-    fireEvent.change(screen.getByPlaceholderText("voce@exemplo.com"), {
+    fireEvent.change(screen.getByPlaceholderText("email@exemplo.com"), {
       target: { value: "a@b.com" },
     });
     fireEvent.change(screen.getByPlaceholderText("••••••••"), {

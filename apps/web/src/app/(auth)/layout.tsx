@@ -9,7 +9,7 @@ export default function AuthLayout({
 }>) {
   return (
     <div className="flex min-h-screen w-full bg-background">
-      <div className="relative hidden w-[60%] min-w-[320px] shrink-0 overflow-hidden lg:flex lg:flex-col">
+      <div className="relative hidden w-[50%] min-w-[320px] shrink-0 overflow-hidden lg:flex lg:flex-col">
         <Image
           src="/images/image-login.webp"
           alt="Background login image"
@@ -25,10 +25,24 @@ export default function AuthLayout({
         />
       </div>
 
-      <div className="flex flex-1 flex-col min-w-0">
+      <div className="flex flex-1 flex-col min-w-0 items-center">
         <main className="flex flex-1 overflow-auto">{children}</main>
 
-        <footer className="border-t border-border py-8">
+        <p className="mt-6 text-center text-xs text-muted-foreground">
+          <Link href="#">
+            <span className="text-muted-foreground hover:text-foreground">
+              Termos de uso
+            </span>
+          </Link>
+          <span className="mx-2 text-muted-foreground">·</span>
+          <Link href="#">
+            <span className="text-muted-foreground hover:text-foreground">
+              Política de privacidade
+            </span>
+          </Link>
+        </p>
+
+        <footer className="border-t flex justify-center w-[450] border-border py-8">
           <div className="mx-auto max-w-6xl px-4 text-center text-sm text-muted-foreground">
             {new Date().getFullYear()} © Desenvolvido por{" "}
             {

@@ -26,6 +26,7 @@ import {
   type ForgotPasswordFormValues,
 } from "@/lib/schemas/auth";
 import { useForgotPassword } from "@/lib/hooks/use-forgot-password";
+import Image from "next/image";
 
 export default function ForgotPasswordForm() {
   const {
@@ -57,15 +58,25 @@ export default function ForgotPasswordForm() {
         : null;
 
   return (
-    <div className="flex w-full flex-1 flex-col items-center justify-center p-4">
-      <Card className="w-full max-w-sm border-border">
-        <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-2xl text-primary">M. Move</CardTitle>
-          <CardDescription className="text-foreground">
-            Recuperar senha
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
+    <div className="flex w-full flex-1 flex-col items-center justify-center px-4 py-6 sm:px-8">
+      <Card className="w-full max-w-md rounded-2xl shadow-lg">
+        <CardContent className="space-y-4 px-8 py-6 sm:px-12 sm:py-10">
+          <div className="flex flex-col items-center space-y-4 mb-10 text-center">
+            <Image
+              src="/images/logo-m-move.png"
+              alt="M. MOVE"
+              width={200}
+              height={200}
+            />
+            <div className="space-y-2">
+              <CardTitle className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
+                Recuperar senha
+              </CardTitle>
+              <CardDescription className="text-base text-muted-foreground">
+                Digite seu e-mail para receber um link de recuperação de senha.
+              </CardDescription>
+            </div>
+          </div>
           {sent ? (
             <p className="text-center text-sm text-muted-foreground">
               Se existir uma conta com esse email, você receberá um link para
@@ -114,8 +125,10 @@ export default function ForgotPasswordForm() {
             </Form>
           )}
           <p className="text-center text-sm text-muted-foreground">
-            <Link href="/login" className="text-primary hover:underline">
-              Voltar ao login
+            <Link href="/register">
+              <span className="text-primary hover:underline">
+                Voltar ao login
+              </span>
             </Link>
           </p>
         </CardContent>

@@ -16,7 +16,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import {
@@ -27,10 +26,13 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import Image from "next/image";
+import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 
 export default function RegisterForm() {
   const [error, setError] = useState<string | null>(null);
-  const { signUpWithEmail, signInWithSocial } = useAuth();
+  const { signUpWithEmail } = useAuth();
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
   const form = useForm<RegisterFormValues>({
@@ -55,15 +57,27 @@ export default function RegisterForm() {
   }
 
   return (
-    <div className="flex w-full flex-1 flex-col items-center justify-center p-4">
-      <Card className="w-full max-w-sm border-border">
-        <CardHeader className="space-y-1 text-center">
-          <CardTitle className="text-2xl text-primary">M. Move</CardTitle>
-          <CardDescription className="text-foreground">
-            Cadastro
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
+    <div className="flex w-full flex-1 flex-col items-center justify-center px-4 py-6 sm:px-8">
+      <Card className="w-full max-w-md rounded-2xl shadow-lg">
+        <CardContent className="space-y-4 px-8 py-6 sm:px-12 sm:py-10">
+          <div className="flex flex-col items-center space-y-4 mb-10 text-center">
+            <Image
+              src="/images/logo-m-move.png"
+              alt="M. MOVE"
+              width={200}
+              height={200}
+            />
+            <div className="space-y-2">
+              <CardTitle className="text-xl font-bold tracking-tight text-foreground sm:text-2xl">
+                Cadastre-se
+              </CardTitle>
+              <CardDescription className="text-base text-muted-foreground">
+                Descubra como a plataforma pode ajudar você a alcançar seus
+                objetivos.
+              </CardDescription>
+            </div>
+          </div>
+
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               {error && (
@@ -92,15 +106,24 @@ export default function RegisterForm() {
                 control={form.control}
                 name="email"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
+                  <FormItem className="space-y-1">
+                    <FormLabel className="text-sm font-medium text-foreground">
+                      E-mail
+                    </FormLabel>
                     <FormControl>
-                      <Input
-                        type="email"
-                        placeholder="seu@email.com"
-                        autoComplete="email"
-                        {...field}
-                      />
+                      <div className="relative">
+                        <Mail
+                          className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+                          aria-hidden
+                        />
+                        <Input
+                          type="email"
+                          placeholder="email@exemplo.com"
+                          autoComplete="email"
+                          className="pl-9 placeholder:text-muted-foreground"
+                          {...field}
+                        />
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -113,12 +136,33 @@ export default function RegisterForm() {
                   <FormItem>
                     <FormLabel>Senha</FormLabel>
                     <FormControl>
-                      <Input
-                        type="password"
-                        placeholder="Mínimo 8 caracteres"
-                        autoComplete="new-password"
-                        {...field}
-                      />
+                      <div className="relative">
+                        <Lock
+                          className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+                          aria-hidden
+                        />
+                        <Input
+                          type={showPassword ? "text" : "password"}
+                          placeholder="••••••••"
+                          autoComplete="current-password"
+                          className="pl-9 pr-9 placeholder:text-muted-foreground"
+                          {...field}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword((v) => !v)}
+                          className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1.5 text-muted-foreground transition-colors hover:text-foreground"
+                          aria-label={
+                            showPassword ? "Ocultar senha" : "Mostrar senha"
+                          }
+                        >
+                          {showPassword ? (
+                            <EyeOff className="h-4 w-4" />
+                          ) : (
+                            <Eye className="h-4 w-4" />
+                          )}
+                        </button>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -129,18 +173,35 @@ export default function RegisterForm() {
               </Button>
             </form>
           </Form>
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full"
-            onClick={() => signInWithSocial("google")}
-          >
-            Continuar com Google
-          </Button>
+
+          {/* <div className="space-y-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              className="w-full border-border bg-background/80 text-base font-medium hover:bg-muted cursor-pointer"
+              onClick={() => signInWithSocial("google")}
+            >
+              <IconGoogle />
+              Continuar com Google
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              className="w-full border-border bg-background/80 text-base font-medium hover:bg-muted cursor-pointer"
+              onClick={() => signInWithSocial("github")}
+            >
+              <IconGithub />
+              Continuar com GitHub
+            </Button>
+          </div> */}
+
           <p className="text-center text-sm text-muted-foreground">
             Já tem conta?{" "}
-            <Link href="/login" className="text-primary hover:underline">
-              Entrar
+            <Link href="/login">
+              <span className="text-primary hover:underline">Entrar</span>
             </Link>
           </p>
         </CardContent>
