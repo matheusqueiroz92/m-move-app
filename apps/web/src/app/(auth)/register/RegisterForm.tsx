@@ -28,10 +28,11 @@ import {
 } from "@/components/ui/form";
 import Image from "next/image";
 import { Eye, EyeOff, Lock, Mail } from "lucide-react";
+import { IconGoogle } from "@/components/ui/icon-google";
 
 export default function RegisterForm() {
   const [error, setError] = useState<string | null>(null);
-  const { signUpWithEmail } = useAuth();
+  const { signUpWithEmail, signInWithSocial } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
@@ -174,7 +175,7 @@ export default function RegisterForm() {
             </form>
           </Form>
 
-          {/* <div className="space-y-2">
+          <div className="space-y-2">
             <Button
               type="button"
               variant="outline"
@@ -185,8 +186,9 @@ export default function RegisterForm() {
               <IconGoogle />
               Continuar com Google
             </Button>
+          </div>
 
-            <Button
+          {/*<Button
               type="button"
               variant="outline"
               size="lg"

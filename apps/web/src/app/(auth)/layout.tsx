@@ -25,7 +25,7 @@ export default function AuthLayout({
         />
       </div>
 
-      <div className="flex flex-1 flex-col min-w-0 items-center">
+      <div className="flex flex-1 flex-col min-w-0 items-center justify-center">
         <main className="flex flex-1 overflow-auto">{children}</main>
 
         <p className="mt-6 text-center text-xs text-muted-foreground">
@@ -42,7 +42,7 @@ export default function AuthLayout({
           </Link>
         </p>
 
-        <footer className="border-t flex justify-center w-[450] border-border py-8">
+        <footer className="border-t flex justify-center w-[450] border-border py-2">
           <div className="mx-auto max-w-6xl px-4 text-center text-sm text-muted-foreground">
             {new Date().getFullYear()} © Desenvolvido por{" "}
             {

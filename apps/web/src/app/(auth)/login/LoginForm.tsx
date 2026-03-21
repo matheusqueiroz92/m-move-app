@@ -24,9 +24,11 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Checkbox } from "@/components/ui/checkbox";
 import Image from "next/image";
 import { IconGoogle } from "@/components/ui/icon-google";
-import { IconGithub } from "@/components/ui/icon-github";
+// import { IconGithub } from "@/components/ui/icon-github";
+import { Label } from "@/components/ui/label";
 
 export function LoginForm() {
   const [error, setError] = useState<string | null>(null);
@@ -56,8 +58,8 @@ export function LoginForm() {
   return (
     <div className="flex w-full flex-1 flex-col items-center justify-center px-4 py-6 sm:px-8">
       <Card className="w-full max-w-md rounded-2xl shadow-lg">
-        <CardContent className="space-y-4 px-8 py-6 sm:px-12 sm:py-10">
-          <div className="flex flex-col items-center space-y-4 mb-10 text-center">
+        <CardContent className="space-y-4 px-8 py-6 sm:px-12 sm:py-8">
+          <div className="flex flex-col items-center space-y-4 mb-8 text-center">
             <Image
               src="/images/logo-m-move.png"
               alt="M. MOVE"
@@ -69,7 +71,7 @@ export function LoginForm() {
                 Bem-vindo de volta
               </CardTitle>
               <CardDescription className="text-base text-muted-foreground">
-                Entre para continuar sua jornada fitness.
+                Entre para continuar
               </CardDescription>
             </div>
           </div>
@@ -115,7 +117,7 @@ export function LoginForm() {
                 control={form.control}
                 name="password"
                 render={({ field }) => (
-                  <FormItem className="space-y-2">
+                  <FormItem className="space-y-1">
                     <FormLabel className="text-sm font-medium text-foreground">
                       Senha
                     </FormLabel>
@@ -152,11 +154,17 @@ export function LoginForm() {
                   </FormItem>
                 )}
               />
-              <Link href="/forgot-password">
-                <span className="text-xs font-medium text-primary hover:underline">
-                  Esqueceu a senha?
-                </span>
-              </Link>
+              <div className="flex items-center gap-2 justify-between">
+                <div className="flex items-center gap-2">
+                  <Checkbox id="remember" />
+                  <Label htmlFor="remember">Lembrar-me</Label>
+                </div>
+                <Link href="/forgot-password">
+                  <span className="text-xs font-medium text-primary hover:underline">
+                    Esqueceu a senha?
+                  </span>
+                </Link>
+              </div>
               <Button
                 type="submit"
                 size="lg"
@@ -198,7 +206,7 @@ export function LoginForm() {
               Continuar com Google
             </Button>
 
-            <Button
+            {/* <Button
               type="button"
               variant="outline"
               size="lg"
@@ -207,7 +215,7 @@ export function LoginForm() {
             >
               <IconGithub />
               Continuar com GitHub
-            </Button>
+            </Button> */}
           </div>
 
           <p className="text-center text-sm text-muted-foreground">
