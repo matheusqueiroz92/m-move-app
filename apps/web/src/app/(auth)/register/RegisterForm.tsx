@@ -73,8 +73,7 @@ export default function RegisterForm() {
                 Cadastre-se
               </CardTitle>
               <CardDescription className="text-base text-muted-foreground">
-                Descubra como a plataforma pode ajudar você a alcançar seus
-                objetivos.
+                Crie sua conta para começar a usar a plataforma.
               </CardDescription>
             </div>
           </div>
@@ -175,6 +174,17 @@ export default function RegisterForm() {
             </form>
           </Form>
 
+          <div className="relative py-1">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t border-border" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase tracking-wide">
+              <span className="bg-card px-3 text-muted-foreground">
+                Ou continue com
+              </span>
+            </div>
+          </div>
+
           <div className="space-y-2">
             <Button
               type="button"
@@ -187,18 +197,6 @@ export default function RegisterForm() {
               Continuar com Google
             </Button>
           </div>
-
-          {/*<Button
-              type="button"
-              variant="outline"
-              size="lg"
-              className="w-full border-border bg-background/80 text-base font-medium hover:bg-muted cursor-pointer"
-              onClick={() => signInWithSocial("github")}
-            >
-              <IconGithub />
-              Continuar com GitHub
-            </Button>
-          </div> */}
 
           <p className="text-center text-sm text-muted-foreground">
             Já tem conta?{" "}
