@@ -90,7 +90,7 @@ export function LoginForm() {
                 control={form.control}
                 name="email"
                 render={({ field }) => (
-                  <FormItem className="space-y-1">
+                  <FormItem>
                     <FormLabel className="text-sm font-medium text-foreground">
                       E-mail
                     </FormLabel>
@@ -117,7 +117,7 @@ export function LoginForm() {
                 control={form.control}
                 name="password"
                 render={({ field }) => (
-                  <FormItem className="space-y-1">
+                  <FormItem>
                     <FormLabel className="text-sm font-medium text-foreground">
                       Senha
                     </FormLabel>
