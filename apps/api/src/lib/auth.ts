@@ -2,7 +2,9 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { bearer, openAPI } from "better-auth/plugins";
 
+import { ResendEmailProvider } from "../infrastructure/providers/resend-email-provider.js";
 import { prisma } from "./db.js";
+import { executeBetterAuthPasswordResetEmail } from "./email/execute-better-auth-password-reset-email.js";
 import { env } from "./env.js";
 
 const THIRTY_DAYS_SECONDS = 60 * 60 * 24 * 30;
@@ -16,6 +18,18 @@ export const auth = betterAuth({
   },
   emailAndPassword: {
     enabled: true,
+    sendResetPassword: async ({ user, url }) => {
+      await executeBetterAuthPasswordResetEmail(
+        { user, url },
+        {
+          resendApiKey: env.RESEND_API_KEY,
+          apiBaseUrl: env.API_BASE_URL,
+          webAppBaseUrl: env.WEB_APP_BASE_URL,
+          resendFromOverride: env.RESEND_FROM_EMAIL,
+          createEmailSender: (key) => new ResendEmailProvider(key),
+        },
+      );
+    },
   },
   socialProviders: {
     ...(env.GITHUB_CLIENT_ID &&

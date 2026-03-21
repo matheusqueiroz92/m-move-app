@@ -19,6 +19,13 @@ const envSchema = z
     WEB_APP_BASE_URL: z.url().optional(),
     STRIPE_SECRET_KEY: z.string().optional(),
     STRIPE_WEBHOOK_SECRET: z.string().optional(),
+    /** Resend — envio de e-mails (ex.: reset de senha). */
+    RESEND_API_KEY: z.string().optional(),
+    /**
+     * Remetente explícito (ex.: domínio verificado no Resend).
+     * Se vazio, usa `no-reply@<hostname de WEB_APP_BASE_URL>`.
+     */
+    RESEND_FROM_EMAIL: z.string().optional(),
     NODE_ENV: z
       .enum(["development", "production", "test"])
       .default("development"),
@@ -27,22 +34,16 @@ const envSchema = z
       .default("info"),
   })
   .refine(
-    (data) =>
-      data.NODE_ENV !== "test" || Boolean(data.TEST_DATABASE_URL),
+    (data) => data.NODE_ENV !== "test" || Boolean(data.TEST_DATABASE_URL),
     {
-      message:
-        "TEST_DATABASE_URL is required when NODE_ENV is test",
+      message: "TEST_DATABASE_URL is required when NODE_ENV is test",
       path: ["TEST_DATABASE_URL"],
-    }
+    },
   )
-  .refine(
-    (data) =>
-      data.NODE_ENV === "test" || Boolean(data.DATABASE_URL),
-    {
-      message: "DATABASE_URL is required when NODE_ENV is not test",
-      path: ["DATABASE_URL"],
-    }
-  )
+  .refine((data) => data.NODE_ENV === "test" || Boolean(data.DATABASE_URL), {
+    message: "DATABASE_URL is required when NODE_ENV is not test",
+    path: ["DATABASE_URL"],
+  })
   .refine(
     (data) =>
       data.NODE_ENV === "test" ||
@@ -54,7 +55,7 @@ const envSchema = z
     {
       message:
         "BETTER_AUTH_SECRET, GOOGLE_*, GOOGLE_GENERATIVE_AI_API_KEY and WEB_APP_BASE_URL are required when NODE_ENV is not test",
-    }
+    },
   );
 
 export const env = envSchema.parse(process.env);

@@ -23,6 +23,7 @@ export default defineConfig({
         "src/domain/**",
         "src/interface/http/**",
         "src/infrastructure/**",
+        "src/lib/**",
       ],
       exclude: [
         "**/*.spec.ts",

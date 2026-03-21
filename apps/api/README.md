@@ -41,7 +41,7 @@ apps/api/src/
 ├── infrastructure/            # Implementações concretas
 │   ├── cache/                 # InMemoryUserProfileCache
 │   ├── database/prisma/       # Repositories, mappers
-│   └── providers/             # Stripe, OpenAI
+│   └── providers/             # Stripe, OpenAI, Resend (e-mail)
 ├── interface/http/            # Camada de entrada HTTP
 │   ├── controllers/
 │   ├── middlewares/           # authenticate, requireRole, requireNotLinkedStudent, ai-chat-rate-limit
@@ -131,6 +131,11 @@ GITHUB_CLIENT_SECRET=
 STRIPE_SECRET_KEY=
 STRIPE_WEBHOOK_SECRET=
 
+# Resend (e-mail transacional — reset de senha via Better Auth)
+RESEND_API_KEY=
+# Opcional: remetente verificado no Resend. Se vazio, usa no-reply@<hostname de WEB_APP_BASE_URL>
+RESEND_FROM_EMAIL=
+
 # OpenAI
 OPENAI_API_KEY=
 ```
@@ -138,6 +143,7 @@ OPENAI_API_KEY=
 - **`LOG_LEVEL`**: `trace` | `debug` | `info` | `warn` | `error` (default: `info`)
 - **`TEST_DATABASE_URL`**: obrigatório para testes (`NODE_ENV=test`)
 - `OPENAI_API_KEY` e `STRIPE_SECRET_KEY`/`STRIPE_WEBHOOK_SECRET` são opcionais: endpoints que dependem delas retornam **503** quando não configuradas
+- **`RESEND_API_KEY`**: obrigatória para enviar o e-mail de **redefinição de senha** (`request-password-reset`). Sem ela, a API retorna erro ao solicitar o reset. Em produção, verifique um domínio no Resend e use `RESEND_FROM_EMAIL` ou o padrão `no-reply@<seu-dominio>`
 
 ### Banco de testes com Docker
 
